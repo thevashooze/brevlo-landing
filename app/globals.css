@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --neon: #a855f7;
+  --neon-dim: #7c3aed;
+  --bg: #0a0a0b;
+  --surface: #111114;
+  --border: #1f1f23;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: #ffffff;
+  font-family: 'Oswald', sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--neon);
+  color: #fff;
+}
+
+/* Pause marquee on hover */
+.marquee-track:hover > * {
+  animation-play-state: paused;
+}
