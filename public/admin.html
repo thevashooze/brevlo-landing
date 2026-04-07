@@ -370,6 +370,10 @@
         <div class="nav-item" onclick="switchTab('ledger')" id="nav-ledger">
           <span class="nav-icon">≡</span> Ledger
         </div>
+        <div class="nav-group-label" style="margin-top:16px">System</div>
+        <div class="nav-item" onclick="switchTab('support')" id="nav-support">
+          <span class="nav-icon">◎</span> Support <span class="nav-badge" id="support-badge" style="display:none">0</span>
+        </div>
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -485,6 +489,21 @@
             <tbody id="ledgerBody"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- SUPPORT TICKETS -->
+      <div class="panel" id="panel-support">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div class="section-lbl" style="margin-bottom:2px">Support Tickets</div>
+            <div style="font-size:12px;color:var(--text3)">Designer support requests — resolve to close</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <div class="f-pill active" onclick="setTicketFilter('Active')" data-tf="Active">Active</div>
+            <div class="f-pill" onclick="setTicketFilter('Resolved')" data-tf="Resolved">Resolved</div>
+          </div>
+        </div>
+        <div id="ticketList"><div class="empty-state">No support tickets</div></div>
       </div>
 
       <!-- LEAVE REQUESTS -->
@@ -784,7 +803,10 @@ let slaLoop = null;
 /* INIT */
 if (isAdminAuthed()) {
   const savedTab = sessionStorage.getItem('adminTab');
-  if (savedTab && savedTab !== 'orders') switchTab(savedTab);
+  // Panel already pre-switched in IIFE above — just load data for the tab
+  if (savedTab === 'leave') { loadLeaveRequests(); populateGrantDesignerDropdown(); }
+  else if (savedTab === 'financials') loadFinancials();
+  else if (savedTab === 'support') loadAllTickets();
   loadAll();
   setInterval(loadAll, 30000);
 }
@@ -808,7 +830,7 @@ function renderAll() {
 }
 
 /* TABS */
-const tabTitles = { orders:'Orders', workload:'Workload', designers:'Designers', leave:'Leave', financials:'Financials', ledger:'Ledger' };
+const tabTitles = { orders:'Orders', workload:'Workload', designers:'Designers', leave:'Leave', financials:'Financials', ledger:'Ledger', support:'Support' };
 function switchTab(tab) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -819,6 +841,7 @@ function switchTab(tab) {
   sessionStorage.setItem('adminTab', tab);
   if(tab === 'financials') loadFinancials();
   if(tab === 'leave') { loadLeaveRequests(); populateGrantDesignerDropdown(); }
+  if(tab === 'support') loadAllTickets();
 }
 
 /* BADGES */
@@ -1295,10 +1318,9 @@ function setLeaveFilter(f) {
 function renderLeaves() {
   const today = getTodayIST();
   let data;
-  if (leaveFilter === 'all') data = allLeaves;
+  if (leaveFilter === 'all') { data = filterLeavesByDate(allLeaves, leaveDateRange); }
   else if (leaveFilter === 'Expired') data = allLeaves.filter(l => l.end_date < today);
-  else data = allLeaves.filter(l => l.status === leaveFilter && l.end_date >= today);
-  data = filterLeavesByDate(data, leaveDateRange);
+  else data = allLeaves.filter(l => l.status === leaveFilter);
   const el = document.getElementById('leaveList');
   if (!data.length) { el.innerHTML = '<div class="empty-state">No leave requests found</div>'; return; }
   el.innerHTML = '';
@@ -1574,6 +1596,79 @@ async function deleteDesigner(id, name){
   } catch {
     showToast('Failed to delete designer', 'error');
   }
+}
+
+/* SUPPORT TICKETS */
+let allTickets = [], ticketFilter = 'Active';
+
+function setTicketFilter(f) {
+  ticketFilter = f;
+  document.querySelectorAll('[data-tf]').forEach(p => p.classList.toggle('active', p.dataset.tf === f));
+  renderTickets();
+}
+
+async function loadAllTickets() {
+  try {
+    const res = await fetch(`${SERVER_URL}/all-tickets`);
+    allTickets = await res.json();
+    renderTickets();
+    updateSupportBadge();
+  } catch(e) { console.error(e); }
+}
+
+function updateSupportBadge() {
+  const active = allTickets.filter(t => t.status === 'Active').length;
+  const badge = document.getElementById('support-badge');
+  if (badge) { badge.style.display = active ? 'inline-block' : 'none'; badge.innerText = active; }
+}
+
+function renderTickets() {
+  const data = allTickets.filter(t => t.status === ticketFilter);
+  const el = document.getElementById('ticketList');
+  if (!data.length) { el.innerHTML = '<div class="empty-state">No ' + ticketFilter.toLowerCase() + ' tickets</div>'; return; }
+  el.innerHTML = '';
+  data.forEach(t => {
+    const dName = t.designers?.name || '—';
+    const dEmail = t.designers?.email || '';
+    const date = t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN', {timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric'}) : '';
+    const resolvedDate = t.resolved_at ? new Date(t.resolved_at).toLocaleDateString('en-IN', {timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric'}) : '';
+    const div = document.createElement('div');
+    div.className = 'leave-card';
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="lv-pill ${t.status === 'Active' ? 'lv-pending' : 'lv-expired'}">${t.status}</span>
+          <div>
+            <div style="font-size:13px;font-weight:600">${dName}</div>
+            <div style="font-size:11px;color:var(--text3)">${dEmail}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">${t.status === 'Resolved' ? 'Resolved ' + resolvedDate : 'Raised ' + date}</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);margin-bottom:${t.status === 'Active' ? '10px' : t.admin_reply ? '10px' : '0'}">${t.message}</div>
+      ${t.admin_reply ? `<div style="font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:8px;margin-bottom:0"><span style="color:var(--accent);font-weight:600">Reply:</span> ${t.admin_reply}</div>` : ''}
+      ${t.status === 'Active' ? `
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" placeholder="Optional reply…" id="reply-${t.id}" class="sub-input" style="margin:0;flex:1;">
+          <button class="act-btn btn-approve" style="margin:0;padding:8px 16px;white-space:nowrap" onclick="resolveTicket('${t.id}','${dName}')">✓ Resolve</button>
+        </div>` : ''}
+    `;
+    el.appendChild(div);
+  });
+}
+
+async function resolveTicket(ticketId, dName) {
+  const replyEl = document.getElementById('reply-' + ticketId);
+  const reply = replyEl ? replyEl.value.trim() : '';
+  try {
+    const r = await fetch(`${SERVER_URL}/resolve-ticket`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ticketId, adminReply: reply || null })
+    });
+    if (!r.ok) throw new Error();
+    showToast(`Ticket from ${dName} resolved`, 'success');
+    loadAllTickets();
+  } catch { showToast('Failed to resolve ticket', 'error'); }
 }
 </script>
 </body>
