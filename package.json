@@ -8,10 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.3.3",
+    "framer-motion": "^12.38.0",
     "next": "14.2.29",
     "react": "^18",
-    "react-dom": "^18",
-    "@emailjs/browser": "^4.3.3"
+    "react-dom": "^18"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
