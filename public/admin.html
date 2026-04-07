@@ -376,6 +376,12 @@
           <div class="admin-role">Control Centre</div>
         </div>
       </div>
+      <button onclick="adminLogout()" style="width:100%;margin-top:8px;padding:9px 12px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--text2);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,color .15s,border-color .15s;"
+        onmouseover="this.style.background='rgba(239,68,68,0.08)';this.style.borderColor='rgba(239,68,68,0.3)';this.style.color='#ef4444'"
+        onmouseout="this.style.background='transparent';this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log Out
+      </button>
     </div>
   </aside>
 
@@ -670,6 +676,10 @@
 <script src="config.js"></script>
 <script>
 /* AUTH */
+function adminLogout() {
+  localStorage.removeItem('brevlo_admin_auth');
+  location.reload();
+}
 const AUTH_KEY = 'brevlo_admin_auth';
 const AUTH_EXPIRY_MS = 14 * 24 * 60 * 60 * 1000; // 2 weeks
 
