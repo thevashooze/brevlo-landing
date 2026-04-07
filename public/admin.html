@@ -535,12 +535,6 @@
             <div style="font-size:12px;color:var(--text3)">Review and manage designer leave applications</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <div style="display:flex;gap:6px">
-              <div class="f-pill active" onclick="setLeaveFilter('all')" data-lf="all">All</div>
-              <div class="f-pill" onclick="setLeaveFilter('Pending')" data-lf="Pending">Pending</div>
-              <div class="f-pill" onclick="setLeaveFilter('Approved')" data-lf="Approved">Approved</div>
-              <div class="f-pill" onclick="setLeaveFilter('Rejected')" data-lf="Rejected">Rejected</div>
-            </div>
             <div style="display:flex;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
               <button id="leaveDrBtn" onclick="event.stopPropagation();toggleLeaveDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
                 📅 <span id="leaveDrLabel">Lifetime</span> <span style="font-size:9px;opacity:0.5" id="leaveDrArrow">◂</span>
@@ -551,6 +545,13 @@
                 <div class="dr-opt" onclick="setLeaveDateRange('month',event)" data-ldr="month">This Month</div>
                 <div class="dr-opt active-dr" onclick="setLeaveDateRange('today',event)" data-ldr="today">Today</div>
               </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div class="f-pill active" onclick="setLeaveFilter('all')" data-lf="all">All</div>
+              <div class="f-pill" onclick="setLeaveFilter('Pending')" data-lf="Pending">Pending</div>
+              <div class="f-pill" onclick="setLeaveFilter('Approved')" data-lf="Approved">Approved</div>
+              <div class="f-pill" onclick="setLeaveFilter('Rejected')" data-lf="Rejected">Rejected</div>
+              <div class="f-pill" onclick="setLeaveFilter('Expired')" data-lf="Expired">Expired</div>
             </div>
           </div>
         </div>
@@ -1276,17 +1277,20 @@ function setLeaveFilter(f) {
 }
 
 function renderLeaves() {
-  let data = leaveFilter === 'all' ? allLeaves : allLeaves.filter(l => l.status === leaveFilter);
+  const today = getTodayIST();
+  let data;
+  if (leaveFilter === 'all') data = allLeaves;
+  else if (leaveFilter === 'Expired') data = allLeaves.filter(l => l.end_date < today);
+  else data = allLeaves.filter(l => l.status === leaveFilter && l.end_date >= today);
   data = filterLeavesByDate(data, leaveDateRange);
   const el = document.getElementById('leaveList');
   if (!data.length) { el.innerHTML = '<div class="empty-state">No leave requests found</div>'; return; }
   el.innerHTML = '';
-  const today = getTodayIST();
   data.forEach(l => {
     const dName = l.designers?.name || '—';
     const dEmail = l.designers?.email || '';
     const days = Math.round((new Date(l.end_date) - new Date(l.start_date)) / 86400000) + 1;
-    const isExpired = l.status === 'Approved' && l.end_date < today;
+    const isExpired = l.end_date < today;
     const pillClass = isExpired ? 'lv-expired' : `lv-${l.status.toLowerCase()}`;
     const pillLabel = isExpired ? 'Expired' : l.status;
     const div = document.createElement('div');
