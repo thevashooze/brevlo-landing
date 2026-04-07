@@ -535,7 +535,7 @@
             <div style="font-size:12px;color:var(--text3)">Review and manage designer leave applications</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <div style="display:flex;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
+            <div style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
               <button id="leaveDrBtn" onclick="event.stopPropagation();toggleLeaveDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
                 📅 <span id="leaveDrLabel">Today</span> <span style="font-size:9px;opacity:0.5" id="leaveDrArrow">◂</span>
               </button>
@@ -731,6 +731,15 @@ function isAdminAuthed() {
   const sidebarLogo = document.querySelector('.logo-mark img');
   if (sidebarLogo) document.getElementById('loginLogo').src = sidebarLogo.src;
   if (isAdminAuthed()) {
+    const _savedTab = sessionStorage.getItem('adminTab');
+    if (_savedTab && _savedTab !== 'orders') {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const _p = document.getElementById('panel-' + _savedTab);
+      const _n = document.getElementById('nav-' + _savedTab);
+      if (_p) _p.classList.add('active');
+      if (_n) _n.classList.add('active');
+    }
     document.querySelector('.app').style.display = 'flex';
   } else {
     document.getElementById('loginOv').style.display = 'flex';
@@ -1278,6 +1287,8 @@ function updateLeaveBadge() {
 function setLeaveFilter(f) {
   leaveFilter = f;
   document.querySelectorAll('[data-lf]').forEach(p => p.classList.toggle('active', p.dataset.lf === f));
+  const drContainer = document.getElementById('leaveDrContainer');
+  if (drContainer) drContainer.style.display = f === 'all' ? 'flex' : 'none';
   renderLeaves();
 }
 
@@ -1297,7 +1308,7 @@ function renderLeaves() {
     const days = Math.round((new Date(l.end_date) - new Date(l.start_date)) / 86400000) + 1;
     const isExpired = l.end_date < today;
     const pillClass = isExpired ? 'lv-expired' : `lv-${l.status.toLowerCase()}`;
-    const pillLabel = isExpired ? 'Expired' : l.status;
+    const pillLabel = isExpired ? (l.status === 'Rejected' ? 'Rejected & Expired' : 'Expired') : l.status;
     const div = document.createElement('div');
     div.className = `leave-card ${l.status === 'Pending' ? 'pending-card' : ''}`;
     div.innerHTML = `
