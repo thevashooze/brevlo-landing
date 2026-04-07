@@ -1,48 +1,45 @@
 'use client'
 
-// ─────────────────────────────────────────────
-// REPLACE these src values with your actual thumbnail image URLs.
-// Images should be 16:9 ratio (e.g. 640×360px).
-// ─────────────────────────────────────────────
 const thumbnails = [
-  { id: 1, src: null, label: 'Project 01' },
-  { id: 2, src: null, label: 'Project 02' },
-  { id: 3, src: null, label: 'Project 03' },
-  { id: 4, src: null, label: 'Project 04' },
-  { id: 5, src: null, label: 'Project 05' },
+  { id: 1,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/detective%20(3).jpg', label: 'Detective' },
+  { id: 2,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/drag%20race.jpg', label: 'Drag Race' },
+  { id: 3,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/drift%20like%20a%20pro%20roblox.jpg', label: 'Drift Roblox' },
+  { id: 4,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/every%20nationality.jpg', label: 'Every Nationality' },
+  { id: 5,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/fake%20burger%20queen.jpg', label: 'Fake Burger Queen' },
+  { id: 6,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/getting%20rich%20thumbnail.jpg', label: 'Getting Rich' },
+  { id: 7,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/haytale%20game%202.jpg', label: 'Haytale Game' },
+  { id: 8,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/he%20is%20back%20travis%201.jpg', label: 'He Is Back' },
+  { id: 9,  src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/history%20churchill.jpg', label: 'Churchill' },
+  { id: 10, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/living%20in%20bunker%20day%203.jpg', label: 'Living in Bunker' },
+  { id: 11, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/living%20in%20poorest%20city%20no%20text.jpg', label: 'Poorest City' },
+  { id: 12, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/minecraft%20movie.jpg', label: 'Minecraft Movie' },
+  { id: 13, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/robert%20openhiemer.jpg', label: 'Oppenheimer' },
+  { id: 14, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/roblox%20rivals.jpg', label: 'Roblox Rivals' },
+  { id: 15, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/sample%20for%20different%20plot%20cindrella%20story.jpg', label: 'Cinderella' },
+  { id: 16, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/short%20niches%20with%20high.jpg', label: 'Short Niches' },
+  { id: 17, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/spongebob%20patty%20wagon%20great.jpg', label: 'Spongebob' },
+  { id: 18, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/stalin%20assasination%202.jpg', label: 'Stalin' },
+  { id: 19, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/tier%20list%20cypher%201.jpg', label: 'Tier List Cypher' },
+  { id: 20, src: 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/public/portfolio/wowaowoaw.jpg', label: 'Wowaowoaw' },
 ]
 
-// Placeholder gradients for when no image is provided
-const placeholderGradients = [
-  'linear-gradient(135deg, #a855f7, #7c3aed)',
-  'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-  'linear-gradient(135deg, #ec4899, #be185d)',
-  'linear-gradient(135deg, #8b5cf6, #a855f7)',
-  'linear-gradient(135deg, #6366f1, #4f46e5)',
-]
+const row1 = thumbnails.slice(0, 5)
+const row2 = thumbnails.slice(5, 10)
+const row3 = thumbnails.slice(10, 15)
+const row4 = thumbnails.slice(15, 20)
 
-// Duplicate items for seamless infinite loop
-const items = [...thumbnails, ...thumbnails, ...thumbnails, ...thumbnails]
+const makeLoop = (arr) => [...arr, ...arr, ...arr, ...arr]
 
-function ThumbnailCard({ item, index }) {
-  const gradient = placeholderGradients[item.id % placeholderGradients.length]
+function ThumbnailCard({ item }) {
   return (
     <div className="flex-shrink-0 w-72 mx-3 rounded-2xl overflow-hidden border"
       style={{ borderColor: '#1f1f23', aspectRatio: '16/9' }}>
-      {item.src ? (
-        <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full flex items-end p-4" style={{ background: gradient }}>
-          <span className="text-xs font-semibold tracking-widest text-white/70 uppercase">
-            {item.label}
-          </span>
-        </div>
-      )}
+      <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
     </div>
   )
 }
 
-function MarqueeRow({ direction = 'left', speed = 'normal' }) {
+function MarqueeRow({ items, direction = 'left', speed = 'normal' }) {
   const animClass = direction === 'left'
     ? (speed === 'fast' ? 'animate-marquee-left-fast' : 'animate-marquee-left')
     : (speed === 'fast' ? 'animate-marquee-right-fast' : 'animate-marquee-right')
@@ -50,8 +47,8 @@ function MarqueeRow({ direction = 'left', speed = 'normal' }) {
   return (
     <div className="flex overflow-hidden marquee-track">
       <div className={`flex ${animClass}`}>
-        {items.map((item, i) => (
-          <ThumbnailCard key={i} item={item} index={i} />
+        {makeLoop(items).map((item, i) => (
+          <ThumbnailCard key={i} item={item} />
         ))}
       </div>
     </div>
@@ -62,7 +59,6 @@ export default function ThumbnailMarquee() {
   return (
     <section id="portfolio" className="py-24 overflow-hidden">
 
-      {/* Section Label */}
       <div className="text-center mb-16 px-6">
         <p className="text-xs font-medium tracking-widest uppercase mb-3" style={{ color: '#a855f7' }}>
           Our Work
@@ -75,12 +71,11 @@ export default function ThumbnailMarquee() {
         </p>
       </div>
 
-      {/* 4 Rows of sliding thumbnails */}
       <div className="flex flex-col gap-5">
-        <MarqueeRow direction="left" speed="normal" />
-        <MarqueeRow direction="right" speed="fast" />
-        <MarqueeRow direction="left" speed="fast" />
-        <MarqueeRow direction="right" speed="normal" />
+        <MarqueeRow items={row1} direction="left"  speed="normal" />
+        <MarqueeRow items={row2} direction="right" speed="fast"   />
+        <MarqueeRow items={row3} direction="left"  speed="fast"   />
+        <MarqueeRow items={row4} direction="right" speed="normal" />
       </div>
 
     </section>
