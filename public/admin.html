@@ -299,6 +299,7 @@
     .lv-pending  { color:var(--yellow);background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2); }
     .lv-approved { color:var(--green);background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2); }
     .lv-rejected { color:var(--red);background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2); }
+    .lv-expired  { color:var(--text3);background:rgba(113,113,122,0.08);border:1px solid rgba(113,113,122,0.2); }
 
     /* LEAVE ACTION MODAL */
     .leave-modal { background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:440px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,0.6); }
@@ -533,11 +534,24 @@
             <div class="section-lbl" style="margin-bottom:2px">Leave Requests</div>
             <div style="font-size:12px;color:var(--text3)">Review and manage designer leave applications</div>
           </div>
-          <div style="display:flex;gap:6px">
-            <div class="f-pill active" onclick="setLeaveFilter('all')" data-lf="all">All</div>
-            <div class="f-pill" onclick="setLeaveFilter('Pending')" data-lf="Pending">Pending</div>
-            <div class="f-pill" onclick="setLeaveFilter('Approved')" data-lf="Approved">Approved</div>
-            <div class="f-pill" onclick="setLeaveFilter('Rejected')" data-lf="Rejected">Rejected</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="display:flex;gap:6px">
+              <div class="f-pill active" onclick="setLeaveFilter('all')" data-lf="all">All</div>
+              <div class="f-pill" onclick="setLeaveFilter('Pending')" data-lf="Pending">Pending</div>
+              <div class="f-pill" onclick="setLeaveFilter('Approved')" data-lf="Approved">Approved</div>
+              <div class="f-pill" onclick="setLeaveFilter('Rejected')" data-lf="Rejected">Rejected</div>
+            </div>
+            <div style="display:flex;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
+              <button id="leaveDrBtn" onclick="event.stopPropagation();toggleLeaveDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
+                📅 <span id="leaveDrLabel">Lifetime</span> <span style="font-size:9px;opacity:0.5" id="leaveDrArrow">◂</span>
+              </button>
+              <div id="leaveDrPanel" style="display:none;align-items:center;overflow:hidden;max-width:0;transition:max-width 0.45s cubic-bezier(0.4,0,0.2,1)">
+                <div class="dr-opt" onclick="setLeaveDateRange('lifetime',event)" data-ldr="lifetime">Lifetime</div>
+                <div class="dr-opt" onclick="setLeaveDateRange('6months',event)" data-ldr="6months">6 Months</div>
+                <div class="dr-opt" onclick="setLeaveDateRange('month',event)" data-ldr="month">This Month</div>
+                <div class="dr-opt active-dr" onclick="setLeaveDateRange('today',event)" data-ldr="today">Today</div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="leaveList"><div class="empty-state">No leave requests found</div></div>
@@ -1191,7 +1205,54 @@ function renderLedger(){
 }
 
 /* LEAVE MANAGEMENT */
-let allLeaves = [], leaveFilter = 'all', activeLeaveId = null;
+let allLeaves = [], leaveFilter = 'all', leaveDateRange = 'lifetime', activeLeaveId = null;
+
+function getTodayIST() {
+  return new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Kolkata'})).toISOString().split('T')[0];
+}
+
+function filterLeavesByDate(leaves, range) {
+  if (range === 'lifetime') return leaves;
+  const now = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Kolkata'}));
+  return leaves.filter(l => {
+    const d = new Date(l.start_date);
+    if (range === 'today') return l.start_date === getTodayIST();
+    if (range === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    if (range === '6months') return (now - d) / (1000*60*60*24*30) <= 6;
+    return true;
+  });
+}
+
+function setLeaveDateRange(range, e) {
+  if (e) e.stopPropagation();
+  leaveDateRange = range;
+  const labels = { today:'Today', month:'This Month', '6months':'6 Months', lifetime:'Lifetime' };
+  const lbl = document.getElementById('leaveDrLabel');
+  if (lbl) lbl.innerText = labels[range];
+  document.querySelectorAll('[data-ldr]').forEach(p => p.classList.toggle('active-dr', p.dataset.ldr === range));
+  const panel = document.getElementById('leaveDrPanel');
+  const arrow = document.getElementById('leaveDrArrow');
+  if (panel) { panel.style.maxWidth = '0'; setTimeout(() => { panel.style.display = 'none'; }, 450); }
+  if (arrow) arrow.innerText = '◂';
+  renderLeaves();
+}
+
+function toggleLeaveDR() {
+  const panel = document.getElementById('leaveDrPanel');
+  const arrow = document.getElementById('leaveDrArrow');
+  if (!panel) return;
+  const isOpen = panel.style.display === 'flex' && panel.style.maxWidth !== '0' && panel.style.maxWidth !== '0px';
+  if (isOpen) {
+    panel.style.maxWidth = '0';
+    setTimeout(() => { panel.style.display = 'none'; }, 450);
+    if (arrow) arrow.innerText = '◂';
+  } else {
+    panel.style.display = 'flex';
+    panel.style.maxWidth = '0';
+    requestAnimationFrame(() => { panel.style.maxWidth = '500px'; });
+    if (arrow) arrow.innerText = '▸';
+  }
+}
 
 async function loadLeaveRequests() {
   try {
@@ -1215,20 +1276,25 @@ function setLeaveFilter(f) {
 }
 
 function renderLeaves() {
-  const data = leaveFilter === 'all' ? allLeaves : allLeaves.filter(l => l.status === leaveFilter);
+  let data = leaveFilter === 'all' ? allLeaves : allLeaves.filter(l => l.status === leaveFilter);
+  data = filterLeavesByDate(data, leaveDateRange);
   const el = document.getElementById('leaveList');
   if (!data.length) { el.innerHTML = '<div class="empty-state">No leave requests found</div>'; return; }
   el.innerHTML = '';
+  const today = getTodayIST();
   data.forEach(l => {
     const dName = l.designers?.name || '—';
     const dEmail = l.designers?.email || '';
     const days = Math.round((new Date(l.end_date) - new Date(l.start_date)) / 86400000) + 1;
+    const isExpired = l.status === 'Approved' && l.end_date < today;
+    const pillClass = isExpired ? 'lv-expired' : `lv-${l.status.toLowerCase()}`;
+    const pillLabel = isExpired ? 'Expired' : l.status;
     const div = document.createElement('div');
     div.className = `leave-card ${l.status === 'Pending' ? 'pending-card' : ''}`;
     div.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:10px">
-          <span class="lv-pill lv-${l.status.toLowerCase()}">${l.status}</span>
+          <span class="lv-pill ${pillClass}">${pillLabel}</span>
           <div>
             <div style="font-size:13px;font-weight:600">${dName}</div>
             <div style="font-size:11px;color:var(--text3)">${dEmail}</div>
@@ -1246,7 +1312,7 @@ function renderLeaves() {
           <button class="act-btn btn-approve" style="margin:0;flex:1;padding:8px" onclick="openLeaveModal('${l.id}','${dName}','${l.start_date}','${l.end_date}','${l.reason.replace(/'/g,"\'")}')">✓ Approve</button>
           <button class="act-btn btn-reject" style="margin:0;flex:1;padding:8px" onclick="openLeaveModal('${l.id}','${dName}','${l.start_date}','${l.end_date}','${l.reason.replace(/'/g,"\'")}','reject')">✕ Reject</button>
         </div>` : ''}
-      ${l.status === 'Approved' ? `
+      ${l.status === 'Approved' && !isExpired ? `
         <div style="display:flex;gap:6px;margin-top:10px">
           <button class="act-btn btn-ghost" style="margin:0;flex:1;padding:8px;font-size:12px" onclick="openExtendModal('${l.id}','${dName}','${l.end_date}')">📅 Extend</button>
           <button class="act-btn btn-reject" style="margin:0;flex:1;padding:8px;font-size:12px" onclick="cancelLeave('${l.id}','${dName}')">✕ Cancel Leave</button>
