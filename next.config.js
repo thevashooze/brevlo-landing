@@ -6,7 +6,7 @@ const nextConfig = {
       beforeFiles: [
         {
           has: [{ type: 'host', value: 'admin.brevlomedia.com' }],
-          source: '/(.*)',
+          source: '/((?!.*\\.[a-zA-Z0-9]+$).*)',
           destination: '/admin.html',
         },
       ],
