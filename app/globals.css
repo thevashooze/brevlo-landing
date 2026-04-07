@@ -21,13 +21,30 @@ html {
 body {
   background: var(--bg);
   color: #ffffff;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: var(--neon);
+  background: rgba(168, 85, 247, 0.3);
   color: #fff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2f;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a855f7;
 }
 
 /* Pause marquee on hover */
