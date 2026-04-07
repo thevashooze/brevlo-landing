@@ -670,8 +670,23 @@
 <script src="config.js"></script>
 <script>
 /* AUTH */
+const AUTH_KEY = 'brevlo_admin_auth';
+const AUTH_EXPIRY_MS = 14 * 24 * 60 * 60 * 1000; // 2 weeks
+
+function isAdminAuthed() {
+  const raw = localStorage.getItem(AUTH_KEY);
+  if (!raw) return false;
+  try {
+    const { expiry } = JSON.parse(raw);
+    if (Date.now() > expiry) { localStorage.removeItem(AUTH_KEY); return false; }
+    // refresh expiry on each visit
+    localStorage.setItem(AUTH_KEY, JSON.stringify({ expiry: Date.now() + AUTH_EXPIRY_MS }));
+    return true;
+  } catch { return false; }
+}
+
 (function() {
-  if (sessionStorage.getItem('adminAuth') !== 'true') {
+  if (!isAdminAuthed()) {
     document.getElementById('loginOv').style.display = 'flex';
     document.querySelector('.app').style.display = 'none';
   }
@@ -692,7 +707,7 @@ async function doAdminLogin() {
     });
     const data = await r.json();
     if (data.success) {
-      sessionStorage.setItem('adminAuth', 'true');
+      localStorage.setItem(AUTH_KEY, JSON.stringify({ expiry: Date.now() + AUTH_EXPIRY_MS }));
       document.getElementById('loginOv').style.display = 'none';
       document.querySelector('.app').style.display = 'flex';
       loadAll();
@@ -713,7 +728,7 @@ let currentFilter = 'all', searchQ = '', activeOrderId = null;
 let slaLoop = null;
 
 /* INIT */
-if (sessionStorage.getItem('adminAuth') === 'true') {
+if (isAdminAuthed()) {
   loadAll();
   setInterval(loadAll, 30000);
 }
