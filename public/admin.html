@@ -644,16 +644,79 @@
   </div>
 </div>
 
+<!-- LOGIN OVERLAY -->
+<div id="loginOv" style="display:none;position:fixed;inset:0;z-index:9999;background:#09090b;display:flex;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:380px;padding:32px;background:#111113;border:1px solid #27272a;border-radius:16px;display:flex;flex-direction:column;gap:24px;">
+    <div style="text-align:center;">
+      <div style="width:48px;height:48px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;">🔐</div>
+      <div style="font-size:20px;font-weight:700;color:#fafafa;margin-bottom:6px;">Brevlo Control Centre</div>
+      <div style="font-size:13px;color:#71717a;">Enter admin password to continue</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <input id="adminPwInput" type="password" placeholder="Password" autocomplete="current-password"
+        style="width:100%;padding:11px 14px;background:#18181b;border:1px solid #27272a;border-radius:10px;color:#fafafa;font-size:14px;font-family:inherit;outline:none;transition:border .2s;"
+        onkeydown="if(event.key==='Enter')doAdminLogin()"
+        onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='#27272a'">
+      <div id="loginErr" style="display:none;font-size:12px;color:#ef4444;padding-left:2px;">Incorrect password. Try again.</div>
+    </div>
+    <button onclick="doAdminLogin()" id="loginBtn"
+      style="width:100%;padding:12px;background:#a855f7;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='#9333ea'" onmouseout="this.style.background='#a855f7'">
+      Sign In
+    </button>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script>
+/* AUTH */
+(function() {
+  if (sessionStorage.getItem('adminAuth') !== 'true') {
+    document.getElementById('loginOv').style.display = 'flex';
+    document.querySelector('.app').style.display = 'none';
+  }
+})();
+
+async function doAdminLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  if (!pw) return;
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+  err.style.display = 'none';
+  try {
+    const r = await fetch(`${SERVER_URL}/admin-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await r.json();
+    if (data.success) {
+      sessionStorage.setItem('adminAuth', 'true');
+      document.getElementById('loginOv').style.display = 'none';
+      document.querySelector('.app').style.display = 'flex';
+      loadAll();
+    } else {
+      err.style.display = 'block';
+      document.getElementById('adminPwInput').value = '';
+    }
+  } catch {
+    err.textContent = 'Network error. Try again.';
+    err.style.display = 'block';
+  }
+  btn.textContent = 'Sign In'; btn.disabled = false;
+}
+
 /* STATE */
 let allOrders = [], allDesigners = [];
 let currentFilter = 'all', searchQ = '', activeOrderId = null;
 let slaLoop = null;
 
 /* INIT */
-loadAll();
-setInterval(loadAll, 30000);
+if (sessionStorage.getItem('adminAuth') === 'true') {
+  loadAll();
+  setInterval(loadAll, 30000);
+}
 
 async function loadAll() {
   const syncBtn = document.querySelector('.btn-sync');
