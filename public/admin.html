@@ -326,7 +326,7 @@
   </style>
 </head>
 <body>
-<div class="app">
+<div class="app" style="display:none">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -696,12 +696,12 @@ function isAdminAuthed() {
 }
 
 (function() {
-  // Copy sidebar logo src to login overlay
   const sidebarLogo = document.querySelector('.logo-mark img');
   if (sidebarLogo) document.getElementById('loginLogo').src = sidebarLogo.src;
-  if (!isAdminAuthed()) {
+  if (isAdminAuthed()) {
+    document.querySelector('.app').style.display = 'flex';
+  } else {
     document.getElementById('loginOv').style.display = 'flex';
-    document.querySelector('.app').style.display = 'none';
   }
 })();
 
