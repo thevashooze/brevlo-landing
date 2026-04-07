@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Status | Brevlo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white p-6 min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-2xl bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-800">
+    <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-6">
+      <h1 class="text-3xl font-bold">Your Order</h1>
+      <a href="find-order.html" class="text-sm text-blue-400 hover:text-blue-300 transition">← Back to My Orders</a>
+    </div>
+
+    <div id="order" class="space-y-4 text-lg">
+      <p class="text-gray-400 animate-pulse">Loading your order details...</p>
+    </div>
+  </div>
+
+  <div id="revisionModal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center backdrop-blur-sm z-50">
+    <div class="bg-gray-900 p-6 rounded-lg w-[400px] border border-gray-700 shadow-xl">
+      <h2 class="text-xl font-bold mb-2">Request a Revision</h2>
+      <p class="text-sm text-gray-400 mb-4" id="revisionSubtext">Tell us what needs to be changed.</p>
+      
+      <textarea id="clientNoteInput" placeholder="E.g., Make the text bigger, change the background color..." class="w-full p-3 bg-gray-800 text-white border border-gray-600 rounded-lg mb-4 focus:outline-none focus:border-blue-500 h-24 resize-none"></textarea>
+
+      <div class="flex justify-end gap-3">
+        <button onclick="closeRevisionModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+          Cancel
+        </button>
+        <button id="submitRevisionBtn" onclick="submitClientRevision()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition">
+          Submit Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+
+  <script>
+    let currentOrderId = null;
+
+    function getOrderId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    function getStatusColor(status) {
+      if (status === "Approved") return "text-green-400 bg-green-900/20 px-3 py-1 rounded-full text-sm font-bold border border-green-800";
+      if (status === "Revision") return "text-red-400 bg-red-900/20 px-3 py-1 rounded-full text-sm font-bold border border-red-800";
+      if (status === "Done") return "text-yellow-400 bg-yellow-900/20 px-3 py-1 rounded-full text-sm font-bold border border-yellow-800";
+      return "text-blue-400 bg-blue-900/20 px-3 py-1 rounded-full text-sm font-bold border border-blue-800";
+    }
+
+    async function loadOrder() {
+      currentOrderId = getOrderId();
+
+      if (!currentOrderId) {
+        document.getElementById("order").innerHTML = "<p class='text-red-500'>Invalid or missing order link.</p>";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${SERVER_URL}/get-order/${currentOrderId}`);
+        
+        if (!res.ok) {
+           document.getElementById("order").innerHTML = "<p class='text-red-500'>Order not found.</p>";
+           return;
+        }
+
+        const order = await res.json();
+        const clientRevisionsUsed = order.client_revisions || 0;
+        const revisionsLeft = 2 - clientRevisionsUsed;
+
+        // SMART IMAGE DISPLAY LOGIC
+        let rightPanelContent = "";
+
+        if (order.status === "Approved") {
+            // ONLY IF APPROVED: Show Image and Actions
+            rightPanelContent = `
+              <p class="text-green-400 text-sm font-bold w-full text-left mb-2 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                Final Thumbnail Ready
+              </p>
+              <img src="${order.thumbnail_url}" class="w-full h-auto rounded-lg shadow-md border border-gray-600 mb-4" />
+              
+              <div class="flex flex-col gap-2 w-full">
+                <button onclick="downloadImage('${order.thumbnail_url}', '${order.id}')"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200">
+                  Download Full Quality
+                </button>
+                
+                <button onclick="openRevisionModal(${revisionsLeft})"
+                  class="w-full bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-semibold py-2 rounded-lg transition duration-200 text-sm">
+                  Request Revision (${revisionsLeft} Free Left)
+                </button>
+              </div>
+            `;
+        } else if (order.status === "Done") {
+            // ADMIN QC IN PROGRESS
+            rightPanelContent = `
+              <div class="flex flex-col items-center justify-center h-48 text-yellow-500 text-center bg-yellow-900/10 p-4 rounded-xl border border-yellow-800/30 w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-80 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                <p class="font-semibold text-lg">Quality Check in Progress</p>
+                <p class="text-sm text-yellow-600/80 mt-1">Our team is reviewing your thumbnail to ensure top quality.</p>
+              </div>
+            `;
+        } else if (order.status === "Revision") {
+            // NEW: DEDICATED REVISION UI
+            rightPanelContent = `
+              <div class="flex flex-col items-center justify-center h-48 text-red-400 text-center bg-red-900/10 p-4 rounded-xl border border-red-800/30 w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                <p class="font-semibold text-lg">Revision in Progress</p>
+                <p class="text-sm text-red-500/80 mt-1">Our designers are currently applying the requested changes.</p>
+              </div>
+            `;
+        } else {
+            // ASSIGNED (Brand new order)
+            rightPanelContent = `
+              <div class="flex flex-col items-center justify-center h-48 text-gray-400 text-center bg-gray-800/30 p-4 rounded-xl border border-gray-700/50 w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                <p class="font-semibold">Thumbnail is being crafted.</p>
+                <p class="text-sm mt-1">Our designers are currently working on your request.</p>
+              </div>
+            `;
+        }
+
+        document.getElementById("order").innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div>
+              <p class="mb-2"><strong class="text-gray-500 block text-sm uppercase tracking-wider">Order ID</strong> ${order.id}</p>
+              <p class="mb-4"><strong class="text-gray-500 block text-sm uppercase tracking-wider">Title</strong> <span class="font-semibold text-xl">${order.title}</span></p>
+              
+              <div class="mb-4">
+                <strong class="text-gray-500 block text-sm uppercase tracking-wider mb-1">Status</strong> 
+                <span class="inline-block mt-1 ${getStatusColor(order.status)}">${order.status === 'Done' ? 'In QC Review' : order.status}</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center bg-gray-800/50 p-5 rounded-xl border border-gray-700">
+              ${rightPanelContent}
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        console.error("Error loading order:", error);
+        document.getElementById("order").innerHTML = "<p class='text-red-500'>Error connecting to server. Please try again.</p>";
+      }
+    }
+
+    async function downloadImage(url, orderId) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Brevlo_Thumbnail_${orderId}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Download failed:", error);
+        alert("Failed to download image. You can try right-clicking the image and selecting 'Save image as...'");
+      }
+    }
+
+    // MODAL LOGIC
+    function openRevisionModal(revisionsLeft) {
+      if (revisionsLeft <= 0) {
+        alert("You have used all 2 free revisions. Please contact support to purchase more.");
+        return;
+      }
+      document.getElementById("revisionSubtext").innerText = `You have ${revisionsLeft} free revision(s) left.`;
+      document.getElementById("revisionModal").classList.remove("hidden");
+    }
+
+    function closeRevisionModal() {
+      document.getElementById("revisionModal").classList.add("hidden");
+      document.getElementById("clientNoteInput").value = "";
+    }
+
+    async function submitClientRevision() {
+      const note = document.getElementById("clientNoteInput").value.trim();
+      const btn = document.getElementById("submitRevisionBtn");
+
+      if (!note) return alert("Please enter what needs to be changed.");
+
+      btn.innerText = "Submitting...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${SERVER_URL}/client-revision`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: currentOrderId,
+            note: note
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          closeRevisionModal();
+          loadOrder(); // Reload the page to show new status
+        } else {
+          alert(data.error || "Failed to submit revision");
+        }
+      } catch (error) {
+        console.error("Error submitting revision:", error);
+        alert("Server error. Please try again.");
+      } finally {
+        btn.innerText = "Submit Request";
+        btn.disabled = false;
+      }
+    }
+
+    loadOrder();
+  </script>
+
+</body>
+</html>

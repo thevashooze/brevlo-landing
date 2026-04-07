@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Thumbnail | Brevlo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white flex items-center justify-center min-h-screen p-6">
+
+  <div class="bg-gray-900 p-8 rounded-2xl w-full max-w-md shadow-2xl border border-gray-800">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Order Your Thumbnail</h1>
+      <p class="text-gray-400 text-sm">Fill out the details below to get started.</p>
+    </div>
+
+    <form id="orderForm" class="space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-1">Your Name</label>
+        <input type="text" id="name" placeholder="John Doe" required 
+          class="w-full p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
+        <input type="email" id="email" placeholder="client@example.com" required 
+          class="w-full p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-1">Video Title / Idea</label>
+        <input type="text" id="title" placeholder="e.g., I Survived 100 Days in Minecraft" required 
+          class="w-full p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-1">Thumbnail Text (Optional)</label>
+        <input type="text" id="text" placeholder="e.g., 100 DAYS!" 
+          class="w-full p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-1">Reference Link (Optional)</label>
+        <input type="text" id="reference" placeholder="Link to a style you like" 
+          class="w-full p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+      </div>
+
+      <button type="submit" id="submitBtn" 
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg p-4 rounded-xl transition duration-200 mt-4 shadow-lg shadow-blue-600/30">
+        Pay & Order
+      </button>
+    </form>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script src="config.js"></script>
+
+  <script>
+    const form = document.getElementById("orderForm");
+    const submitBtn = document.getElementById("submitBtn");
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      // Button processing state
+      const originalBtnText = submitBtn.innerText;
+      submitBtn.innerText = "Processing...";
+      submitBtn.disabled = true;
+      submitBtn.classList.add("opacity-70", "cursor-not-allowed");
+
+      const orderData = {
+        email: document.getElementById("email").value.trim(),
+        title: document.getElementById("title").value.trim(),
+        text: document.getElementById("text").value.trim(),
+        reference: document.getElementById("reference").value.trim(),
+        payment_id: "TEST_" + Date.now() // Fake payment ID for now
+      };
+
+      try {
+        // USE SERVER_URL FROM config.js
+        const res = await fetch(`${SERVER_URL}/create-order`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // Success! Redirect to success page
+          window.location.href = "success.html";
+        } else {
+          alert("Error creating order: " + (data.error || "Unknown error"));
+          resetButton();
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Server error. Please ensure the backend is running.");
+        resetButton();
+      }
+
+      function resetButton() {
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
+      }
+    });
+  </script>
+
+</body>
+</html>

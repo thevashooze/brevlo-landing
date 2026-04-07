@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Orders | Brevlo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-gray-900 p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-800">
+        <h1 class="text-3xl font-bold text-white text-center mb-2">Find My Orders</h1>
+        <p class="text-gray-400 text-center mb-8">Enter your registered email to access your thumbnails.</p>
+
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <input 
+                type="email" 
+                id="emailInput" 
+                placeholder="client@example.com" 
+                class="flex-grow px-5 py-3 bg-gray-800 text-white placeholder-gray-500 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            >
+            <button 
+                onclick="fetchMyOrders()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition duration-200 whitespace-nowrap"
+            >
+                Search
+            </button>
+        </div>
+
+        <div id="statusMsgContainer" class="p-4 rounded-xl mb-6 hidden">
+             <p id="statusMsg" class="text-center text-sm font-medium"></p>
+        </div>
+
+        <div id="ordersContainer" class="mt-8 hidden border-t border-gray-800 pt-6">
+            <h2 class="text-xl font-semibold text-gray-200 mb-5">Your Orders</h2>
+            <div id="ordersList" class="flex flex-col gap-4">
+                </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+
+    <script>
+        async function fetchMyOrders() {
+            const email = document.getElementById("emailInput").value.trim();
+            const statusMsg = document.getElementById("statusMsg");
+            const statusMsgContainer = document.getElementById("statusMsgContainer");
+            const ordersContainer = document.getElementById("ordersContainer");
+            const ordersList = document.getElementById("ordersList");
+
+            // Reset UI State
+            statusMsgContainer.classList.add("hidden");
+            ordersContainer.classList.add("hidden");
+            ordersList.innerHTML = "";
+
+            if (!email) {
+                showStatus("Please enter an email address.", "error");
+                return;
+            }
+
+            showStatus("Searching for orders...", "loading");
+
+            try {
+                const safeEmail = encodeURIComponent(email);
+                
+                // USE SERVER_URL FROM config.js
+                const response = await fetch(`${SERVER_URL}/find-orders/${safeEmail}`);
+
+                if (!response.ok) {
+                    throw new Error("Cannot fetch orders. Status: " + response.status);
+                }
+
+                const orders = await response.json();
+
+                if (orders.length === 0) {
+                    showStatus("No orders found for this email. Make sure you used the correct email.", "error");
+                    return;
+                }
+
+                // Agar orders mil gaye toh dikhao
+                statusMsgContainer.classList.add("hidden");
+                ordersContainer.classList.remove("hidden");
+
+                orders.forEach(order => {
+                    // ===== UPDATED STATUS COLORS LOGIC (PREMIUM LOOK) =====
+                    let statusColor = "bg-gray-800 text-gray-400 border border-gray-700"; // Default/Pending
+                    
+                    if(order.status === "Assigned") {
+                        statusColor = "bg-yellow-900/20 text-yellow-400 border border-yellow-800";
+                    } else if(order.status === "Done" || order.status === "Approved") {
+                        statusColor = "bg-green-900/20 text-green-400 border border-green-800";
+                    } else if(order.status === "Revision") {
+                        statusColor = "bg-red-900/20 text-red-400 border border-red-800";
+                    }
+
+                    const orderItem = document.createElement("a");
+                    // Click karne pe order-view.html open hoga URL ID parameter ke sath
+                    orderItem.href = `order-view.html?id=${order.id}`;
+                    
+                    // ===== UPDATED LIST ITEM STYLING (DARK & REMOVED GRAY-50) =====
+                    orderItem.className = "block p-5 border border-gray-800 rounded-xl hover:shadow-lg transition duration-200 bg-gray-800/40 hover:bg-gray-800 group";
+                    
+                    orderItem.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-white text-base group-hover:text-blue-400 transition truncate w-3/4">${order.title}</h3>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap ${statusColor}">${order.status}</span>
+                        </div>
+                        <p class="text-xs text-gray-500">ID: ${order.id}</p>
+                    `;
+
+                    ordersList.appendChild(orderItem);
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                showStatus("Error connecting to Brevlo server. Please check your connection or try again later.", "error");
+            }
+        }
+
+        // Helper function to handle status messages with styling
+        function showStatus(message, type) {
+            const statusMsg = document.getElementById("statusMsg");
+            const statusMsgContainer = document.getElementById("statusMsgContainer");
+            
+            statusMsg.textContent = message;
+            statusMsgContainer.classList.remove("hidden");
+
+            if (type === "error") {
+                statusMsgContainer.className = "p-4 rounded-xl mb-6 bg-red-950 border border-red-800 text-red-300";
+            } else if (type === "loading") {
+                statusMsgContainer.className = "p-4 rounded-xl mb-6 bg-gray-800 border border-gray-700 text-gray-400";
+            }
+        }
+    </script>
+</body>
+</html>
