@@ -307,6 +307,16 @@
     .leave-modal textarea { width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;outline:none;font-family:'Geist',sans-serif;resize:none;height:80px;margin:12px 0 16px;line-height:1.5; }
     .leave-modal textarea:focus { border-color:var(--accent); }
 
+    /* SUPPORT TICKET MODAL */
+    .support-modal { background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:580px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,0.7); }
+    .support-modal-hd { display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0; }
+    .support-modal-bd { flex:1;overflow-y:auto;padding:22px; }
+    .support-modal-ft { padding:16px 22px;border-top:1px solid var(--border);flex-shrink:0; }
+    .support-modal textarea { width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 12px;border-radius:9px;outline:none;font-family:'Geist',sans-serif;resize:none;height:90px;line-height:1.6; }
+    .support-modal textarea:focus { border-color:var(--accent); }
+    .tkt-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:border-color .12s,background .12s; }
+    .tkt-card:hover { border-color:var(--border2);background:var(--surface2); }
+
     /* ── TOAST ── */
     #toastWrap { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
     .toast { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; min-width: 220px; max-width: 340px; pointer-events: all; box-shadow: 0 8px 24px rgba(0,0,0,0.5); animation: toastIn 0.25s ease; border: 1px solid; }
@@ -427,7 +437,7 @@
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
             <div style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:box-shadow 0.2s" id="adminDrContainer">
               <button id="adminDrBtn" onclick="event.stopPropagation();toggleAdminDR()" style="display:none;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
-                📅 <span id="adminDrLabel">Lifetime</span> <span style="font-size:9px;opacity:0.5" id="adminDrArrow">◂</span>
+                📅 <span id="adminDrLabel">Today</span> <span style="font-size:9px;opacity:0.5" id="adminDrArrow">◂</span>
               </button>
               <div id="adminDrPanel" style="display:none;align-items:center;overflow:hidden;max-width:0;transition:max-width 0.45s cubic-bezier(0.4,0,0.2,1)">
                 <div class="dr-opt" onclick="setAdminDateRange('lifetime',event)" data-adr="lifetime">Lifetime</div>
@@ -496,21 +506,21 @@
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
           <div>
             <div class="section-lbl" style="margin-bottom:2px">Support Tickets</div>
-            <div style="font-size:12px;color:var(--text3)">Designer support requests — reply or resolve</div>
+            <div style="font-size:12px;color:var(--text3)">Click any ticket to open and reply</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <div class="f-pill active" onclick="setTicketFilter('Active')" data-tf="Active">Active</div>
-            <!-- Calendar: shows only when Resolved is active, left of Resolved pill -->
+            <!-- Calendar: left of Active, only shows when Resolved is selected -->
             <div id="ticketDrContainer" style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;">
               <button id="ticketDrBtn" onclick="event.stopPropagation();toggleTicketDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
-                📅 <span id="ticketDrLabel">Lifetime</span> <span style="font-size:9px;opacity:0.5" id="ticketDrArrow">◂</span>
+                📅 <span id="ticketDrLabel">Today</span> <span style="font-size:9px;opacity:0.5" id="ticketDrArrow">◂</span>
               </button>
               <div id="ticketDrPanel" style="display:none;align-items:center;overflow:hidden;max-width:0;transition:max-width 0.45s cubic-bezier(0.4,0,0.2,1)">
-                <div class="dr-opt active-tdr" onclick="setTicketDateRange('lifetime',event)" data-tdr="lifetime">Lifetime</div>
+                <div class="dr-opt" onclick="setTicketDateRange('lifetime',event)" data-tdr="lifetime">Lifetime</div>
                 <div class="dr-opt" onclick="setTicketDateRange('month',event)" data-tdr="month">This Month</div>
-                <div class="dr-opt" onclick="setTicketDateRange('today',event)" data-tdr="today">Today</div>
+                <div class="dr-opt active-tdr" onclick="setTicketDateRange('today',event)" data-tdr="today">Today</div>
               </div>
             </div>
+            <div class="f-pill active" onclick="setTicketFilter('Active')" data-tf="Active">Active</div>
             <div class="f-pill" onclick="setTicketFilter('Resolved')" data-tf="Resolved">Resolved</div>
           </div>
         </div>
@@ -698,6 +708,40 @@
 
 <!-- TOAST CONTAINER -->
 <div id="toastWrap"></div>
+
+<!-- SUPPORT TICKET MODAL -->
+<div class="overlay" id="ticketOv" onclick="if(event.target===this)closeTicketModal()">
+  <div class="support-modal">
+    <div class="support-modal-hd">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="lv-pill" id="tkt-status-pill">Active</span>
+        <div>
+          <div style="font-size:14px;font-weight:700;letter-spacing:-0.01em" id="tkt-name">—</div>
+          <div style="font-size:11px;color:var(--text3)" id="tkt-email">—</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:11px;color:var(--text3)" id="tkt-date">—</div>
+        <div class="modal-close" onclick="closeTicketModal()">✕</div>
+      </div>
+    </div>
+    <div class="support-modal-bd">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Message</div>
+      <div id="tkt-message" style="font-size:14px;color:var(--text);line-height:1.7;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:16px"></div>
+      <div id="tkt-reply-wrap" style="display:none;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Previous Reply</div>
+        <div id="tkt-prev-reply" style="font-size:13px;color:var(--text2);line-height:1.6;padding:12px 14px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.18);border-radius:9px"></div>
+      </div>
+    </div>
+    <div class="support-modal-ft" id="tkt-footer">
+      <textarea id="tkt-reply-input" placeholder="Type your reply to the designer…"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="act-btn" style="flex:1;margin:0;background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.25)" onclick="doTicketReply()">↩ Reply</button>
+        <button class="act-btn btn-approve" style="flex:1;margin:0" onclick="doTicketResolve()">✓ Mark Resolved</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- CONFIRM OVERLAY -->
 <div class="overlay" id="confirmOv">
@@ -901,7 +945,7 @@ function startSLALoop() {
 
 /* STATS */
 let totalOrdersFilter = 'all';
-let adminDateRange = 'lifetime';
+let adminDateRange = 'today';
 
 function filterOrdersByDate(orders, range) {
   const now = new Date();
@@ -1610,7 +1654,7 @@ async function deleteDesigner(id, name){
 }
 
 /* SUPPORT TICKETS */
-let allTickets = [], ticketFilter = 'Active', ticketDateRange = 'lifetime';
+let allTickets = [], ticketFilter = 'Active', ticketDateRange = 'today', activeTicketId = null;
 
 function setTicketFilter(f) {
   ticketFilter = f;
@@ -1625,7 +1669,7 @@ function setTicketDateRange(range, e) {
   ticketDateRange = range;
   const labels = { lifetime:'Lifetime', month:'This Month', today:'Today' };
   const lbl = document.getElementById('ticketDrLabel');
-  if (lbl) lbl.innerText = labels[range] || 'Lifetime';
+  if (lbl) lbl.innerText = labels[range] || 'Today';
   document.querySelectorAll('[data-tdr]').forEach(p => p.classList.toggle('active-tdr', p.dataset.tdr === range));
   const panel = document.getElementById('ticketDrPanel');
   const arrow = document.getElementById('ticketDrArrow');
@@ -1670,11 +1714,8 @@ function filterTicketsByDate(tickets, range) {
   const now = new Date();
   return tickets.filter(t => {
     const d = new Date(t.resolved_at || t.created_at);
-    if (range === 'today') {
-      return d.toDateString() === now.toDateString();
-    } else if (range === 'month') {
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }
+    if (range === 'today') return d.toDateString() === now.toDateString();
+    if (range === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     return true;
   });
 }
@@ -1688,7 +1729,10 @@ function renderTickets() {
   }
 
   const el = document.getElementById('ticketList');
-  if (!data.length) { el.innerHTML = '<div class="empty-state">No ' + ticketFilter.toLowerCase() + ' tickets</div>'; return; }
+  if (!data.length) {
+    el.innerHTML = '<div class="empty-state">No ' + (ticketFilter === 'Active' ? 'active' : 'resolved') + ' tickets</div>';
+    return;
+  }
   el.innerHTML = '';
   data.forEach(t => {
     const dName = t.designers?.name || '—';
@@ -1700,21 +1744,14 @@ function renderTickets() {
     if (t.status === 'Replied') pillClass = 'lv-replied';
     if (t.status === 'Resolved') pillClass = 'lv-approved';
 
-    const isActive = t.status === 'Active';
-    const isReplied = t.status === 'Replied';
-    const isResolved = t.status === 'Resolved';
-    const tId = t.id.replace(/[^a-zA-Z0-9]/g, '_');
+    const preview = (t.message || '').length > 80 ? t.message.slice(0, 80) + '…' : t.message;
 
     const div = document.createElement('div');
-    div.className = 'leave-card';
-    div.style.cursor = 'pointer';
-    div.onclick = (e) => {
-      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
-      const body = document.getElementById('tbody-' + tId);
-      if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
-    };
+    div.className = 'tkt-card';
+    div.style.marginBottom = '10px';
+    div.onclick = () => openTicketModal(t);
     div.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:10px">
           <span class="lv-pill ${pillClass}">${t.status}</span>
           <div>
@@ -1722,48 +1759,82 @@ function renderTickets() {
             <div style="font-size:11px;color:var(--text3)">${dEmail}</div>
           </div>
         </div>
-        <div style="font-size:11px;color:var(--text3)">${isResolved ? 'Resolved ' + resolvedDate : 'Raised ' + date}</div>
+        <div style="font-size:11px;color:var(--text3)">${t.status === 'Resolved' ? 'Resolved ' + resolvedDate : 'Raised ' + date}</div>
       </div>
-      <div id="tbody-${tId}" style="display:block;margin-top:12px">
-        <div style="font-size:13px;color:var(--text2);padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);margin-bottom:${(isActive||isReplied)?'10px':t.admin_reply?'10px':'0'}">${t.message}</div>
-        ${t.admin_reply ? `<div style="font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:8px;margin-bottom:${(isActive||isReplied)?'10px':'0'}"><span style="color:var(--accent);font-weight:600">Your reply:</span> ${t.admin_reply}</div>` : ''}
-        ${(isActive||isReplied) ? `
-          <div style="display:flex;gap:8px;align-items:center">
-            <input type="text" placeholder="Type a reply to ${dName}…" id="reply-${tId}" style="flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:8px 11px;border-radius:8px;outline:none;font-family:'Geist',sans-serif;" value="${t.admin_reply ? t.admin_reply.replace(/"/g,'&quot;') : ''}">
-            <button class="act-btn" style="margin:0;padding:8px 14px;white-space:nowrap;background:rgba(59,130,246,0.12);color:var(--blue);border:1px solid rgba(59,130,246,0.3);flex-shrink:0" onclick="replyTicket('${t.id}','${tId}','${dName}')">↩ Reply</button>
-            <button class="act-btn btn-approve" style="margin:0;padding:8px 14px;white-space:nowrap;flex-shrink:0" onclick="resolveTicket('${t.id}','${tId}','${dName}')">✓ Resolve</button>
-          </div>` : ''}
-      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5">${preview}</div>
+      ${t.admin_reply ? `<div style="font-size:11px;color:var(--accent);margin-top:7px">↩ Reply sent</div>` : ''}
     `;
     el.appendChild(div);
   });
 }
 
-async function replyTicket(ticketId, tId, dName) {
-  const replyEl = document.getElementById('reply-' + tId);
-  const reply = replyEl ? replyEl.value.trim() : '';
+function openTicketModal(t) {
+  activeTicketId = t.id;
+  const dName = t.designers?.name || '—';
+  const dEmail = t.designers?.email || '';
+  const date = t.created_at ? new Date(t.created_at).toLocaleString('en-IN', {timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+
+  let pillClass = 'lv-pending';
+  if (t.status === 'Replied') pillClass = 'lv-replied';
+  if (t.status === 'Resolved') pillClass = 'lv-approved';
+
+  document.getElementById('tkt-name').innerText = dName;
+  document.getElementById('tkt-email').innerText = dEmail;
+  document.getElementById('tkt-date').innerText = 'Raised ' + date;
+  document.getElementById('tkt-message').innerText = t.message || '';
+
+  const pill = document.getElementById('tkt-status-pill');
+  pill.className = 'lv-pill ' + pillClass;
+  pill.innerText = t.status;
+
+  const replyWrap = document.getElementById('tkt-reply-wrap');
+  const prevReply = document.getElementById('tkt-prev-reply');
+  if (t.admin_reply) {
+    replyWrap.style.display = 'block';
+    prevReply.innerText = t.admin_reply;
+  } else {
+    replyWrap.style.display = 'none';
+  }
+
+  const footer = document.getElementById('tkt-footer');
+  document.getElementById('tkt-reply-input').value = '';
+  footer.style.display = t.status === 'Resolved' ? 'none' : 'block';
+
+  document.getElementById('ticketOv').classList.add('open');
+}
+
+function closeTicketModal() {
+  document.getElementById('ticketOv').classList.remove('open');
+  activeTicketId = null;
+}
+
+async function doTicketReply() {
+  const reply = document.getElementById('tkt-reply-input').value.trim();
   if (!reply) { showToast('Please type a reply first', 'error'); return; }
+  if (!activeTicketId) return;
   try {
     const r = await fetch(`${SERVER_URL}/reply-ticket`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ ticketId, adminReply: reply })
+      body: JSON.stringify({ ticketId: activeTicketId, adminReply: reply })
     });
     if (!r.ok) throw new Error();
-    showToast(`Reply sent to ${dName}`, 'success');
+    showToast('Reply sent', 'success');
+    closeTicketModal();
     loadAllTickets();
   } catch { showToast('Failed to send reply', 'error'); }
 }
 
-async function resolveTicket(ticketId, tId, dName) {
-  const replyEl = document.getElementById('reply-' + tId);
-  const reply = replyEl ? replyEl.value.trim() : '';
+async function doTicketResolve() {
+  if (!activeTicketId) return;
+  const reply = document.getElementById('tkt-reply-input').value.trim();
   try {
     const r = await fetch(`${SERVER_URL}/resolve-ticket`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ ticketId, adminReply: reply || null })
+      body: JSON.stringify({ ticketId: activeTicketId, adminReply: reply || null })
     });
     if (!r.ok) throw new Error();
-    showToast(`Ticket from ${dName} resolved`, 'success');
+    showToast('Ticket resolved', 'success');
+    closeTicketModal();
     loadAllTickets();
   } catch { showToast('Failed to resolve ticket', 'error'); }
 }
