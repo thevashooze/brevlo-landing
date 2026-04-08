@@ -122,7 +122,7 @@
     .dr-opt { padding: 5px 11px; font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.12s; border-right: 1px solid var(--border); white-space:nowrap; line-height:1.4; }
     .dr-opt:last-child { border-right: none; }
     .dr-opt:hover { background: var(--surface3); color: var(--text); }
-    .dr-opt.active-dr { color: var(--accent); font-weight: 700; background: var(--accent-dim); }
+    .dr-opt.active-dr, .dr-opt.active-tdr { color: var(--accent); font-weight: 700; background: var(--accent-dim); }
     .f-pill { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.12s; }
     .f-pill:hover { border-color: var(--border2); color: var(--text); }
     .f-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
@@ -419,11 +419,11 @@
         </div>
         <div class="stat-grid" id="statGrid"></div>
         <div class="filter-bar">
-          <div class="f-pill active" onclick="setFilter('all')" data-f="all">All</div>
-          <div class="f-pill" onclick="setFilter('Assigned')" data-f="Assigned">Active</div>
+          <div class="f-pill active" onclick="setFilter('Assigned')" data-f="Assigned">Active</div>
           <div class="f-pill" onclick="setFilter('Done')" data-f="Done">In QC</div>
           <div class="f-pill" onclick="setFilter('Revision')" data-f="Revision">Revision</div>
           <div class="f-pill" onclick="setFilter('Approved')" data-f="Approved">Approved</div>
+          <div class="f-pill" onclick="setFilter('all')" data-f="all">All</div>
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
             <div style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:box-shadow 0.2s" id="adminDrContainer">
               <button id="adminDrBtn" onclick="event.stopPropagation();toggleAdminDR()" style="display:none;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
@@ -499,12 +499,19 @@
             <div style="font-size:12px;color:var(--text3)">Designer support requests — reply or resolve</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <input type="date" id="ticketDateFilter" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;outline:none;font-family:inherit;cursor:pointer" onchange="renderTickets()">
-            <div style="display:flex;gap:6px">
-              <div class="f-pill active" onclick="setTicketFilter('Active')" data-tf="Active">Active</div>
-              <div class="f-pill" onclick="setTicketFilter('Replied')" data-tf="Replied">Replied</div>
-              <div class="f-pill" onclick="setTicketFilter('Resolved')" data-tf="Resolved">Resolved</div>
+            <div class="f-pill active" onclick="setTicketFilter('Active')" data-tf="Active">Active</div>
+            <!-- Calendar: shows only when Resolved is active, left of Resolved pill -->
+            <div id="ticketDrContainer" style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;">
+              <button id="ticketDrBtn" onclick="event.stopPropagation();toggleTicketDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
+                📅 <span id="ticketDrLabel">Lifetime</span> <span style="font-size:9px;opacity:0.5" id="ticketDrArrow">◂</span>
+              </button>
+              <div id="ticketDrPanel" style="display:none;align-items:center;overflow:hidden;max-width:0;transition:max-width 0.45s cubic-bezier(0.4,0,0.2,1)">
+                <div class="dr-opt active-tdr" onclick="setTicketDateRange('lifetime',event)" data-tdr="lifetime">Lifetime</div>
+                <div class="dr-opt" onclick="setTicketDateRange('month',event)" data-tdr="month">This Month</div>
+                <div class="dr-opt" onclick="setTicketDateRange('today',event)" data-tdr="today">Today</div>
+              </div>
             </div>
+            <div class="f-pill" onclick="setTicketFilter('Resolved')" data-tf="Resolved">Resolved</div>
           </div>
         </div>
         <div id="ticketList"><div class="empty-state">No support tickets</div></div>
@@ -801,7 +808,7 @@ async function doAdminLogin() {
 
 /* STATE */
 let allOrders = [], allDesigners = [];
-let currentFilter = 'all', searchQ = '', activeOrderId = null;
+let currentFilter = 'Assigned', searchQ = '', activeOrderId = null;
 let slaLoop = null;
 
 /* INIT */
@@ -945,7 +952,7 @@ function renderStats() {
       <div class="stat-hint">${c.hint}</div>
     </div>`).join('');
 
-  const totalFilterLabels = { today:'Today', month:'This Month', '6months':'6 Months', all:'Lifetime' };
+  const totalFilterLabels = { today:'Today', month:'This Month', '6months':'6 Months', all:'Lifetime', lifetime:'Lifetime' };
   const totalCard = `
     <div class="stat-card ${currentFilter==='all'?'active':''}" onclick="setFilter('all')">
       <div class="stat-label">All Orders</div>
@@ -1603,21 +1610,44 @@ async function deleteDesigner(id, name){
 }
 
 /* SUPPORT TICKETS */
-let allTickets = [], ticketFilter = 'Active';
+let allTickets = [], ticketFilter = 'Active', ticketDateRange = 'lifetime';
 
 function setTicketFilter(f) {
   ticketFilter = f;
   document.querySelectorAll('[data-tf]').forEach(p => p.classList.toggle('active', p.dataset.tf === f));
-  const dateEl = document.getElementById('ticketDateFilter');
-  if (dateEl) {
-    if (f === 'Resolved') {
-      dateEl.style.display = 'block';
-      if (!dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
-    } else {
-      dateEl.style.display = 'none';
-    }
-  }
+  const cont = document.getElementById('ticketDrContainer');
+  if (cont) cont.style.display = f === 'Resolved' ? 'flex' : 'none';
   renderTickets();
+}
+
+function setTicketDateRange(range, e) {
+  if (e) e.stopPropagation();
+  ticketDateRange = range;
+  const labels = { lifetime:'Lifetime', month:'This Month', today:'Today' };
+  const lbl = document.getElementById('ticketDrLabel');
+  if (lbl) lbl.innerText = labels[range] || 'Lifetime';
+  document.querySelectorAll('[data-tdr]').forEach(p => p.classList.toggle('active-tdr', p.dataset.tdr === range));
+  const panel = document.getElementById('ticketDrPanel');
+  const arrow = document.getElementById('ticketDrArrow');
+  if (panel) { panel.style.maxWidth = '0'; setTimeout(() => { panel.style.display = 'none'; }, 450); }
+  if (arrow) arrow.innerText = '◂';
+  renderTickets();
+}
+
+function toggleTicketDR() {
+  const panel = document.getElementById('ticketDrPanel');
+  const arrow = document.getElementById('ticketDrArrow');
+  if (!panel) return;
+  const isOpen = panel.style.display === 'flex' && panel.style.maxWidth !== '0' && panel.style.maxWidth !== '0px';
+  if (isOpen) {
+    panel.style.maxWidth = '0';
+    setTimeout(() => { panel.style.display = 'none'; }, 450);
+    if (arrow) arrow.innerText = '◂';
+  } else {
+    panel.style.display = 'flex';
+    requestAnimationFrame(() => { panel.style.maxWidth = '400px'; });
+    if (arrow) arrow.innerText = '▾';
+  }
 }
 
 async function loadAllTickets() {
@@ -1635,16 +1665,26 @@ function updateSupportBadge() {
   if (badge) { badge.style.display = count ? 'inline-block' : 'none'; badge.innerText = count; }
 }
 
-function renderTickets() {
-  const dateEl = document.getElementById('ticketDateFilter');
-  const filterDate = (ticketFilter === 'Resolved' && dateEl && dateEl.value) ? dateEl.value : null;
+function filterTicketsByDate(tickets, range) {
+  if (range === 'lifetime') return tickets;
+  const now = new Date();
+  return tickets.filter(t => {
+    const d = new Date(t.resolved_at || t.created_at);
+    if (range === 'today') {
+      return d.toDateString() === now.toDateString();
+    } else if (range === 'month') {
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }
+    return true;
+  });
+}
 
-  let data = allTickets.filter(t => t.status === ticketFilter);
-  if (filterDate) {
-    data = data.filter(t => {
-      if (!t.resolved_at) return false;
-      return t.resolved_at.slice(0,10) === filterDate;
-    });
+function renderTickets() {
+  let data;
+  if (ticketFilter === 'Active') {
+    data = allTickets.filter(t => t.status === 'Active' || t.status === 'Replied');
+  } else {
+    data = filterTicketsByDate(allTickets.filter(t => t.status === 'Resolved'), ticketDateRange);
   }
 
   const el = document.getElementById('ticketList');
@@ -1662,11 +1702,19 @@ function renderTickets() {
 
     const isActive = t.status === 'Active';
     const isReplied = t.status === 'Replied';
+    const isResolved = t.status === 'Resolved';
+    const tId = t.id.replace(/[^a-zA-Z0-9]/g, '_');
 
     const div = document.createElement('div');
     div.className = 'leave-card';
+    div.style.cursor = 'pointer';
+    div.onclick = (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+      const body = document.getElementById('tbody-' + tId);
+      if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+    };
     div.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:10px">
           <span class="lv-pill ${pillClass}">${t.status}</span>
           <div>
@@ -1674,23 +1722,25 @@ function renderTickets() {
             <div style="font-size:11px;color:var(--text3)">${dEmail}</div>
           </div>
         </div>
-        <div style="font-size:11px;color:var(--text3)">${t.status === 'Resolved' ? 'Resolved ' + resolvedDate : 'Raised ' + date}</div>
+        <div style="font-size:11px;color:var(--text3)">${isResolved ? 'Resolved ' + resolvedDate : 'Raised ' + date}</div>
       </div>
-      <div style="font-size:13px;color:var(--text2);padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);margin-bottom:${(isActive||isReplied)?'10px':t.admin_reply?'10px':'0'}">${t.message}</div>
-      ${t.admin_reply ? `<div style="font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:8px;margin-bottom:${(isActive||isReplied)?'10px':'0'}"><span style="color:var(--accent);font-weight:600">Your reply:</span> ${t.admin_reply}</div>` : ''}
-      ${(isActive||isReplied) ? `
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" placeholder="Type a reply…" id="reply-${t.id}" class="sub-input" style="margin:0;flex:1;" value="${t.admin_reply ? t.admin_reply.replace(/"/g,'&quot;') : ''}">
-          <button class="act-btn" style="margin:0;padding:8px 14px;white-space:nowrap;background:rgba(59,130,246,0.12);color:var(--blue);border:1px solid rgba(59,130,246,0.3);" onclick="replyTicket('${t.id}','${dName}')">↩ Reply</button>
-          <button class="act-btn btn-approve" style="margin:0;padding:8px 14px;white-space:nowrap" onclick="resolveTicket('${t.id}','${dName}')">✓ Resolve</button>
-        </div>` : ''}
+      <div id="tbody-${tId}" style="display:block;margin-top:12px">
+        <div style="font-size:13px;color:var(--text2);padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);margin-bottom:${(isActive||isReplied)?'10px':t.admin_reply?'10px':'0'}">${t.message}</div>
+        ${t.admin_reply ? `<div style="font-size:12px;color:var(--text3);padding:8px 12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:8px;margin-bottom:${(isActive||isReplied)?'10px':'0'}"><span style="color:var(--accent);font-weight:600">Your reply:</span> ${t.admin_reply}</div>` : ''}
+        ${(isActive||isReplied) ? `
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" placeholder="Type a reply to ${dName}…" id="reply-${tId}" style="flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:8px 11px;border-radius:8px;outline:none;font-family:'Geist',sans-serif;" value="${t.admin_reply ? t.admin_reply.replace(/"/g,'&quot;') : ''}">
+            <button class="act-btn" style="margin:0;padding:8px 14px;white-space:nowrap;background:rgba(59,130,246,0.12);color:var(--blue);border:1px solid rgba(59,130,246,0.3);flex-shrink:0" onclick="replyTicket('${t.id}','${tId}','${dName}')">↩ Reply</button>
+            <button class="act-btn btn-approve" style="margin:0;padding:8px 14px;white-space:nowrap;flex-shrink:0" onclick="resolveTicket('${t.id}','${tId}','${dName}')">✓ Resolve</button>
+          </div>` : ''}
+      </div>
     `;
     el.appendChild(div);
   });
 }
 
-async function replyTicket(ticketId, dName) {
-  const replyEl = document.getElementById('reply-' + ticketId);
+async function replyTicket(ticketId, tId, dName) {
+  const replyEl = document.getElementById('reply-' + tId);
   const reply = replyEl ? replyEl.value.trim() : '';
   if (!reply) { showToast('Please type a reply first', 'error'); return; }
   try {
@@ -1704,8 +1754,8 @@ async function replyTicket(ticketId, dName) {
   } catch { showToast('Failed to send reply', 'error'); }
 }
 
-async function resolveTicket(ticketId, dName) {
-  const replyEl = document.getElementById('reply-' + ticketId);
+async function resolveTicket(ticketId, tId, dName) {
+  const replyEl = document.getElementById('reply-' + tId);
   const reply = replyEl ? replyEl.value.trim() : '';
   try {
     const r = await fetch(`${SERVER_URL}/resolve-ticket`, {
