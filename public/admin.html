@@ -163,6 +163,7 @@
     .sp-done     { color: #60a5fa; background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.18); }
     .sp-revision { color: #f87171; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.18); }
     .sp-approved { color: #4ade80; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.18); }
+    .sp-unassigned { color: #a1a1aa; background: rgba(161,161,170,0.08); border: 1px solid rgba(161,161,170,0.2); }
 
     /* ── OVERLAYS ── */
     .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(8px); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
@@ -316,6 +317,20 @@
     .support-modal textarea:focus { border-color:var(--accent); }
     .tkt-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:border-color .12s,background .12s; }
     .tkt-card:hover { border-color:var(--border2);background:var(--surface2); }
+    /* CHAT THREAD */
+    .tkt-chat-thread { display:flex;flex-direction:column;gap:14px;min-height:120px; }
+    .tkt-chat-row { display:flex;flex-direction:column;max-width:82%; }
+    .tkt-chat-row.from-designer { align-self:flex-start; }
+    .tkt-chat-row.from-admin    { align-self:flex-end; }
+    .tkt-chat-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;color:var(--text3); }
+    .tkt-chat-row.from-admin .tkt-chat-label { text-align:right;color:var(--accent); }
+    .tkt-chat-bubble { padding:11px 15px;border-radius:12px;font-size:13.5px;line-height:1.6;word-break:break-word;color:var(--text); }
+    .tkt-chat-row.from-designer .tkt-chat-bubble { background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:4px; }
+    .tkt-chat-row.from-admin    .tkt-chat-bubble { background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-bottom-right-radius:4px; }
+    .tkt-chat-time { font-size:10px;color:var(--text3);margin-top:4px; }
+    .tkt-chat-row.from-admin .tkt-chat-time { text-align:right; }
+    .btn-blue-subtle { background:rgba(59,130,246,0.1)!important;color:var(--blue)!important;border:1px solid rgba(59,130,246,0.25)!important; }
+    .btn-blue-subtle:hover { background:rgba(59,130,246,0.18)!important; }
 
     /* ── TOAST ── */
     #toastWrap { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
@@ -433,6 +448,7 @@
           <div class="f-pill" onclick="setFilter('Done')" data-f="Done">In QC</div>
           <div class="f-pill" onclick="setFilter('Revision')" data-f="Revision">Revision</div>
           <div class="f-pill" onclick="setFilter('Approved')" data-f="Approved">Approved</div>
+          <div class="f-pill" id="unassignedPill" style="display:none" onclick="setFilter('Unassigned')" data-f="Unassigned">Unassigned <span id="unassignedCount" style="margin-left:4px;font-size:10px;background:var(--red);color:#fff;padding:1px 6px;border-radius:10px"></span></div>
           <div class="f-pill" onclick="setFilter('all')" data-f="all">All</div>
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
             <div style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:box-shadow 0.2s" id="adminDrContainer">
@@ -575,7 +591,7 @@
             <div style="font-size:12px;color:var(--text3)">Review and manage designer leave applications</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <div style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
+            <div style="display:flex;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
               <button id="leaveDrBtn" onclick="event.stopPropagation();toggleLeaveDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
                 📅 <span id="leaveDrLabel">Today</span> <span style="font-size:9px;opacity:0.5" id="leaveDrArrow">◂</span>
               </button>
@@ -667,7 +683,7 @@
 </div>
 
 <!-- EXTEND LEAVE MODAL -->
-<div class="overlay" id="extendOv">
+<div class="overlay" id="extendOv" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="leave-modal">
     <div style="font-size:15px;font-weight:700;letter-spacing:-0.02em;margin-bottom:3px" id="extendModalTitle">Extend Leave</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="extendModalSub"></div>
@@ -684,7 +700,7 @@
 </div>
 
 <!-- LEAVE ACTION MODAL -->
-<div class="overlay" id="leaveOv">
+<div class="overlay" id="leaveOv" onclick="if(event.target===this)closeLeaveModal()">
   <div class="leave-modal">
     <div style="font-size:15px;font-weight:700;letter-spacing:-0.02em;margin-bottom:3px" id="leaveModalTitle">Review Leave Request</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="leaveModalSub"></div>
@@ -726,17 +742,12 @@
       </div>
     </div>
     <div class="support-modal-bd">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Message</div>
-      <div id="tkt-message" style="font-size:14px;color:var(--text);line-height:1.7;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:16px"></div>
-      <div id="tkt-reply-wrap" style="display:none;margin-bottom:16px">
-        <div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Previous Reply</div>
-        <div id="tkt-prev-reply" style="font-size:13px;color:var(--text2);line-height:1.6;padding:12px 14px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.18);border-radius:9px"></div>
-      </div>
+      <div id="tkt-chat-thread" class="tkt-chat-thread"></div>
     </div>
     <div class="support-modal-ft" id="tkt-footer">
       <textarea id="tkt-reply-input" placeholder="Type your reply to the designer…"></textarea>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="act-btn" style="flex:1;margin:0;background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.25)" onclick="doTicketReply()">↩ Reply</button>
+        <button class="act-btn btn-blue-subtle" style="flex:1;margin:0" onclick="doTicketReply()">↩ Reply</button>
         <button class="act-btn btn-approve" style="flex:1;margin:0" onclick="doTicketResolve()">✓ Mark Resolved</button>
       </div>
     </div>
@@ -881,7 +892,16 @@ async function loadAll() {
 }
 
 function renderAll() {
-  renderStats(); renderOrders(); renderDesigners(); renderWorkload(); renderLedger(); updateBadges(); startSLALoop();
+  renderStats(); renderOrders(); renderDesigners(); renderWorkload(); renderLedger(); updateBadges(); startSLALoop(); updateUnassignedPill();
+}
+
+function updateUnassignedPill() {
+  const pill = document.getElementById('unassignedPill');
+  const cnt  = document.getElementById('unassignedCount');
+  if (!pill || !cnt) return;
+  const n = allOrders.filter(o => o.status === 'Unassigned' || (!o.designer_id && o.status !== 'Approved')).length;
+  if (n > 0) { pill.style.display = ''; cnt.innerText = n; }
+  else { pill.style.display = 'none'; if (currentFilter === 'Unassigned') setFilter('Assigned'); }
 }
 
 /* TABS */
@@ -1022,7 +1042,10 @@ function setFilter(f) {
 }
 function handleSearch() { searchQ=document.getElementById('searchInput').value.toLowerCase(); renderOrders(); }
 function getFiltered() {
-  let d = currentFilter==='all' ? filterOrdersByDate(allOrders, adminDateRange) : allOrders.filter(o=>o.status===currentFilter);
+  let d;
+  if (currentFilter === 'all') d = filterOrdersByDate(allOrders, adminDateRange);
+  else if (currentFilter === 'Unassigned') d = allOrders.filter(o => o.status === 'Unassigned' || (!o.designer_id && o.status !== 'Approved'));
+  else d = allOrders.filter(o => o.status === currentFilter);
   if(searchQ) d=d.filter(o=>(o.title||'').toLowerCase().includes(searchQ)||(o.email||'').toLowerCase().includes(searchQ)||(o.id||'').toLowerCase().includes(searchQ));
   return d;
 }
@@ -1366,16 +1389,17 @@ function setLeaveFilter(f) {
   leaveFilter = f;
   document.querySelectorAll('[data-lf]').forEach(p => p.classList.toggle('active', p.dataset.lf === f));
   const drContainer = document.getElementById('leaveDrContainer');
-  if (drContainer) drContainer.style.display = f === 'all' ? 'flex' : 'none';
+  if (drContainer) drContainer.style.display = 'flex';
   renderLeaves();
 }
 
 function renderLeaves() {
   const today = getTodayIST();
   let data;
-  if (leaveFilter === 'all') { data = filterLeavesByDate(allLeaves, leaveDateRange); }
+  if (leaveFilter === 'all') data = allLeaves;
   else if (leaveFilter === 'Expired') data = allLeaves.filter(l => l.end_date < today);
   else data = allLeaves.filter(l => l.status === leaveFilter);
+  data = filterLeavesByDate(data, leaveDateRange);
   const el = document.getElementById('leaveList');
   if (!data.length) { el.innerHTML = '<div class="empty-state">No leave requests found</div>'; return; }
   el.innerHTML = '';
@@ -1591,8 +1615,8 @@ async function grantLeave() {
 }
 
 /* HELPERS */
-function spL(s){if(s==='Assigned')return 'Active';if(s==='Done')return 'In Review';if(s==='Approved')return 'Approved';if(s==='Completed')return 'Done';return s;}
-function spC(s){if(s==='Assigned')return 'sp-assigned';if(s==='Done')return 'sp-done';if(s==='Revision')return 'sp-revision';if(s==='Approved')return 'sp-approved';return '';}
+function spL(s){if(s==='Assigned')return 'Active';if(s==='Done')return 'In Review';if(s==='Approved')return 'Approved';if(s==='Completed')return 'Done';if(s==='Unassigned')return 'Unassigned';return s;}
+function spC(s){if(s==='Assigned')return 'sp-assigned';if(s==='Done')return 'sp-done';if(s==='Revision')return 'sp-revision';if(s==='Approved')return 'sp-approved';if(s==='Unassigned')return 'sp-unassigned';return '';}
 const fmtDate=d=>d?new Date(d.replace(' ','T')+'Z').toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
 
 /* TOAST */
@@ -1616,7 +1640,7 @@ function showConfirm({title,sub,icon,iconClass,okText,okClass,onOk}){
   iw.innerText = icon||'?';
   const ok = document.getElementById('confirmOkBtn');
   ok.innerText = okText||'Confirm';
-  ok.className = 'act-btn ' + (okClass||'btn-solid') + ' flex:1;margin:0';
+  ok.className = 'act-btn ' + (okClass||'btn-solid');
   ok.style.flex = '1'; ok.style.margin = '0';
   _confirmCallback = onOk;
   document.getElementById('confirmOv').classList.add('open');
@@ -1628,6 +1652,13 @@ document.getElementById('confirmOkBtn')?.addEventListener('click', ()=>{
 document.getElementById('confirmCancelBtn')?.addEventListener('click', ()=>{
   document.getElementById('confirmOv').classList.remove('open');
   _confirmCallback = null;
+});
+
+/* ESC KEY CLOSES OPEN MODALS */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.overlay.open').forEach(ov => ov.classList.remove('open'));
+  }
 });
 
 /* DELETE DESIGNER */
@@ -1768,8 +1799,11 @@ function renderTickets() {
   });
 }
 
+let activeTicketStatus = null;
+
 function openTicketModal(t) {
   activeTicketId = t.id;
+  activeTicketStatus = t.status;
   const dName = t.designers?.name || '—';
   const dEmail = t.designers?.email || '';
   const date = t.created_at ? new Date(t.created_at).toLocaleString('en-IN', {timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
@@ -1781,31 +1815,58 @@ function openTicketModal(t) {
   document.getElementById('tkt-name').innerText = dName;
   document.getElementById('tkt-email').innerText = dEmail;
   document.getElementById('tkt-date').innerText = 'Raised ' + date;
-  document.getElementById('tkt-message').innerText = t.message || '';
 
   const pill = document.getElementById('tkt-status-pill');
   pill.className = 'lv-pill ' + pillClass;
   pill.innerText = t.status;
 
-  const replyWrap = document.getElementById('tkt-reply-wrap');
-  const prevReply = document.getElementById('tkt-prev-reply');
-  if (t.admin_reply) {
-    replyWrap.style.display = 'block';
-    prevReply.innerText = t.admin_reply;
-  } else {
-    replyWrap.style.display = 'none';
-  }
-
-  const footer = document.getElementById('tkt-footer');
   document.getElementById('tkt-reply-input').value = '';
-  footer.style.display = t.status === 'Resolved' ? 'none' : 'block';
+  document.getElementById('tkt-footer').style.display = t.status === 'Resolved' ? 'none' : 'block';
+
+  // Render placeholder while loading
+  document.getElementById('tkt-chat-thread').innerHTML = '<div style="text-align:center;color:var(--text3);font-size:12px;padding:30px 0">Loading conversation…</div>';
 
   document.getElementById('ticketOv').classList.add('open');
+  loadTicketThread(t.id);
+}
+
+async function loadTicketThread(ticketId) {
+  try {
+    const r = await fetch(`${SERVER_URL}/ticket-messages/${ticketId}`);
+    const messages = await r.json();
+    renderTicketThread(messages);
+  } catch {
+    document.getElementById('tkt-chat-thread').innerHTML = '<div style="text-align:center;color:var(--red);font-size:12px;padding:30px 0">Failed to load conversation</div>';
+  }
+}
+
+function renderTicketThread(messages) {
+  const el = document.getElementById('tkt-chat-thread');
+  if (!messages || !messages.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:12px;padding:30px 0">No messages yet</div>';
+    return;
+  }
+  el.innerHTML = messages.map(m => {
+    const time = new Date(m.created_at).toLocaleString('en-IN', {timeZone:'Asia/Kolkata',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const side = m.sender === 'admin' ? 'from-admin' : 'from-designer';
+    const label = m.sender === 'admin' ? 'You (Admin)' : 'Designer';
+    const safe = (m.message || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `
+      <div class="tkt-chat-row ${side}">
+        <div class="tkt-chat-label">${label}</div>
+        <div class="tkt-chat-bubble">${safe}</div>
+        <div class="tkt-chat-time">${time}</div>
+      </div>`;
+  }).join('');
+  // Auto-scroll to bottom so latest is visible
+  const wrap = el.parentElement;
+  if (wrap) wrap.scrollTop = wrap.scrollHeight;
 }
 
 function closeTicketModal() {
   document.getElementById('ticketOv').classList.remove('open');
   activeTicketId = null;
+  activeTicketStatus = null;
 }
 
 async function doTicketReply() {
@@ -1813,13 +1874,18 @@ async function doTicketReply() {
   if (!reply) { showToast('Please type a reply first', 'error'); return; }
   if (!activeTicketId) return;
   try {
-    const r = await fetch(`${SERVER_URL}/reply-ticket`, {
+    const r = await fetch(`${SERVER_URL}/ticket-message`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ ticketId: activeTicketId, adminReply: reply })
+      body: JSON.stringify({ ticketId: activeTicketId, sender: 'admin', message: reply })
     });
     if (!r.ok) throw new Error();
     showToast('Reply sent', 'success');
-    closeTicketModal();
+    document.getElementById('tkt-reply-input').value = '';
+    activeTicketStatus = 'Replied';
+    const pill = document.getElementById('tkt-status-pill');
+    pill.className = 'lv-pill lv-replied';
+    pill.innerText = 'Replied';
+    await loadTicketThread(activeTicketId);
     loadAllTickets();
   } catch { showToast('Failed to send reply', 'error'); }
 }
