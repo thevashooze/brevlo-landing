@@ -532,6 +532,7 @@
               </button>
               <div id="ticketDrPanel" style="display:none;align-items:center;overflow:hidden;max-width:0;transition:max-width 0.45s cubic-bezier(0.4,0,0.2,1)">
                 <div class="dr-opt" onclick="setTicketDateRange('lifetime',event)" data-tdr="lifetime">Lifetime</div>
+                <div class="dr-opt" onclick="setTicketDateRange('6months',event)" data-tdr="6months">6 Months</div>
                 <div class="dr-opt" onclick="setTicketDateRange('month',event)" data-tdr="month">This Month</div>
                 <div class="dr-opt active-tdr" onclick="setTicketDateRange('today',event)" data-tdr="today">Today</div>
               </div>
@@ -1021,7 +1022,7 @@ function renderStats() {
     <div class="stat-card ${currentFilter==='all'?'active':''}" onclick="setFilter('all')">
       <div class="stat-label">All Orders</div>
       <div class="stat-num" style="color:var(--text)">${filteredTotal}</div>
-      <div class="stat-hint">${totalFilterLabels[totalOrdersFilter]}</div>
+      <div class="stat-hint">${totalFilterLabels[adminDateRange]}</div>
     </div>`;
 
   document.getElementById('statGrid').innerHTML = regularCards + totalCard;
