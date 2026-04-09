@@ -886,6 +886,7 @@ async function loadAll() {
     const [dR, oR] = await Promise.all([fetch(`${SERVER_URL}/get-designers`), fetch(`${SERVER_URL}/all-orders`)]);
     allDesigners = await dR.json();
     allOrders    = await oR.json();
+    allOrders.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     renderAll();
   } catch(e) { console.error(e); }
   finally {
@@ -1380,6 +1381,7 @@ async function loadLeaveRequests() {
   try {
     const res = await fetch(`${SERVER_URL}/leave-requests`);
     allLeaves = await res.json();
+    allLeaves.sort((a,b) => new Date(b.created_at || b.start_date).getTime() - new Date(a.created_at || a.start_date).getTime());
     renderLeaves();
     updateLeaveBadge();
   } catch(e) { console.error(e); }
@@ -1753,6 +1755,7 @@ async function loadAllTickets() {
   try {
     const res = await fetch(`${SERVER_URL}/all-tickets`);
     allTickets = await res.json();
+    allTickets.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     renderTickets();
     updateSupportBadge();
   } catch(e) { console.error(e); }
