@@ -510,7 +510,7 @@
         <div class="table-card">
           <table>
             <thead><tr>
-              <th>Date</th><th>Order ID</th><th>Title</th><th>Designer</th><th>Revenue</th><th>Status</th><th>TAT</th>
+              <th>Date</th><th>Order ID</th><th>Title</th><th>Designer</th><th>Revenue</th><th>Status</th><th>TAT</th><th>PSD</th>
             </tr></thead>
             <tbody id="ledgerBody"></tbody>
           </table>
@@ -656,7 +656,8 @@
         </div>
         <button class="act-btn btn-approve" id="m-appbtn" onclick="doApprove()">✓ Approve Design</button>
         <button class="act-btn btn-reject"  id="m-rejbtn" onclick="openRevModal()">↩ Issue Revision</button>
-        <button class="act-btn btn-ghost"   id="m-dlbtn"  onclick="doDownload()" style="display:none">↓ Download File</button>
+        <button class="act-btn btn-ghost"   id="m-dlbtn"  onclick="doDownload()" style="display:none">↓ Download Thumbnail</button>
+        <a class="act-btn btn-ghost" id="m-psdbtn" style="display:none;text-align:center;text-decoration:none" download>📁 Download PSD</a>
         <hr class="divider">
         <button class="act-btn btn-purple" id="m-reassignbtn" onclick="toggleReassign()">⇄ Reassign Designer</button>
         <select class="sub-input" id="reassignSel"></select>
@@ -1182,6 +1183,9 @@ function openOrderModal(id) {
   const noReassign = o.status === 'Approved';
   document.getElementById('m-reassignbtn').classList.toggle('btn-off', noReassign);
   document.getElementById('m-dlbtn').style.display=o.thumbnail_url?'block':'none';
+  const psdBtn=document.getElementById('m-psdbtn');
+  if(o.psd_url){psdBtn.href=o.psd_url;psdBtn.style.display='block';}
+  else psdBtn.style.display='none';
 
   document.getElementById('reassignSel').classList.remove('show');
   document.getElementById('reassignBtn').style.display='none';
@@ -1314,8 +1318,9 @@ function renderLedger(){
       <td style="color:var(--green);font-weight:700">₹${o.amount_paid||1500}</td>
       <td><span class="sp ${spC(o.status)}">${spL(o.status)}</span></td>
       <td style="font-size:11px;color:var(--text3)">${tat}</td>
+      <td>${o.psd_url?`<a href="${o.psd_url}" download style="color:var(--accent);font-size:11px;font-weight:600;text-decoration:none">📁 PSD</a>`:'<span style="color:var(--text3);font-size:11px">—</span>'}</td>
     </tr>`;
-  }).join('')||`<tr><td colspan="7" class="empty-state">No records</td></tr>`;
+  }).join('')||`<tr><td colspan="8" class="empty-state">No records</td></tr>`;
 }
 
 /* LEAVE MANAGEMENT */
