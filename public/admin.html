@@ -1714,14 +1714,17 @@ function setTicketFilter(f) {
 function setTicketDateRange(range, e) {
   if (e) e.stopPropagation();
   ticketDateRange = range;
-  const labels = { lifetime:'Lifetime', month:'This Month', today:'Today' };
+  const labels = { lifetime:'Lifetime', '6months':'6 Months', month:'This Month', today:'Today' };
   const lbl = document.getElementById('ticketDrLabel');
   if (lbl) lbl.innerText = labels[range] || 'Today';
   document.querySelectorAll('[data-tdr]').forEach(p => p.classList.toggle('active-tdr', p.dataset.tdr === range));
-  const panel = document.getElementById('ticketDrPanel');
-  const arrow = document.getElementById('ticketDrArrow');
-  if (panel) { panel.style.maxWidth = '0'; setTimeout(() => { panel.style.display = 'none'; }, 450); }
-  if (arrow) arrow.innerText = '◂';
+  // Only collapse panel when Today is selected
+  if (range === 'today') {
+    const panel = document.getElementById('ticketDrPanel');
+    const arrow = document.getElementById('ticketDrArrow');
+    if (panel) { panel.style.maxWidth = '0'; setTimeout(() => { panel.style.display = 'none'; }, 450); }
+    if (arrow) arrow.innerText = '◂';
+  }
   renderTickets();
 }
 
