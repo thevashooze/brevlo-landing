@@ -592,7 +592,7 @@
             <div style="font-size:12px;color:var(--text3)">Review and manage designer leave applications</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <div style="display:flex;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
+            <div style="display:none;align-items:center;flex-direction:row-reverse;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;" id="leaveDrContainer">
               <button id="leaveDrBtn" onclick="event.stopPropagation();toggleLeaveDR()" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);background:transparent;border:none;border-left:1px solid var(--border2);padding:5px 11px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;flex-shrink:0">
                 📅 <span id="leaveDrLabel">Today</span> <span style="font-size:9px;opacity:0.5" id="leaveDrArrow">◂</span>
               </button>
@@ -1390,7 +1390,22 @@ function setLeaveFilter(f) {
   leaveFilter = f;
   document.querySelectorAll('[data-lf]').forEach(p => p.classList.toggle('active', p.dataset.lf === f));
   const drContainer = document.getElementById('leaveDrContainer');
-  if (drContainer) drContainer.style.display = 'flex';
+  const drPanel = document.getElementById('leaveDrPanel');
+  const drArrow = document.getElementById('leaveDrArrow');
+  if (drContainer) {
+    if (f === 'all') {
+      drContainer.style.display = 'flex';
+    } else {
+      drContainer.style.display = 'none';
+      // Reset to today when hiding
+      leaveDateRange = 'today';
+      if (drPanel) { drPanel.style.maxWidth = '0'; drPanel.style.display = 'none'; }
+      if (drArrow) drArrow.innerText = '◂';
+      const lbl = document.getElementById('leaveDrLabel');
+      if (lbl) lbl.innerText = 'Today';
+      document.querySelectorAll('[data-ldr]').forEach(p => p.classList.toggle('active-dr', p.dataset.ldr === 'today'));
+    }
+  }
   renderLeaves();
 }
 
