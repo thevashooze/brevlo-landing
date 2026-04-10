@@ -36,8 +36,8 @@ const makeLoop = (arr) => [...arr, ...arr, ...arr, ...arr]
 function ThumbnailCard({ item }) {
   return (
     <div
-      className="flex-shrink-0 w-72 mx-3 rounded-2xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:border-purple-500/30"
-      style={{ borderColor: 'rgba(255,255,255,0.05)', aspectRatio: '16/9' }}
+      className="flex-shrink-0 w-[300px] md:w-[440px] lg:w-[500px] mx-3 overflow-hidden transition-all duration-200 hover:scale-[1.02] border-4 border-black rounded-[1rem] shadow-[4px_4px_0_#000]"
+      style={{ aspectRatio: '16/9' }}
     >
       <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
     </div>
@@ -65,21 +65,24 @@ export default function ThumbnailMarquee() {
   const inView = useInView(ref, { once: true, margin: '-60px' })
 
   return (
-    <section id="portfolio" className="py-32 overflow-hidden" ref={ref}>
+    <section id="portfolio" className="py-16 overflow-hidden flex flex-col items-center w-full" ref={ref}>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-        className="text-center mb-16 px-6"
+        className="text-center mb-12 px-4 w-full"
       >
-        <p className="text-xs font-medium tracking-[0.25em] uppercase mb-3" style={{ color: '#a855f7' }}>
-          Our Work
+        <p className="bg-white border-4 border-black inline-block px-4 py-1 text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-[4px_4px_0_#A033FF] rotate-[-2deg] mb-6">
+          OUR WORK
         </p>
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-          Recent Projects
+        <h2
+          className="display-heading text-white text-[clamp(2.5rem,6vw,5.5rem)] tracking-widest uppercase mb-4"
+          style={{ textShadow: '4px 4px 0 #000, 8px 8px 0 rgba(0,0,0,0.1)' }}
+        >
+          RECENT PROJECTS
         </h2>
-        <p className="mt-4 text-gray-600 text-sm tracking-[0.18em] uppercase font-light">
+        <p className="text-white font-black text-lg sm:text-2xl tracking-widest uppercase opacity-90 mx-auto bg-black/50 border-2 border-black/50 px-6 py-2 rounded-xl inline-block">
           Thumbnails that stopped the scroll
         </p>
       </motion.div>
@@ -88,7 +91,7 @@ export default function ThumbnailMarquee() {
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-6 w-full"
       >
         <MarqueeRow items={row1} direction="left"  speed="normal" />
         <MarqueeRow items={row2} direction="right" speed="fast"   />

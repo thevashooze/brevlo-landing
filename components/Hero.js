@@ -2,133 +2,112 @@
 
 import { motion } from 'framer-motion'
 
-const ease = [0.25, 0.1, 0.25, 1]
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease } },
-}
+/* Floating abstract shapes to replace old clutter */
+const FLOATING_SHAPES = [
+  { type: 'cross', color: '#EFC5FF', top: '15%', left: '10%', size: 40, delay: 0 },
+  { type: 'circle', color: '#A033FF', top: '30%', right: '15%', size: 60, delay: 1 },
+  { type: 'square', color: '#22c55e', top: '65%', left: '15%', size: 45, delay: 0.5 },
+  { type: 'cross', color: '#ef4444', top: '75%', right: '10%', size: 30, delay: 1.5 },
+]
 
 export default function Hero() {
-  const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-
-      {/* Background ambient glow */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, #a855f7 0%, transparent 65%)',
-            opacity: 0.07,
-            filter: 'blur(40px)',
-          }}
-        />
-        <div
-          className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, #ec4899 0%, transparent 70%)',
-            opacity: 0.04,
-            filter: 'blur(60px)',
-          }}
-        />
+    <section className="relative w-full flex flex-col items-center justify-start pt-20 pb-16 overflow-hidden">
+      
+      {/* Floating Background Elements */}
+      <div className="absolute inset-0 pointer-events-none z-0 hidden sm:block">
+        {FLOATING_SHAPES.map((shape, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [0, -30, 0],
+              rotate: shape.type === 'square' ? [0, 90, 180] : [0, 0, 0]
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              repeatType: 'reverse',
+              delay: shape.delay,
+              ease: 'easeInOut'
+            }}
+            className="absolute"
+            style={{
+              top: shape.top,
+              left: shape.left,
+              right: shape.right,
+            }}
+          >
+            {shape.type === 'circle' && (
+              <div style={{ width: shape.size, height: shape.size, borderRadius: '50%', border: '6px solid black', backgroundColor: shape.color, boxShadow: '4px 4px 0 #000' }} />
+            )}
+            {shape.type === 'square' && (
+              <div style={{ width: shape.size, height: shape.size, border: '6px solid black', backgroundColor: shape.color, boxShadow: '4px 4px 0 #000' }} />
+            )}
+            {shape.type === 'cross' && (
+              <div className="relative" style={{ width: shape.size, height: shape.size }}>
+                <div style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: '12px', marginTop: '-6px', backgroundColor: shape.color, border: '3px solid black' }}></div>
+                <div style={{ position: 'absolute', left: '50%', top: 0, height: '100%', width: '12px', marginLeft: '-6px', backgroundColor: shape.color, border: '3px solid black' }}></div>
+              </div>
+            )}
+          </motion.div>
+        ))}
       </div>
 
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col items-center relative z-10"
-      >
-        {/* Badge */}
-        <motion.div
-          variants={fadeUp}
-          className="mb-10 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-medium tracking-[0.2em] uppercase"
-          style={{
-            borderColor: 'rgba(168,85,247,0.25)',
-            color: '#c084fc',
-            background: 'rgba(168,85,247,0.06)',
-          }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-          YouTube Thumbnail Agency
+      {/* Content Container */}
+      <div className="relative z-10 w-full flex flex-col items-center justify-center flex-1 px-4">
+      
+        {/* ── Process arrows ── */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex items-center gap-4 mb-8 z-10 flex-wrap justify-center">
+          {['DESIGN AUDIT', 'TARGETING', 'EXECUTION'].map((step, i) => (
+            <div key={step} className="flex items-center gap-4">
+              <span className="nb-pill text-black">{step}</span>
+              {i < 2 && <span className="text-black font-black text-xl">→</span>}
+            </div>
+          ))}
         </motion.div>
 
-        {/* Headline */}
-        <motion.h1
-          variants={fadeUp}
-          className="font-bold tracking-tight leading-[0.95] mb-6"
-          style={{ fontSize: 'clamp(4rem, 10vw, 7.5rem)' }}
-        >
-          <span className="text-white block">Beyond</span>
-          <span
-            className="block"
-            style={{
-              background: 'linear-gradient(135deg, #c084fc 0%, #ec4899 55%, #a855f7 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            Visuals.
-          </span>
-        </motion.h1>
-
-        {/* Subheading */}
-        <motion.p
-          variants={fadeUp}
-          className="text-base md:text-lg font-light tracking-[0.15em] text-gray-500 uppercase mb-12 max-w-sm"
-        >
-          We engineer the psychology of the click.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => scrollTo('contact')}
-            className="px-8 py-3.5 text-sm font-semibold tracking-wide rounded-full text-white transition-all duration-200 hover:scale-[1.03] hover:opacity-90 active:scale-[0.98]"
-            style={{
-              background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
-              boxShadow: '0 0 40px rgba(168,85,247,0.22), inset 0 1px 0 rgba(255,255,255,0.1)',
-            }}
-          >
-            Start Your Project →
-          </button>
-          <button
-            onClick={() => scrollTo('portfolio')}
-            className="px-8 py-3.5 text-sm font-semibold tracking-wide rounded-full text-gray-400 border transition-all duration-200 hover:text-white hover:border-purple-500/40 active:scale-[0.98]"
-            style={{
-              borderColor: 'rgba(255,255,255,0.08)',
-              background: 'rgba(255,255,255,0.03)',
-            }}
-          >
-            View Our Work
-          </button>
+        {/* ── Main display headline ── */}
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, delay: 0.1 }} className="relative z-10 text-center mb-10 px-4 w-full">
+          <h1 className="display-heading text-[clamp(4.5rem,10vw,8.5rem)] text-white max-w-[1200px] mx-auto hero-text-shadow leading-[0.85]">
+            Brevlo,<br />Beyond<br />Visuals.
+          </h1>
         </motion.div>
-      </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.8 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-[9px] tracking-[0.35em] uppercase text-gray-600">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 7, 0] }}
-          transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
-          className="w-px h-8 bg-gradient-to-b from-gray-600 to-transparent"
-        />
-      </motion.div>
+        {/* ── CTA button ── */}
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, type: 'spring', delay: 0.32 }} className="relative z-10 flex flex-col items-center mt-4">
+          <a href="/order">
+            <button className="nb-btn hover-purple transition-all duration-300 px-8 py-5 text-[clamp(16px,2vw,22px)] font-black uppercase">
+              RECLAIM YOUR AUDIENCE. GET STARTED NOW.
+            </button>
+          </a>
+          
+          {/* Animated Down Arrow */}
+          <motion.div 
+            animate={{ y: [0, 15, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            className="mt-12 opacity-80 cursor-pointer"
+            onClick={() => window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth'})}
+          >
+             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+               <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+             </svg>
+          </motion.div>
+        </motion.div>
+        
+      </div>
+
+      <style jsx>{`
+        .hero-text-shadow {
+          text-shadow: 6px 6px 0 #000, 10px 10px 0 rgba(0,0,0,0.15) !important;
+          -webkit-text-stroke: 4px #000;
+        }
+        /* Override hover states for the hero button specifically */
+        .hover-purple:hover {
+          background-color: #A033FF !important;
+          color: white !important;
+          border-color: black !important;
+        }
+      `}</style>
     </section>
   )
 }
