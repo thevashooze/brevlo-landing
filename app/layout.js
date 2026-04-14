@@ -38,7 +38,7 @@ export const metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.brevlomedia.com',
-    siteName: 'Brevlo Media',
+    siteName: 'Brevlo',
     title: 'Brevlo | Beyond Visuals — YouTube Thumbnail Agency',
     description: 'Brevlo is a data-driven thumbnail agency built for creators who take growth seriously. We study what makes viewers click — psychology, color theory, composition, and CTR science.',
     images: [
@@ -68,6 +68,13 @@ export const metadata = {
   verification: {
     google: '',
   },
+}
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Brevlo',
+  url: 'https://www.brevlomedia.com',
 }
 
 const jsonLd = {
@@ -114,6 +121,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
