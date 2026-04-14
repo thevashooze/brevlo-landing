@@ -36,7 +36,7 @@ const makeLoop = (arr) => [...arr, ...arr, ...arr, ...arr]
 function ThumbnailCard({ item }) {
   return (
     <div
-      className="flex-shrink-0 w-[300px] md:w-[440px] lg:w-[500px] mx-3 overflow-hidden transition-all duration-200 hover:scale-[1.02] border-4 border-black rounded-[1rem] shadow-[4px_4px_0_#000]"
+      className="flex-shrink-0 w-[220px] md:w-[300px] lg:w-[340px] mx-2.5 overflow-hidden border-4 border-black shadow-[0_8px_0_#0A0A0A] transition-all duration-[80ms] ease-out cursor-pointer hover:translate-y-[8px] hover:shadow-none hover:border-[#FFE600]"
       style={{ aspectRatio: '16/9' }}
     >
       <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
@@ -50,7 +50,7 @@ function MarqueeRow({ items, direction = 'left', speed = 'normal' }) {
     : (speed === 'fast' ? 'animate-marquee-right-fast' : 'animate-marquee-right')
 
   return (
-    <div className="flex overflow-hidden marquee-track">
+    <div className="flex marquee-track">
       <div className={`flex ${animClass}`}>
         {makeLoop(items).map((item, i) => (
           <ThumbnailCard key={i} item={item} />
@@ -65,7 +65,7 @@ export default function ThumbnailMarquee() {
   const inView = useInView(ref, { once: true, margin: '-60px' })
 
   return (
-    <section id="portfolio" className="py-16 overflow-hidden flex flex-col items-center w-full" ref={ref}>
+    <section id="portfolio" className="py-16 overflow-hidden flex flex-col items-center w-full scroll-mt-20" ref={ref}>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -73,16 +73,10 @@ export default function ThumbnailMarquee() {
         transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
         className="text-center mb-12 px-4 w-full"
       >
-        <p className="bg-white border-4 border-black inline-block px-4 py-1 text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-[4px_4px_0_#A033FF] rotate-[-2deg] mb-6">
-          OUR WORK
-        </p>
-        <h2
-          className="display-heading text-white text-[clamp(2.5rem,6vw,5.5rem)] tracking-widest uppercase mb-4"
-          style={{ textShadow: '4px 4px 0 #000, 8px 8px 0 rgba(0,0,0,0.1)' }}
-        >
-          RECENT PROJECTS
+        <h2 className="font-black text-white text-[clamp(2.2rem,5.5vw,4.5rem)] uppercase tracking-tight leading-[0.95] mb-3">
+          RECENT <span style={{ color: '#FFE600' }}>PROJECTS</span>
         </h2>
-        <p className="text-white font-black text-lg sm:text-2xl tracking-widest uppercase opacity-90 mx-auto bg-black/50 border-2 border-black/50 px-6 py-2 rounded-xl inline-block">
+        <p className="text-white/40 font-bold text-sm uppercase tracking-widest">
           Thumbnails that stopped the scroll
         </p>
       </motion.div>

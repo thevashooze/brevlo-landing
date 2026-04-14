@@ -1,26 +1,58 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Rocket Thunder (display / hero) ── */
+@font-face {
+  font-family: 'RocketThunder';
+  src: url('/fonts/RocketThunder.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --bg:      #5407A3; /* Deep, rich purple base */
-  --black:   #000000;
-  --white:   #ffffff;
-  --yellow:  #FFE600;
-  --green:   #22c55e;
-  --red:     #ef4444;
-  --font-display: var(--font-poppins), 'Poppins', sans-serif;
+  --bg:       #5407A3;
+  --black:    #0A0A0A;
+  --white:    #ffffff;
+  --cream:    #F5F0E8;
+  --purple:   #A033FF;
+  --yellow:   #FFE600;
+  --lavender: #D4AAFF;
+  --orange:   #FF6B35;
+  --green:    #00CC6A;
+  --red:      #FF3333;
+  --font-rocket: 'RocketThunder', Impact, sans-serif;
+  --font-body:   'Satoshi', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
+  background: linear-gradient(135deg, #3D0080 0%, #6B1FCC 60%, #5407A3 100%) fixed;
+  background-attachment: fixed;
   color: var(--white);
+  font-family: var(--font-body);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════
+   LAYOUT HELPERS
+═══════════════════════════════════════ */
+.section {
+  position: relative;
+  width: 100%;
+  padding: 5rem 1rem;
+}
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* ═══════════════════════════════════
@@ -29,112 +61,158 @@ body {
 .bg-texture-grid {
   position: fixed;
   inset: -100px -100px -100px -100px;
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-image:
+    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
   z-index: -10;
   animation: moveGrid 15s linear infinite;
-  transform: translateZ(0); /* Hardware acceleration */
+  transform: translateZ(0);
 }
 
 @keyframes moveGrid {
-  0% { background-position: 0 0; }
+  0%   { background-position: 0 0; }
   100% { background-position: 60px 60px; }
+}
+@keyframes moveGridSm {
+  0%   { background-position: 0 0; }
+  100% { background-position: 44px 44px; }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Grid on yellow/dark bg */
+.grid-live {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  animation: moveGridSm 6s linear infinite;
+}
+/* Grid on purple bg */
+.grid-live-purple {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  animation: moveGridSm 6s linear infinite;
 }
 
 /* ═══════════════════════════════════
    NEO-BRUTALIST ARCHITECTURE
-   Thick borders, hard offset shadow, snap hover
 ═══════════════════════════════════════ */
 
-/* Standard Card */
+/* Cards */
 .nb-card {
   background: #fff;
-  border: 4px solid #000;
-  border-radius: 16px;
-  box-shadow: 8px 8px 0 #000;
-  color: #000;
+  border: 4px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 8px 8px 0 var(--black);
+  color: var(--black);
 }
-
 .nb-card-dark {
   background: #111;
-  border: 4px solid #000;
-  border-radius: 16px;
-  box-shadow: 8px 8px 0 #000;
+  border: 4px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 8px 8px 0 var(--black);
   color: #fff;
 }
-
 .nb-card-purple {
-  background: #8916FF;
-  border: 4px solid #000;
-  border-radius: 16px;
-  box-shadow: 8px 8px 0 #000;
+  background: var(--purple);
+  border: 4px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 8px 8px 0 var(--black);
   color: #fff;
 }
-
-/* Interactive Card (Hover Mechanics) */
 .nb-card-hover {
   background: #fff;
-  border: 4px solid #000;
-  border-radius: 16px;
-  box-shadow: 8px 8px 0 #000;
-  color: #000;
+  border: 4px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 8px 8px 0 var(--black);
+  color: var(--black);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 .nb-card-hover:hover {
   transform: translate(8px, 8px);
-  box-shadow: 0px 0px 0 #000;
+  box-shadow: 0 0 0 var(--black);
 }
 
-/* ─── Buttons ─── */
+/* Buttons — rectangular */
 .nb-btn {
   background: #fff;
-  border: 4px solid #000;
-  border-radius: 12px;
-  box-shadow: 6px 6px 0 #000;
-  color: #000;
+  border: 4px solid var(--black);
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--black);
+  color: var(--black);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   display: inline-block;
   text-align: center;
 }
-.nb-btn:hover {
-  transform: translate(6px, 6px);
-  box-shadow: 0px 0px 0 #000;
-  background: #f4f4f4;
+.nb-btn:hover  { transform: translate(6px,6px); box-shadow: 0 0 0 var(--black); }
+.nb-btn:active { transform: translate(6px,6px); box-shadow: 0 0 0 var(--black); }
+
+.nb-btn-yellow {
+  background: var(--yellow);
+  border: 4px solid var(--black);
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--black);
+  color: var(--black);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: inline-block;
+  text-align: center;
 }
+.nb-btn-yellow:hover  { transform: translate(6px,6px); box-shadow: 0 0 0 var(--black); }
+.nb-btn-yellow:active { transform: translate(8px,8px); box-shadow: 0 0 0 var(--black); }
 
 .nb-btn-purple {
-  background: #A033FF;
-  border: 4px solid #000;
-  border-radius: 12px;
-  box-shadow: 6px 6px 0 #000;
+  background: var(--purple);
+  border: 4px solid var(--black);
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--black);
   color: #fff;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   display: inline-block;
   text-align: center;
 }
-.nb-btn-purple:hover {
-  transform: translate(6px, 6px);
-  box-shadow: 0px 0px 0 #000;
-}
+.nb-btn-purple:hover  { transform: translate(6px,6px); box-shadow: 0 0 0 var(--black); }
+.nb-btn-purple:active { transform: translate(8px,8px); box-shadow: 0 0 0 var(--black); }
 
-/* ─── Pill tags ─── */
+/* Pills */
 .nb-pill {
   background: #fff;
-  color: #000;
-  border: 3px solid #000;
+  color: var(--black);
+  border: 3px solid var(--black);
   border-radius: 100px;
-  box-shadow: 4px 4px 0 #000;
+  box-shadow: 4px 4px 0 var(--black);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 24px;
+  display: inline-block;
+}
+.nb-pill-yellow {
+  background: var(--yellow);
+  color: var(--black);
+  border: 3px solid var(--black);
+  border-radius: 100px;
+  box-shadow: 4px 4px 0 var(--black);
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -143,71 +221,91 @@ body {
   display: inline-block;
 }
 
-/* ─── Headings & Typography ─── */
-.display-heading {
-  font-family: var(--font-display);
-  font-weight: 900;
+/* Label tag */
+.label-tag {
+  background: var(--yellow);
+  color: var(--black);
+  border: 3px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  line-height: 0.95;
-  letter-spacing: -0.01em;
-  text-shadow: 4px 4px 0 #000; /* Default text stroke/shadow effect */
+  padding: 6px 20px;
+  display: inline-block;
 }
 
-/* Title Input specific (AITrapWidget) */
+/* Typography */
+.font-rocket {
+  font-family: var(--font-rocket);
+  text-transform: uppercase;
+}
+
+/* Input */
 .nb-input {
   background: #fff;
-  border: 4px solid #000;
+  border: 4px solid var(--black);
   border-radius: 12px;
-  color: #000;
+  color: var(--black);
   font-weight: 800;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 .nb-input:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(137, 22, 255, 0.4);
+  box-shadow: 0 0 0 4px rgba(160,51,255,0.4);
 }
 
-/* Range sliders (ROI Calculator) */
+/* Range sliders */
 input[type='range'] {
   -webkit-appearance: none;
   width: 100%;
-  height: 16px;
+  height: 14px;
   background: #fff;
   border-radius: 100px;
-  border: 3px solid #000;
+  border: 3px solid var(--black);
   outline: none;
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 30px; height: 30px;
+  width: 28px; height: 28px;
   border-radius: 8px;
-  background: #EFC5FF;
-  border: 4px solid #000;
-  box-shadow: 3px 3px 0 #000;
+  background: var(--yellow);
+  border: 4px solid var(--black);
+  box-shadow: 3px 3px 0 var(--black);
   cursor: grab;
   transition: transform 0.1s;
 }
 input[type='range']::-webkit-slider-thumb:active {
   cursor: grabbing;
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 #000;
+  transform: translate(3px,3px);
+  box-shadow: 0 0 0 var(--black);
 }
 input[type='range']::-moz-range-thumb {
-  width: 30px; height: 30px;
+  width: 28px; height: 28px;
   border-radius: 8px;
-  background: #EFC5FF;
-  border: 4px solid #000;
-  box-shadow: 3px 3px 0 #000;
+  background: var(--yellow);
+  border: 4px solid var(--black);
+  box-shadow: 3px 3px 0 var(--black);
   cursor: grab;
 }
 input[type='range']::-moz-range-thumb:active {
-  box-shadow: 0 0 0 #000;
-  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--black);
+  transform: translate(3px,3px);
 }
 
-/* Selection */
-::selection { background: #EFC5FF; color: #000; }
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: var(--bg); border-left: 3px solid #000; }
-::-webkit-scrollbar-thumb { background: #000; border: 2px solid var(--bg); }
+/* Marquee — clip x only, allow y for shadows */
+.marquee-track {
+  overflow-x: clip;
+  overflow-y: visible;
+  padding-top: 6px;
+  padding-bottom: 10px;
+}
+.marquee-track:hover > div {
+  animation-play-state: paused;
+}
 
+/* Selection + scrollbar */
+::selection { background: var(--yellow); color: var(--black); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); border-left: 3px solid var(--black); }
+::-webkit-scrollbar-thumb { background: var(--black); border: 2px solid var(--bg); }

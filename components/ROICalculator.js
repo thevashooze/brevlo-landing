@@ -3,109 +3,48 @@
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
-/* Formula: extraRevenue = (views / 1000) * RPM * (ctrIncrease / currentCTR) 
-   Wait, if we increase CTR, extra views = views * (ctrIncrease / currentCTR)?
-   Actually, the user had: views * (ctrIncrease/100) * 66.67.
-   Let's integrate RPM: views * (ctrIncrease/100) * RPM.
-*/
-/* Map slider (0-100) to views (100 - 10M) 
-   0-70: 100 to 5M (linear-ish)
-   71-100: 5M to 10M steps
-*/
-function mapValueToViews(val) {
-  if (val <= 70) return Math.round((val / 70) * 5000000) || 100
-  if (val <= 80) return 7000000
-  if (val <= 90) return 8000000
-  if (val <= 95) return 9000000
-  return 10000000
+function mapSliderToViews(v) {
+  if (v <= 70) return Math.max(1000, Math.round((v / 70) * 1000000))
+  if (v <= 90) return Math.round(1000000 + ((v - 70) / 20) * 4000000)
+  return Math.round(5000000 + ((v - 90) / 10) * 5000000)
+}
+function mapViewsToSlider(views) {
+  if (views <= 1000000) return (views / 1000000) * 70
+  if (views <= 5000000) return 70 + ((views - 1000000) / 4000000) * 20
+  return 90 + ((views - 5000000) / 5000000) * 10
+}
+function fmt(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
+  if (n >= 1000) return (n / 1000).toFixed(0) + 'K'
+  return n.toString()
+}
+function fmtUSD(n) {
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 }
 
-function mapViewsToValue(views) {
-  if (views <= 5000000) return (views / 5000000) * 70
-  if (views <= 7000000) return 75
-  if (views <= 8000000) return 85
-  if (views <= 9000000) return 93
-  return 100
-}
-
-function calcRevenue(views, ctrIncrease, rpm) {
-  return views * (ctrIncrease / 100) * rpm
-}
-
-function formatAbbr(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
-  return num.toString()
-}
-
-/* Styled slider with integrated text/number input */
-function Slider({ label, value, min, max, step, onChange, formatDisplay, isAbbrDisplay, sliderValue, onSliderChange }) {
-  const displayVal = value
-  const pct = (((sliderValue !== undefined ? sliderValue : value) - min) / (max - min)) * 100
-  const [isEditing, setIsEditing] = useState(false)
-  const [tempVal, setTempVal] = useState(value)
-
+function Slider({ label, value, min, max, step, onChange, display, sliderVal, onSliderChange }) {
+  const pct = (((sliderVal ?? value) - min) / (max - min)) * 100
   return (
-    <div className="bg-white border-4 border-black rounded-xl p-4 shadow-[6px_6px_0_#000] w-full mb-4 hover:-translate-y-1 transition-transform">
-      <div className="flex justify-between items-center mb-4 gap-2">
-        <label className="text-black font-black text-[clamp(14px,1.5vw,18px)] tracking-wide uppercase">
-          {label}
-        </label>
-        
-        {/* Number Editor block */}
-        <div className="flex items-center gap-2 bg-[#f4f4f4] border-4 border-black rounded-lg px-2 py-1 shadow-[4px_4px_0_#A033FF]">
-           {isAbbrDisplay && !isEditing ? (
-             <div 
-               className="text-black font-black text-lg w-20 text-center cursor-text select-none"
-               onClick={() => { setIsEditing(true); setTempVal(value); }}
-             >
-               {formatAbbr(value)}
-             </div>
-           ) : (
-             <input
-               type="number"
-               className={`bg-transparent text-black font-black text-lg w-20 outline-none text-center appearance-none`}
-               min={min} max={max} step={step}
-               value={isEditing ? tempVal : value}
-               autoFocus={isEditing}
-               onBlur={() => {
-                 if (isAbbrDisplay) setIsEditing(false);
-                 onChange(Number(tempVal) || value)
-               }}
-               onChange={(e) => {
-                  let val = e.target.value
-                  setTempVal(val)
-                  if (!isAbbrDisplay) onChange(Number(val))
-               }}
-               onKeyDown={(e) => {
-                 if (e.key === 'Enter') {
-                   if (isAbbrDisplay) setIsEditing(false);
-                   onChange(Number(tempVal) || value)
-                 }
-               }}
-             />
-           )}
-           {!isAbbrDisplay && <span className="text-black font-black text-md">{formatDisplay}</span>}
-        </div>
+    <div className="border-4 border-black p-5 bg-white" style={{ boxShadow: '4px 4px 0 #0A0A0A' }}>
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-black font-black text-base uppercase tracking-wide">{label}</span>
+        <span
+          className="font-black text-black text-lg px-4 py-1 border-4 border-black min-w-[80px] text-center"
+          style={{ background: '#FFE600', boxShadow: '3px 3px 0 #0A0A0A' }}
+        >
+          {display}
+        </span>
       </div>
-      
-      <div className="relative">
-        <input
-          type="range"
-          min={min} max={max} step={step}
-          value={sliderValue !== undefined ? sliderValue : value}
-          onChange={(e) => {
-            if (onSliderChange) {
-              onSliderChange(Number(e.target.value))
-            } else {
-              onChange(Number(e.target.value))
-            }
-            if (isEditing) setTempVal(e.target.value)
-          }}
-          style={{ background: `linear-gradient(to right, #A033FF ${pct}%, #E5E5E5 ${pct}%)` }}
-          className="w-full"
-        />
-      </div>
+      <input
+        type="range" min={min} max={max} step={step}
+        value={sliderVal ?? value}
+        onChange={e => {
+          const v = Number(e.target.value)
+          onSliderChange ? onSliderChange(v) : onChange(v)
+        }}
+        style={{ background: `linear-gradient(to right, #A033FF ${pct}%, #e5e7eb ${pct}%)` }}
+        className="w-full"
+      />
     </div>
   )
 }
@@ -114,122 +53,143 @@ export default function ROICalculator() {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
-  const [views,       setViews]       = useState(1000000)
-  const [currentCTR,  setCurrentCTR]  = useState(3.8)
-  const [ctrIncrease, setCtrIncrease] = useState(5)
-  const [rpm,         setRpm]         = useState(66.67) // Default RPM
+  const [vSlider,    setVSlider]    = useState(mapViewsToSlider(500000))
+  const [views,      setViews]      = useState(500000)
+  const [currentCTR, setCurrentCTR] = useState(3.5)
+  const [rpm,        setRpm]        = useState(4)
 
-  // View slider mapping state
-  const [vSlider, setVSlider] = useState(mapViewsToValue(1000000))
-
-  // Clamp values
-  const safeViews = Math.max(100, Math.min(views, 10000000))
-  const safeCtrInc = Math.max(0.1, Math.min(ctrIncrease, 20))
-  const safeCurrentCtr = Math.max(0.1, Math.min(currentCTR, 20))
-
-  const extra       = calcRevenue(safeViews, safeCtrInc, rpm)
-  // Revenue Lift capped at 100% and calculated as percent increase over baseline
-  const liftRaw     = (safeCtrInc / safeCurrentCtr) * 100
-  const roiPct      = Math.min(100, Math.round(liftRaw)) 
-
-  const fmtUSD      = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+  const newCTR       = currentCTR * 1.5
+  const extraFromCTR = views * ((newCTR - currentCTR) / 100)
+  const algoBoost    = views * 0.20
+  const extraRevenue = (extraFromCTR + algoBoost) * (rpm / 1000)
+  const roi          = Math.round(extraRevenue / 20)
+  const revLift      = extraRevenue > 0 ? Math.round((extraRevenue / 20) * 100) : 0
 
   return (
-    <section ref={ref} className="relative w-full py-16 px-4 overflow-hidden flex flex-col items-center">
-      <div className="w-full max-w-6xl mx-auto flex flex-col items-center">
+    <section ref={ref} className="relative w-full py-20 px-4">
+      <div className="container">
+
+        {/* Heading */}
         <motion.div
-          initial={{ opacity: 0, y: 32 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.65 }}
-          className="w-full"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
         >
-          {/* Main Title */}
-          <div className="text-center mb-10">
-            <h2 className="display-heading text-white text-[clamp(2rem,5vw,4.5rem)] leading-[0.9] text-center" style={{ textShadow: '4px 4px 0 #000, 8px 8px 0 rgba(0,0,0,0.1)' }}>
-               IS $20 WORTH $2,000?<br/>
-               DO THE MATH.
-            </h2>
-          </div>
-
-          <div className="bg-[#A033FF] border-4 border-black p-5 sm:p-8 rounded-[1.5rem] shadow-[12px_12px_0_#000] w-full flex flex-col lg:flex-row gap-6 items-stretch">
-            
-            {/* Sliders Area */}
-            <div className="flex flex-col flex-1 justify-center">
-              <Slider 
-                label="Views" 
-                value={views} 
-                sliderValue={vSlider}
-                min={0} max={100} step={1} 
-                onSliderChange={(val) => {
-                  setVSlider(val)
-                  setViews(mapValueToViews(val))
-                }}
-                onChange={(val) => {
-                  setViews(val)
-                  setVSlider(mapViewsToValue(val))
-                }}
-                isAbbrDisplay={true}
-              />
-              <Slider 
-                label="RPM ($)" 
-                value={rpm} 
-                min={0.5} max={150} step={0.1} 
-                onChange={setRpm} 
-                formatDisplay="$"
-              />
-              <Slider 
-                label="Current CTR" 
-                value={currentCTR} 
-                min={0.1} max={20} step={0.1} 
-                onChange={setCurrentCTR} 
-                formatDisplay="%" 
-              />
-              <Slider 
-                label="Potential CTR Increase" 
-                value={ctrIncrease} 
-                min={0.1} max={20} step={0.1} 
-                onChange={setCtrIncrease} 
-                formatDisplay="%" 
-              />
-            </div>
-
-            {/* Output box Area */}
-            <div className="flex-1 flex flex-col justify-center h-full min-h-[400px]">
-              <div className="bg-black border-4 border-white rounded-2xl p-6 sm:p-8 text-center shadow-[8px_8px_0_#000] relative overflow-hidden mb-6 h-full flex flex-col justify-center hover:-translate-y-2 hover:shadow-[12px_12px_0_#000] transition-all">
-                <p className="text-[#EFC5FF] font-black text-xl mb-2 tracking-widest uppercase">PROJECTED</p>
-                {/* Changed "EXTRA REVENUE" color to green */}
-                <p className="text-[#22c55e] font-display text-[clamp(2.5rem,5vw,3.5rem)] font-black leading-none mb-6 tracking-tighter" style={{ textShadow: '4px 4px 0 #FFF' }}>
-                  EXTRA REVENUE
-                </p>
-                <div className="bg-white border-4 border-black text-black px-6 py-4 w-max max-w-full overflow-hidden mx-auto shadow-[6px_6px_0_#A033FF] rotate-[-2deg] hover:rotate-0 transition-transform">
-                   <p className="font-black text-[clamp(2rem,4vw,3.5rem)] leading-none">{fmtUSD(extra)}</p>
-                </div>
-                <div className="mt-8">
-                   <p className="text-white text-base uppercase font-black tracking-widest bg-[#A033FF] border-4 border-black inline-block px-4 py-2 shadow-[4px_4px_0_#FFF]">
-                     REVENUE LIFT: {roiPct.toLocaleString()}%
-                   </p>
-                </div>
-              </div>
-
-              {/* System log -> Fun Fact Joke */}
-              <div className="bg-white border-4 border-black rounded-xl p-4 font-mono text-[11px] sm:text-[13px] shadow-[4px_4px_0_#000] rotate-[1deg] w-full text-center">
-                 <span className="text-[#A033FF] font-black uppercase tracking-widest">FUN FACT:</span><br/>
-                 <span className="text-black font-bold uppercase">A BAD THUMBNAIL COSTS MORE THAN A TOP-TIER DESIGNER.</span>
-              </div>
-            </div>
-
-          </div>
-
+          <h2 className="font-rocket text-white leading-none mb-4" style={{ fontSize: 'clamp(3rem,8vw,7rem)' }}>
+            DO THE <span style={{ color: '#FFE600' }}>MATH.</span>
+          </h2>
+          <p className="text-white/40 font-bold text-sm uppercase tracking-widest">
+            Adjust your numbers — see your projected ROI live
+          </p>
         </motion.div>
-      </div>
 
-      <style jsx>{`
-         input[type=number]::-webkit-inner-spin-button, 
-         input[type=number]::-webkit-outer-spin-button { 
-           -webkit-appearance: none; 
-           margin: 0; 
-         }
-      `}</style>
+        {/* Calculator */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="rounded-2xl border-4 border-black overflow-hidden shadow-[20px_20px_0_#FFE600] flex flex-col lg:flex-row"
+        >
+
+          {/* LEFT — inputs */}
+          <div className="flex-1 p-8 sm:p-10 border-b-4 lg:border-b-0 lg:border-r-4 border-black" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <p className="font-black text-white/30 text-xs uppercase tracking-[0.2em] mb-6">Your Channel Numbers</p>
+
+            <div className="flex flex-col gap-4">
+              <Slider
+                label="Monthly Views"
+                value={views} min={0} max={100} step={1}
+                sliderVal={vSlider}
+                display={fmt(views)}
+                onSliderChange={v => { setVSlider(v); setViews(mapSliderToViews(v)) }}
+                onChange={setViews}
+              />
+              <Slider
+                label="Current CTR"
+                value={currentCTR} min={0.5} max={15} step={0.1}
+                display={`${currentCTR.toFixed(1)}%`}
+                onChange={setCurrentCTR}
+              />
+              <Slider
+                label="RPM (per 1K views)"
+                value={rpm} min={0.5} max={50} step={0.5}
+                display={`$${rpm.toFixed(1)}`}
+                onChange={setRpm}
+              />
+            </div>
+
+            {/* CTR badge */}
+            <div className="mt-6 border-4 border-black p-5 flex items-center gap-4" style={{ background: '#A033FF', boxShadow: '6px 6px 0 #0A0A0A' }}>
+              <div className="w-10 h-10 rounded-full bg-[#FFE600] border-2 border-black flex items-center justify-center flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[#FFE600] font-black text-xs uppercase tracking-widest mb-1">Brevlo CTR Multiplier</p>
+                <p className="text-white font-black text-xl">
+                  {currentCTR.toFixed(1)}% → <span style={{ color: '#FFE600' }}>{newCTR.toFixed(1)}%</span>
+                  <span className="text-white/40 text-sm font-semibold ml-2">(1.5× avg)</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT — results */}
+          <div className="flex-1 p-8 sm:p-10 flex flex-col gap-5" style={{ background: '#0A0A0A' }}>
+            <p className="font-black text-white/20 text-xs uppercase tracking-[0.2em]">Projected</p>
+
+            {/* Big revenue */}
+            <div className="border-4 border-white/10 p-6 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <p className="text-white/40 font-black text-xs uppercase tracking-widest mb-3">Extra Monthly Revenue</p>
+              <p className="font-rocket text-[#FFE600] leading-none" style={{ fontSize: 'clamp(3.5rem,7vw,6rem)' }}>
+                {fmtUSD(extraRevenue)}
+              </p>
+            </div>
+
+            {/* Revenue lift badge */}
+            <div className="text-center border-4 border-[#A033FF] px-6 py-3" style={{ background: '#A033FF' }}>
+              <span className="text-white font-black text-sm uppercase tracking-widest">
+                Revenue Lift: <span style={{ color: '#FFE600' }}>{revLift.toLocaleString()}%</span>
+              </span>
+            </div>
+
+            {/* Breakdown */}
+            <div className="flex flex-col gap-2 flex-1">
+              {[
+                { label: 'CTR Improvement', val: `+${(newCTR - currentCTR).toFixed(1)} pts` },
+                { label: 'Algo Boost Views', val: `+${fmt(Math.round(algoBoost))}` },
+                { label: 'Brevlo Cost',      val: '$20' },
+              ].map((r, i) => (
+                <div key={i} className="flex justify-between items-center px-5 py-3.5 border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <span className="text-white/50 font-black text-sm uppercase tracking-wide">{r.label}</span>
+                  <span className="text-white font-black text-base">{r.val}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ROI */}
+            <div className="border-4 border-[#FFE600] p-6 text-center" style={{ background: '#FFE600' }}>
+              <p className="text-black/60 font-black text-xs uppercase tracking-widest mb-2">Return On Investment</p>
+              <p className="font-rocket text-black leading-none" style={{ fontSize: '4rem' }}>
+                {roi > 0 ? `${roi}×` : '—'}
+              </p>
+              <p className="text-black/50 font-black text-xs mt-2 uppercase tracking-wide">
+                Pays for itself in 1 order
+              </p>
+            </div>
+
+            {/* Fun fact */}
+            <div className="border-4 border-white/20 px-5 py-4" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <p className="text-white/30 font-black text-xs uppercase tracking-widest mb-1">Fun Fact</p>
+              <p className="text-white/60 font-bold text-sm">A bad thumbnail costs more than a top-tier designer.</p>
+            </div>
+
+          </div>
+        </motion.div>
+
+      </div>
     </section>
   )
 }
