@@ -9,7 +9,7 @@ const REVIEWS = [
     quote: "Went from 2.3% to 8.1% CTR in three weeks. At $20 a thumbnail that's the best ROI I've ever seen. My analytics dashboard doesn't lie.",
     name: 'Tyler B.',
     handle: '@TylerBuilds',
-    subs: '340K subs',
+    subs: '82K subs',
     accent: '#FFE600',
     accentText: '#0A0A0A',
     shadow: '#FFE600',
@@ -19,7 +19,7 @@ const REVIEWS = [
     quote: "Same-day turnaround and the quality is insane. Used to wait 5 days for freelancers and they delivered garbage. Brevlo just gets it.",
     name: 'Marcus T.',
     handle: '@MarcusTech',
-    subs: '150K subs',
+    subs: '67K subs',
     accent: '#A033FF',
     accentText: '#fff',
     shadow: '#A033FF',
@@ -29,7 +29,7 @@ const REVIEWS = [
     quote: "CTR went from 3.4% to 6.2% across my last 8 videos. Consistent, reliable, and $20 is basically nothing for the lift you get.",
     name: 'Emma W.',
     handle: '@EmmaTalksFinance',
-    subs: '210K subs',
+    subs: '45K subs',
     accent: '#D4AAFF',
     accentText: '#0A0A0A',
     shadow: '#0A0A0A',
@@ -39,7 +39,7 @@ const REVIEWS = [
     quote: "I run 3 channels across gaming, tech, and finance. Brevlo handles all of them. The niche-specific thinking they put into each thumbnail is what sets them apart.",
     name: 'Jake O.',
     handle: '@JakeOnline',
-    subs: '520K subs',
+    subs: '91K subs',
     accent: '#FFE600',
     accentText: '#0A0A0A',
     shadow: '#FFE600',
@@ -49,7 +49,7 @@ const REVIEWS = [
     quote: "My editor recommended Brevlo and I was skeptical. First thumbnail hit 9.3% CTR. Been a customer 4 months straight. Not switching.",
     name: 'Chris V.',
     handle: '@ChrisVlogs',
-    subs: '890K subs',
+    subs: '78K subs',
     accent: '#A033FF',
     accentText: '#fff',
     shadow: '#A033FF',
@@ -59,7 +59,7 @@ const REVIEWS = [
     quote: "Good thumbnails, genuinely fast. Revision process was smooth — they actually listened. Would be 5 stars if the ordering dashboard had more options.",
     name: 'Mia F.',
     handle: '@MiaFitness',
-    subs: '180K subs',
+    subs: '53K subs',
     accent: '#00CC6A',
     accentText: '#0A0A0A',
     shadow: '#0A0A0A',
@@ -69,7 +69,7 @@ const REVIEWS = [
     quote: "Gaming channel went from 2.8% to 7.1% CTR. Thousands of extra clicks per video just from the thumbnail. The $20 pays for itself in the first 200 views.",
     name: 'Zach K.',
     handle: '@ZachKGaming',
-    subs: '1.2M subs',
+    subs: '88K subs',
     accent: '#FFE600',
     accentText: '#0A0A0A',
     shadow: '#FFE600',
@@ -79,7 +79,7 @@ const REVIEWS = [
     quote: "My audience now comments on how good my thumbnails look. That never happened before Brevlo. When viewers notice the thumbnail, you know it's working.",
     name: 'Sofia R.',
     handle: '@SofiaReacts',
-    subs: '430K subs',
+    subs: '62K subs',
     accent: '#A033FF',
     accentText: '#fff',
     shadow: '#A033FF',
@@ -99,7 +99,7 @@ const REVIEWS = [
     quote: "Ordered 12 thumbnails for a series upload. Every single one on time, all hitting above 6% CTR. That consistency is what I pay for.",
     name: 'Lucas D.',
     handle: '@LucasDaily',
-    subs: '720K subs',
+    subs: '74K subs',
     accent: '#FFE600',
     accentText: '#0A0A0A',
     shadow: '#FFE600',
@@ -135,20 +135,30 @@ function NavBtn({ onClick, label, children }) {
   )
 }
 
+/* Container: instant exit, staggered enter */
 const groupVariants = {
-  enter: (d) => ({ x: d > 0 ? '105%' : '-105%', opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit:  (d) => ({ x: d > 0 ? '-105%' : '105%', opacity: 0 }),
+  enter: { opacity: 0 },
+  center: {
+    opacity: 1,
+    transition: { staggerChildren: 0.09, delayChildren: 0.02 },
+  },
+  exit: { opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } },
+}
+
+/* Individual card: slide up + fade in, slide up + fade out */
+const cardVariants = {
+  enter: { opacity: 0, y: 18 },
+  center: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.23, 1, 0.32, 1] } },
+  exit:   { opacity: 0, y: -10, transition: { duration: 0.15 } },
 }
 
 export default function Testimonials() {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const [page, setPage] = useState(0)
-  const [dir, setDir]   = useState(1)
 
-  const next = () => { setDir(1);  setPage(p => (p + 1) % N) }
-  const prev = () => { setDir(-1); setPage(p => (p - 1 + N) % N) }
+  const next = () => setPage(p => (p + 1) % N)
+  const prev = () => setPage(p => (p - 1 + N) % N)
 
   const visible = [
     REVIEWS[page % N],
@@ -185,7 +195,7 @@ export default function Testimonials() {
           transition={{ duration: 0.55, delay: 0.1 }}
           className="flex items-center gap-4"
         >
-          {/* Left arrow — only shown when not on first page */}
+          {/* Left arrow */}
           <div className="flex-shrink-0 w-11">
             {page !== 0 && (
               <NavBtn onClick={prev} label="Previous">
@@ -196,28 +206,26 @@ export default function Testimonials() {
             )}
           </div>
 
-          {/* Slide container — overflow:hidden clips slide, padding lets shadows breathe */}
-          <div className="flex-1" style={{ overflow: 'hidden' }}>
-            <AnimatePresence mode="wait" custom={dir} initial={false}>
+          {/* Slide container */}
+          <div className="flex-1" style={{ paddingRight: '8px', paddingBottom: '10px' }}>
+            <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={page}
-                custom={dir}
                 variants={groupVariants}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.38, ease: [0.23, 1, 0.32, 1] }}
-                style={{ paddingRight: '8px', paddingBottom: '10px' }}
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                   {visible.map((r, i) => (
-                    <div
+                    <motion.div
                       key={i}
+                      variants={cardVariants}
                       className="testimonial-card flex flex-col gap-5 border-4 border-black bg-white p-7 cursor-default"
                       style={{
                         boxShadow: `6px 6px 0 ${r.shadow}`,
                         '--card-shadow': r.shadow,
-                        minHeight: '260px',
+                        minHeight: '300px',
                       }}
                     >
                       {/* Stars */}
@@ -245,7 +253,7 @@ export default function Testimonials() {
                           <p className="text-black/40 text-xs mt-0.5 font-semibold">{r.handle} · {r.subs}</p>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </motion.div>
@@ -267,7 +275,7 @@ export default function Testimonials() {
           {REVIEWS.map((_, i) => (
             <button
               key={i}
-              onClick={() => { setDir(i >= page ? 1 : -1); setPage(i) }}
+              onClick={() => setPage(i)}
               style={{
                 width: i === page ? '24px' : '8px',
                 height: '8px',

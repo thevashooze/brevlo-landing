@@ -83,7 +83,8 @@ body {
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-/* Seamless diagonal gradient — 4 identical quarters so pos 0% === pos 100%, no flash */
+/* Seamless diagonal gradient — 5 identical cycles, background-size 500%×500%.
+   For -45deg: x-period = 2W. Shift at pos 100% = 4W = 2 exact x-periods → zero flash. */
 @keyframes gradientFlow {
   from { background-position: 100% 50%; }
   to   { background-position: 0% 50%; }
@@ -93,29 +94,34 @@ body {
   background: linear-gradient(
     -45deg,
     #3D0080 0%,
-    #5407A3 5%,
-    #6B1FCC 12%,
-    #9B40FF 17%,
-    #7B1FCC 22%,
-    #3D0080 25%,
-    #5407A3 30%,
-    #6B1FCC 37%,
-    #9B40FF 42%,
-    #7B1FCC 47%,
-    #3D0080 50%,
-    #5407A3 55%,
-    #6B1FCC 62%,
-    #9B40FF 67%,
-    #7B1FCC 72%,
-    #3D0080 75%,
-    #5407A3 80%,
+    #5407A3 3%,
+    #6B1FCC 7%,
+    #9B40FF 12%,
+    #7B1FCC 17%,
+    #3D0080 20%,
+    #5407A3 23%,
+    #6B1FCC 27%,
+    #9B40FF 32%,
+    #7B1FCC 37%,
+    #3D0080 40%,
+    #5407A3 43%,
+    #6B1FCC 47%,
+    #9B40FF 52%,
+    #7B1FCC 57%,
+    #3D0080 60%,
+    #5407A3 63%,
+    #6B1FCC 67%,
+    #9B40FF 72%,
+    #7B1FCC 77%,
+    #3D0080 80%,
+    #5407A3 83%,
     #6B1FCC 87%,
     #9B40FF 92%,
     #7B1FCC 97%,
     #3D0080 100%
   );
-  background-size: 400% 400%;
-  animation: gradientFlow 24s linear infinite;
+  background-size: 500% 500%;
+  animation: gradientFlow 42s linear infinite;
 }
 
 /* Grid on yellow/dark bg */
