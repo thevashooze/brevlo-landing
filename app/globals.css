@@ -332,13 +332,12 @@ input[type='range']::-moz-range-thumb:active {
   transform: translate(3px,3px);
 }
 
-/* Testimonial cards — CSS-based hover for instant return */
+/* Testimonial cards — hover shadow collapse via CSS, x/y press via Framer whileHover */
 .testimonial-card {
   border-radius: 0;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: box-shadow 0.1s ease;
 }
 .testimonial-card:hover {
-  transform: translate(6px, 6px);
   box-shadow: 0px 0px 0 var(--card-shadow) !important;
 }
 

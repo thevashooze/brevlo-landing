@@ -36,7 +36,7 @@ const makeLoop = (arr) => [...arr, ...arr, ...arr, ...arr]
 function ThumbnailCard({ item }) {
   return (
     <div
-      className="flex-shrink-0 w-[220px] md:w-[300px] lg:w-[340px] mx-2.5 overflow-hidden border-4 border-black shadow-[0_8px_0_#0A0A0A] transition-all duration-[80ms] ease-out cursor-pointer hover:translate-y-[8px] hover:shadow-none hover:border-[#FFE600]"
+      className="flex-shrink-0 w-[220px] md:w-[300px] lg:w-[340px] mx-2.5 overflow-hidden border-4 border-white shadow-[0_8px_0_#0A0A0A] transition-all duration-[80ms] ease-out cursor-pointer hover:translate-y-[8px] hover:shadow-none hover:border-[#FFE600]"
       style={{ aspectRatio: '16/9' }}
     >
       <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
