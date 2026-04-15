@@ -1,28 +1,32 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Brevlo | Beyond Visuals — YouTube Thumbnail Agency',
-  description: 'Brevlo is a data-driven thumbnail agency built for creators who take growth seriously. We study what makes viewers click — psychology, color theory, composition, and CTR science.',
+  title: 'Brevlo | Beyond Visuals',
+  description: 'Brevlo is a premium YouTube thumbnail agency. We design high-CTR thumbnails for creators across gaming, finance, history, and vlogs — same-day delivery, $20 flat.',
   keywords: [
     'YouTube thumbnail agency',
+    'YouTube thumbnail design',
     'thumbnail design service',
+    'high CTR thumbnails',
     'CTR optimization',
     'YouTube growth',
-    'custom thumbnails',
-    'thumbnail designer',
+    'custom YouTube thumbnails',
+    'thumbnail designer for YouTubers',
     'Brevlo',
     'brevlomedia',
     'beyond visuals',
-    'data-driven thumbnails',
     'YouTube creator tools',
+    'same day thumbnail design',
+    'professional thumbnail service',
+    'YouTube thumbnail service',
   ],
   metadataBase: new URL('https://www.brevlomedia.com'),
   alternates: {
     canonical: '/',
   },
-  authors: [{ name: 'Brevlo Media', url: 'https://www.brevlomedia.com' }],
-  creator: 'Brevlo Media',
-  publisher: 'Brevlo Media',
+  authors: [{ name: 'Brevlo', url: 'https://www.brevlomedia.com' }],
+  creator: 'Brevlo',
+  publisher: 'Brevlo',
   robots: {
     index: true,
     follow: true,
@@ -39,34 +43,33 @@ export const metadata = {
     locale: 'en_US',
     url: 'https://www.brevlomedia.com',
     siteName: 'Brevlo',
-    title: 'Brevlo | Beyond Visuals — YouTube Thumbnail Agency',
-    description: 'Brevlo is a data-driven thumbnail agency built for creators who take growth seriously. We study what makes viewers click — psychology, color theory, composition, and CTR science.',
+    title: 'Brevlo | Beyond Visuals',
+    description: 'Brevlo is a premium YouTube thumbnail agency. High-CTR thumbnails for creators — same-day delivery, $20 flat.',
     images: [
       {
         url: '/logo.png',
         width: 1080,
         height: 1080,
-        alt: 'Brevlo Media Logo',
+        alt: 'Brevlo — YouTube Thumbnail Agency',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Brevlo | Beyond Visuals — YouTube Thumbnail Agency',
-    description: 'Data-driven thumbnails engineered for maximum CTR. Built for serious YouTube creators.',
+    title: 'Brevlo | Beyond Visuals',
+    description: 'High-CTR thumbnails engineered for maximum clicks. Same-day delivery, $20 flat.',
     images: ['/logo.png'],
     creator: '@brevlomedia',
   },
   icons: {
     icon: [
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
       { url: '/icon.svg', type: 'image/svg+xml' },
     ],
+    shortcut: '/logo.png',
     apple: [
       { url: '/logo.png', type: 'image/png' },
     ],
-  },
-  verification: {
-    google: '',
   },
 }
 
@@ -102,7 +105,7 @@ const webPageJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
   name: 'Brevlo | Beyond Visuals',
-  description: 'Data-driven thumbnail agency for YouTube creators.',
+  description: 'Premium YouTube thumbnail agency. High-CTR thumbnails for creators — same-day delivery, $20 flat.',
   url: 'https://www.brevlomedia.com',
   breadcrumb: {
     '@type': 'BreadcrumbList',
