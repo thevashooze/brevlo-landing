@@ -12,7 +12,7 @@ export default function CTASection() {
       {/* Animated grid */}
       <div className="absolute inset-0 pointer-events-none grid-live" />
 
-      <div className="relative container py-24 flex flex-col items-center text-center gap-8">
+      <div className="relative container py-16 flex flex-col items-center text-center gap-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -43,11 +43,6 @@ export default function CTASection() {
           <a href="/order">
             <button className="nb-btn px-14 py-5 text-xl">
               ORDER NOW →
-            </button>
-          </a>
-          <a href="#faq">
-            <button className="border-4 border-black px-10 py-5 text-sm font-black uppercase tracking-wide text-black hover:bg-black hover:text-[#FFE600] transition-colors duration-100">
-              SEE FAQ
             </button>
           </a>
         </motion.div>

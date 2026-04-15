@@ -8,14 +8,14 @@ const AFTER_IMG  = 'https://fljpubrqsmxwpsndotay.supabase.co/storage/v1/object/p
 
 function IconX() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF3333" strokeWidth="3" strokeLinecap="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF3333" strokeWidth="3" strokeLinecap="round">
       <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   )
 }
 function IconCheck() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00CC6A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00CC6A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )
@@ -29,83 +29,125 @@ export default function AITrapWidget() {
     <section ref={ref} className="section">
       <div className="container">
 
+        {/* Heading — one line */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          className="mb-16"
         >
-          <h2 className="font-rocket text-white leading-none mb-4" style={{ fontSize: 'clamp(3rem,8vw,7rem)' }}>
-            AI THUMBNAILS <span style={{ color: '#FFE600' }}>KILL YOUR CTR</span>
+          <span className="label-tag mb-5 inline-block">AI vs Human</span>
+          <h2
+            className="font-black text-white uppercase leading-[0.95] mb-4"
+            style={{ fontSize: 'clamp(2.2rem,5.5vw,4.5rem)' }}
+          >
+            AI IS KILLING <span style={{ color: '#FF3333' }}>YOUR CTR.</span>
           </h2>
           <p className="text-white/40 font-bold text-sm uppercase tracking-widest">
             Same title. Different designer. The gap is brutal.
           </p>
         </motion.div>
 
+        {/* Comparison grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_80px_1fr] items-stretch gap-0">
+
+          {/* AI side */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.55, delay: 0.1 }}
+            className="border border-white/10 overflow-hidden cursor-default"
+            style={{ background: '#0D0D0D' }}
+          >
+            <div className="relative" style={{ aspectRatio: '16/9' }}>
+              <img
+                src={BEFORE_IMG}
+                alt="AI-generated thumbnail"
+                className="w-full h-full object-cover"
+                style={{ filter: 'saturate(0.5) brightness(0.55)' }}
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0D0D0D 0%, transparent 60%)' }} />
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-white/30 font-bold text-[10px] uppercase tracking-widest mb-3">AI-Generated</p>
+              <div className="flex items-end gap-2 mb-3">
+                <span className="font-black leading-none" style={{ fontSize: 'clamp(2rem,5vw,3rem)', color: '#FF3333' }}>2.1%</span>
+                <span className="text-white/25 font-bold text-sm uppercase tracking-widest pb-1">CTR</span>
+              </div>
+              <div className="flex items-center gap-2 pt-3 border-t border-white/8">
+                <IconX />
+                <span className="text-white/35 font-bold text-xs uppercase tracking-wider">Generic. Forgettable. Unclickable.</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* VS divider — visible with press animation */}
+          <div className="flex lg:flex-col items-center justify-center gap-0 py-6 lg:py-0">
+            <div className="flex-1 w-full lg:w-px h-px lg:h-full bg-white/10" />
+            <motion.div
+              className="flex-shrink-0 font-black text-xs tracking-[0.3em] px-4 py-2.5 mx-3 lg:mx-0 lg:my-4 cursor-pointer select-none"
+              style={{
+                border: '3px solid #0A0A0A',
+                background: '#FFE600',
+                color: '#0A0A0A',
+                boxShadow: '0px 6px 0 #0A0A0A',
+              }}
+              transition={{ duration: 0.1, ease: 'easeOut' }}
+              whileHover={{
+                x: 0, y: 6,
+                boxShadow: '0px 0px 0 #0A0A0A',
+                transition: { duration: 0.1, ease: 'easeOut' },
+              }}
+            >
+              VS
+            </motion.div>
+            <div className="flex-1 w-full lg:w-px h-px lg:h-full bg-white/10" />
+          </div>
+
+          {/* Brevlo side */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.55, delay: 0.18 }}
+            className="border border-white/10 overflow-hidden cursor-default"
+            style={{ background: '#0D0D0D' }}
+          >
+            <div className="relative" style={{ aspectRatio: '16/9' }}>
+              <img
+                src={AFTER_IMG}
+                alt="Brevlo quality thumbnail"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0D0D0D 0%, transparent 60%)' }} />
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-white/30 font-bold text-[10px] uppercase tracking-widest mb-3">Brevlo Quality</p>
+              <div className="flex items-end gap-2 mb-3">
+                <span className="font-black leading-none" style={{ fontSize: 'clamp(2rem,5vw,3rem)', color: '#00CC6A' }}>7.9%</span>
+                <span className="text-white/25 font-bold text-sm uppercase tracking-widest pb-1">CTR</span>
+              </div>
+              <div className="flex items-center gap-2 pt-3 border-t border-white/8">
+                <IconCheck />
+                <span className="font-bold text-xs uppercase tracking-wider" style={{ color: '#00CC6A' }}>Human. Strategic. Clickable.</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Impact line */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="rounded-2xl border-4 border-black overflow-hidden shadow-[20px_20px_0_#FFE600]"
+          transition={{ duration: 0.45, delay: 0.35 }}
+          className="mt-6 text-center py-6 border-t border-white/8"
         >
-          {/* Tab bar */}
-          <div className="bg-white border-b-4 border-black">
-            <div className="px-6 pt-5 flex items-end">
-              <div
-                className="bg-[#FFE600] border-4 border-b-0 border-black px-6 py-2.5 font-black text-black text-xs uppercase tracking-widest"
-                style={{ borderRadius: '8px 8px 0 0' }}
-              >
-                Your Video Title
-              </div>
-              <div className="flex-1 border-b-4 border-black" />
-            </div>
-            <div className="px-8 py-6">
-              <p className="text-black font-black text-2xl sm:text-4xl tracking-wide uppercase">
-                The Untold Story of Crypto
-              </p>
-            </div>
-          </div>
-
-          {/* Comparison */}
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr]" style={{ background: '#0A0A0A' }}>
-
-            {/* AI side */}
-            <div className="flex flex-col">
-              <div className="relative" style={{ aspectRatio: '16/9' }}>
-                <img src={BEFORE_IMG} alt="AI thumbnail" className="w-full h-full object-cover opacity-55" />
-                <div className="absolute top-4 left-4 bg-black border-2 border-black rounded-full w-9 h-9 flex items-center justify-center shadow-[2px_2px_0_#FF3333]">
-                  <IconX />
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-6 py-4 border-t-4 border-white/10">
-                <span className="text-white font-black text-sm uppercase tracking-wider">AI-Generated Slop</span>
-                <span className="font-black text-base" style={{ color: '#FF3333' }}>↓ 2.1% CTR</span>
-              </div>
-            </div>
-
-            {/* Center badge */}
-            <div className="flex items-center justify-center bg-[#0A0A0A] border-x-4 border-white/10 px-6 py-6 sm:py-0">
-              <div className="bg-[#FFE600] border-4 border-black px-5 py-3 font-black text-black text-sm tracking-widest shadow-[4px_4px_0_#A033FF] whitespace-nowrap">
-                CTR LIFT →
-              </div>
-            </div>
-
-            {/* Brevlo side */}
-            <div className="flex flex-col">
-              <div className="relative" style={{ aspectRatio: '16/9' }}>
-                <img src={AFTER_IMG} alt="Brevlo thumbnail" className="w-full h-full object-cover" />
-                <div className="absolute top-4 left-4 bg-white border-2 border-black rounded-full w-9 h-9 flex items-center justify-center shadow-[2px_2px_0_#00CC6A]">
-                  <IconCheck />
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-6 py-4 border-t-4 border-white/10">
-                <span className="font-black text-sm uppercase tracking-wider" style={{ color: '#D4AAFF' }}>Brevlo Quality</span>
-                <span className="font-black text-base" style={{ color: '#00CC6A' }}>↑ 7.9% CTR</span>
-              </div>
-            </div>
-
-          </div>
+          <p className="font-black text-white uppercase leading-none" style={{ fontSize: 'clamp(1.6rem,4vw,3rem)' }}>
+            That's{' '}
+            <span style={{ color: '#FFE600' }}>3.8×</span>
+            {' '}more clicks.{' '}
+            <span className="text-white/30">Same video.</span>
+          </p>
+          <p className="text-white/25 font-bold text-xs uppercase tracking-widest mt-3">Based on real client results</p>
         </motion.div>
 
       </div>

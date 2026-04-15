@@ -133,6 +133,7 @@ export default function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
         />
+        <div className="fixed inset-0 pointer-events-none z-[-2] bg-live-gradient" />
         <div className="fixed inset-0 pointer-events-none z-[-1] grid-live-purple" />
         {children}
       </body>

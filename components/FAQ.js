@@ -4,10 +4,10 @@ import { useRef, useState } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 
 const FAQS = [
-  { q: 'How fast will I get my thumbnail?', a: 'Most orders complete in 8–12 hours. We guarantee delivery within 24 hours — or your money back, no questions.' },
-  { q: 'Do you use AI to generate thumbnails?', a: 'Never. Every thumbnail is designed by a real human. AI generates generic visuals — we engineer psychological triggers specific to your niche and audience.' },
+  { q: 'How fast will I get my thumbnail?', a: 'Most orders complete in 8–12 hours. We guarantee delivery within 24 hours. Or your money back, no questions.' },
+  { q: 'Do you use AI to generate thumbnails?', a: 'Never. Every thumbnail is designed by a real human. AI generates generic visuals. We engineer psychological triggers specific to your niche and audience.' },
   { q: "What if I don't like the result?", a: "2 free revisions are included with every order. Tell us what to change and we'll fix it fast. We don't stop until you're happy." },
-  { q: 'What format do you deliver?', a: 'You get a 1280×720 PNG, fully YouTube-ready. PSD source files available on request.' },
+  { q: 'What format do you deliver?', a: 'You get a 1920×1080 JPG, fully YouTube-ready. PSD source files available on request.' },
   { q: 'Is $20 really the final price?', a: 'Yes. $20 flat per thumbnail. No setup fees. No revision fees. No surprises. What you see is what you pay.' },
   { q: 'Can I order in bulk?', a: 'Absolutely. Many of our clients order batches for upcoming content. Message us for bulk rates.' },
 ]

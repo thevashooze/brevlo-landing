@@ -12,6 +12,7 @@ import PricingSection from '@/components/PricingSection'
 import FAQ from '@/components/FAQ'
 import CTASection from '@/components/CTASection'
 import Footer from '@/components/Footer'
+import ScrollReveal from '@/components/ScrollReveal'
 
 export default function Home() {
   return (
@@ -19,15 +20,15 @@ export default function Home() {
       <Navbar />
       <SplashPage />
       <Hero />
-      <AboutUs />
-      <BrevloSolution />
-      <HowItWorks />
-      <AITrapWidget />
-      <ThumbnailMarquee />
-      <ROICalculator />
-      <Testimonials />
-      <PricingSection />
-      <FAQ />
+      <ScrollReveal delay={0.05}><AboutUs /></ScrollReveal>
+      <ScrollReveal><BrevloSolution /></ScrollReveal>
+      <ScrollReveal><HowItWorks /></ScrollReveal>
+      <ScrollReveal><AITrapWidget /></ScrollReveal>
+      <ScrollReveal><ThumbnailMarquee /></ScrollReveal>
+      <ScrollReveal><Testimonials /></ScrollReveal>
+      <ScrollReveal><ROICalculator /></ScrollReveal>
+      <ScrollReveal><PricingSection /></ScrollReveal>
+      <ScrollReveal><FAQ /></ScrollReveal>
       <CTASection />
       <Footer />
     </main>

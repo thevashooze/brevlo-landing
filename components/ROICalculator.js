@@ -25,12 +25,12 @@ function fmtUSD(n) {
 function Slider({ label, value, min, max, step, onChange, display, sliderVal, onSliderChange }) {
   const pct = (((sliderVal ?? value) - min) / (max - min)) * 100
   return (
-    <div className="border-4 border-black p-5 bg-white" style={{ boxShadow: '4px 4px 0 #0A0A0A' }}>
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-black font-black text-base uppercase tracking-wide">{label}</span>
+    <div className="border border-white/15 px-5 py-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-white/60 font-black text-sm uppercase tracking-wide">{label}</span>
         <span
-          className="font-black text-black text-lg px-4 py-1 border-4 border-black min-w-[80px] text-center"
-          style={{ background: '#FFE600', boxShadow: '3px 3px 0 #0A0A0A' }}
+          className="font-black text-black text-base px-3 py-0.5 border-2 border-black min-w-[70px] text-center"
+          style={{ background: '#FFE600', boxShadow: '2px 2px 0 #0A0A0A' }}
         >
           {display}
         </span>
@@ -42,7 +42,7 @@ function Slider({ label, value, min, max, step, onChange, display, sliderVal, on
           const v = Number(e.target.value)
           onSliderChange ? onSliderChange(v) : onChange(v)
         }}
-        style={{ background: `linear-gradient(to right, #A033FF ${pct}%, #e5e7eb ${pct}%)` }}
+        style={{ background: `linear-gradient(to right, #A033FF ${pct}%, rgba(255,255,255,0.15) ${pct}%)` }}
         className="w-full"
       />
     </div>
@@ -66,37 +66,44 @@ export default function ROICalculator() {
   const revLift      = extraRevenue > 0 ? Math.round((extraRevenue / 20) * 100) : 0
 
   return (
-    <section ref={ref} className="relative w-full py-20 px-4">
+    <section ref={ref} className="section">
       <div className="container">
 
-        {/* Heading */}
+        {/* Heading — Satoshi, not Rocket Thunder */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="mb-10"
         >
-          <h2 className="font-rocket text-white leading-none mb-4" style={{ fontSize: 'clamp(3rem,8vw,7rem)' }}>
+          <span className="label-tag mb-5 inline-block">ROI Calculator</span>
+          <h2
+            className="font-rocket text-white leading-none mb-3"
+            style={{ fontSize: 'clamp(3rem,8vw,7rem)' }}
+          >
             DO THE <span style={{ color: '#FFE600' }}>MATH.</span>
           </h2>
           <p className="text-white/40 font-bold text-sm uppercase tracking-widest">
-            Adjust your numbers — see your projected ROI live
+            Adjust your numbers. See your projected ROI live.
           </p>
         </motion.div>
 
-        {/* Calculator */}
+        {/* Calculator — compact, no yellow shadow */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="rounded-2xl border-4 border-black overflow-hidden shadow-[20px_20px_0_#FFE600] flex flex-col lg:flex-row"
+          className="border border-white/10 overflow-hidden flex flex-col lg:flex-row"
         >
 
           {/* LEFT — inputs */}
-          <div className="flex-1 p-8 sm:p-10 border-b-4 lg:border-b-0 lg:border-r-4 border-black" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <p className="font-black text-white/30 text-xs uppercase tracking-[0.2em] mb-6">Your Channel Numbers</p>
+          <div
+            className="flex-1 p-7 border-b lg:border-b-0 lg:border-r border-white/10"
+            style={{ background: 'rgba(255,255,255,0.04)' }}
+          >
+            <p className="font-black text-white/25 text-[10px] uppercase tracking-[0.2em] mb-5">Your Channel Numbers</p>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <Slider
                 label="Monthly Views"
                 value={views} min={0} max={100} step={1}
@@ -120,15 +127,18 @@ export default function ROICalculator() {
             </div>
 
             {/* CTR badge */}
-            <div className="mt-6 border-4 border-black p-5 flex items-center gap-4" style={{ background: '#A033FF', boxShadow: '6px 6px 0 #0A0A0A' }}>
-              <div className="w-10 h-10 rounded-full bg-[#FFE600] border-2 border-black flex items-center justify-center flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <div
+              className="mt-5 px-5 py-4 flex items-center gap-4 border border-black/20"
+              style={{ background: '#A033FF', boxShadow: '4px 4px 0 #0A0A0A' }}
+            >
+              <div className="w-8 h-8 rounded-full bg-[#FFE600] border-2 border-black flex items-center justify-center flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
               <div>
-                <p className="text-[#FFE600] font-black text-xs uppercase tracking-widest mb-1">Brevlo CTR Multiplier</p>
-                <p className="text-white font-black text-xl">
+                <p className="text-[#FFE600] font-black text-[10px] uppercase tracking-widest mb-0.5">Brevlo CTR Multiplier</p>
+                <p className="text-white font-black text-lg">
                   {currentCTR.toFixed(1)}% → <span style={{ color: '#FFE600' }}>{newCTR.toFixed(1)}%</span>
                   <span className="text-white/40 text-sm font-semibold ml-2">(1.5× avg)</span>
                 </p>
@@ -137,53 +147,50 @@ export default function ROICalculator() {
           </div>
 
           {/* RIGHT — results */}
-          <div className="flex-1 p-8 sm:p-10 flex flex-col gap-5" style={{ background: '#0A0A0A' }}>
-            <p className="font-black text-white/20 text-xs uppercase tracking-[0.2em]">Projected</p>
+          <div className="flex-1 p-7 flex flex-col gap-4" style={{ background: '#0A0A0A' }}>
+            <p className="font-black text-white/20 text-[10px] uppercase tracking-[0.2em]">Projected</p>
 
             {/* Big revenue */}
-            <div className="border-4 border-white/10 p-6 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-              <p className="text-white/40 font-black text-xs uppercase tracking-widest mb-3">Extra Monthly Revenue</p>
-              <p className="font-rocket text-[#FFE600] leading-none" style={{ fontSize: 'clamp(3.5rem,7vw,6rem)' }}>
+            <div className="border border-white/10 p-5 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+              <p className="text-white/35 font-black text-[10px] uppercase tracking-widest mb-2">Extra Monthly Revenue</p>
+              <p
+                className="font-black leading-none"
+                style={{ fontSize: 'clamp(2.5rem,5vw,4rem)', color: '#00CC6A' }}
+              >
                 {fmtUSD(extraRevenue)}
               </p>
             </div>
 
             {/* Revenue lift badge */}
-            <div className="text-center border-4 border-[#A033FF] px-6 py-3" style={{ background: '#A033FF' }}>
+            <div className="text-center px-5 py-3 border border-[#A033FF]" style={{ background: '#A033FF' }}>
               <span className="text-white font-black text-sm uppercase tracking-widest">
                 Revenue Lift: <span style={{ color: '#FFE600' }}>{revLift.toLocaleString()}%</span>
               </span>
             </div>
 
             {/* Breakdown */}
-            <div className="flex flex-col gap-2 flex-1">
+            <div className="flex flex-col gap-1.5 flex-1">
               {[
                 { label: 'CTR Improvement', val: `+${(newCTR - currentCTR).toFixed(1)} pts` },
                 { label: 'Algo Boost Views', val: `+${fmt(Math.round(algoBoost))}` },
                 { label: 'Brevlo Cost',      val: '$20' },
               ].map((r, i) => (
-                <div key={i} className="flex justify-between items-center px-5 py-3.5 border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <span className="text-white/50 font-black text-sm uppercase tracking-wide">{r.label}</span>
-                  <span className="text-white font-black text-base">{r.val}</span>
+                <div key={i} className="flex justify-between items-center px-4 py-3 border border-white/8" style={{ background: 'rgba(255,255,255,0.025)' }}>
+                  <span className="text-white/45 font-black text-xs uppercase tracking-wide">{r.label}</span>
+                  <span className="text-white font-black text-sm">{r.val}</span>
                 </div>
               ))}
             </div>
 
             {/* ROI */}
-            <div className="border-4 border-[#FFE600] p-6 text-center" style={{ background: '#FFE600' }}>
-              <p className="text-black/60 font-black text-xs uppercase tracking-widest mb-2">Return On Investment</p>
-              <p className="font-rocket text-black leading-none" style={{ fontSize: '4rem' }}>
-                {roi > 0 ? `${roi}×` : '—'}
+            <div className="px-5 py-5 text-center border border-[#FFE600]" style={{ background: '#FFE600' }}>
+              <p className="text-black/50 font-black text-[10px] uppercase tracking-widest mb-1">Return On Investment</p>
+              <p className="font-black text-black leading-none" style={{ fontSize: 'clamp(2.5rem,5vw,3.5rem)' }}>
+                {roi > 0 ? `${roi}×` : '0×'}
               </p>
-              <p className="text-black/50 font-black text-xs mt-2 uppercase tracking-wide">
+              <p className="text-black/45 font-black text-[10px] mt-1 uppercase tracking-wide">
                 Pays for itself in 1 order
               </p>
-            </div>
-
-            {/* Fun fact */}
-            <div className="border-4 border-white/20 px-5 py-4" style={{ background: 'rgba(255,255,255,0.05)' }}>
-              <p className="text-white/30 font-black text-xs uppercase tracking-widest mb-1">Fun Fact</p>
-              <p className="text-white/60 font-bold text-sm">A bad thumbnail costs more than a top-tier designer.</p>
             </div>
 
           </div>
