@@ -1306,7 +1306,7 @@ function openOrderModal(id) {
     const labels = ['','Terrible','Poor','Okay','Good','Excellent'];
     const colors = ['','#ef4444','#f97316','#eab308','#22c55e','#4ade80'];
     document.getElementById('m-review-stars').innerHTML = [1,2,3,4,5].map(n =>
-      `<svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="${n<=o.review_rating?colors[o.review_rating]:'rgba(255,255,255,0.1)}" stroke="${n<=o.review_rating?colors[o.review_rating]:'rgba(255,255,255,0.15)'}" stroke-width="1.5"/></svg>`
+      `<svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="${n<=o.review_rating?colors[o.review_rating]:'rgba(255,255,255,0.1)'}" stroke="${n<=o.review_rating?colors[o.review_rating]:'rgba(255,255,255,0.15)'}" stroke-width="1.5"/></svg>`
     ).join('');
     document.getElementById('m-review-label').innerText = `${o.review_rating}/5 — ${labels[o.review_rating]}`;
     document.getElementById('m-review-label').style.color = colors[o.review_rating];

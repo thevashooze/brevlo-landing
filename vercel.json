@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "has": [{ "type": "host", "value": "admin.brevlomedia.com" }],
-      "source": "/(.*)",
+      "source": "/((?!.*\\.(js|css|png|jpg|ico|svg|woff|woff2|ttf|json)$).*)",
       "destination": "/admin.html"
     },
     { "source": "/find-order", "destination": "/find-order.html" },
