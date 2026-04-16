@@ -7,6 +7,9 @@ import { useSearchParams, useRouter } from 'next/navigation'
 const BACKEND = 'https://brevlo-backend.onrender.com'
 const POLL_INTERVAL = 5000
 
+// Diagonal tiled watermark — SVG data URI
+const WATERMARK_BG = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="100"><text x="120" y="50" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-size="13" font-weight="900" letter-spacing="5" fill="rgba(255,255,255,0.13)" transform="rotate(-30,120,50)">BREVLO PREVIEW</text></svg>')}")`
+
 function getProgressStep(order) {
   if (!order) return 0
   const s = order.status
@@ -304,19 +307,49 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
           <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: '16px' }}>
             ✓ YOUR THUMBNAIL IS READY
           </div>
-          <img
-            src={order.thumbnail_url}
-            alt="Your thumbnail"
-            style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', border: '2px solid rgba(255,255,255,0.08)', display: 'block' }}
-          />
-          <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button
-              onClick={handleDownload}
-              className="nb-btn-yellow"
-              style={{ fontSize: '14px', padding: '12px 28px' }}
-            >
-              DOWNLOAD JPG →
-            </button>
+
+          {/* Image wrapper — watermark overlay for pre-accept preview */}
+          <div style={{ position: 'relative', display: 'block', lineHeight: 0 }}>
+            <img
+              src={order.thumbnail_url}
+              alt="Your thumbnail"
+              style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', border: '2px solid rgba(255,255,255,0.08)', display: 'block' }}
+              onContextMenu={e => e.preventDefault()}
+              draggable={false}
+            />
+            {/* Watermark — only before acceptance */}
+            {isApproved && !accepted && !isCompleted && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute', inset: 0,
+                  backgroundImage: WATERMARK_BG,
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '240px 100px',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  zIndex: 2
+                }}
+              />
+            )}
+          </div>
+
+          <div style={{ marginTop: '16px' }}>
+            {/* Download only unlocked after acceptance */}
+            {(isCompleted || accepted) ? (
+              <button
+                onClick={handleDownload}
+                className="nb-btn-yellow"
+                style={{ fontSize: '14px', padding: '12px 28px' }}
+              >
+                DOWNLOAD JPG →
+              </button>
+            ) : (
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.04em' }}>
+                🔒 Accept delivery below to unlock full download
+              </div>
+            )}
           </div>
         </motion.div>
       )}
