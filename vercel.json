@@ -5,10 +5,8 @@
       "source": "/(.*)",
       "destination": "/admin.html"
     },
-    { "source": "/order", "destination": "/order.html" },
     { "source": "/find-order", "destination": "/find-order.html" },
     { "source": "/order-view", "destination": "/order-view.html" },
-    { "source": "/success", "destination": "/success.html" },
     { "source": "/admin", "destination": "/admin.html" }
   ]
 }

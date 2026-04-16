@@ -1072,12 +1072,14 @@ function renderOrders() {
       <div class="o-body">
         <div class="o-top">
           <span class="sp ${spC(o.status)}">${spL(o.status)}</span>
-          <span class="o-id">${o.id.slice(-8)}</span>
+          ${o.display_id ? `<span style="font-size:11px;font-weight:700;color:var(--accent);font-family:'Geist Mono',monospace;background:var(--accent-dim);border:1px solid var(--accent-border);padding:2px 8px;border-radius:10px">${o.display_id}</span>` : `<span class="o-id">${o.id.slice(-8)}</span>`}
+          ${o.is_dummy ? `<span style="font-size:9px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--yellow);background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.25);padding:2px 7px;border-radius:4px">TEST</span>` : ''}
           <span id="sla-${o.id}" class="sla-chip" style="display:none"></span>
         </div>
         <div class="o-title">${o.title}</div>
         <div class="o-meta">
           <span>◎ ${dName}</span><span>@ ${o.email}</span><span>${fmtDate(o.created_at)}</span>
+          ${o.designer_stage && o.status==='Assigned' ? `<span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">· ${o.designer_stage}</span>` : ''}
         </div>
       </div>
       <div class="o-right">
