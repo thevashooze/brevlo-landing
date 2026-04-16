@@ -661,6 +661,16 @@
           <div id="m-ref-imgs" class="ref-imgs"></div>
           <div id="m-ref-urls" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
         </div>
+        <!-- CLIENT REVIEW -->
+        <div class="dl" id="m-review-wrap" style="display:none">
+          <div class="dl-label">Client Review</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+            <div id="m-review-stars" style="display:flex;gap:3px"></div>
+            <span id="m-review-label" style="font-size:11px;font-weight:700;color:var(--text3)"></span>
+          </div>
+          <div id="m-review-text" style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic"></div>
+          <div id="m-review-date" style="font-size:10px;color:var(--text3);margin-top:4px"></div>
+        </div>
         <div id="m-revnote" style="display:none"></div>
         <div id="m-anote-wrap" style="display:none" class="dl">
           <div class="dl-label">Admin Note</div>
@@ -1288,6 +1298,23 @@ function openOrderModal(id) {
   document.getElementById('noteArea').classList.remove('show');
   document.getElementById('noteArea').value=o.admin_note||'';
   document.getElementById('noteSaveBtn').style.display='none';
+
+  // Client review
+  const reviewWrap = document.getElementById('m-review-wrap');
+  if(o.review_rating) {
+    reviewWrap.style.display = 'block';
+    const labels = ['','Terrible','Poor','Okay','Good','Excellent'];
+    const colors = ['','#ef4444','#f97316','#eab308','#22c55e','#4ade80'];
+    document.getElementById('m-review-stars').innerHTML = [1,2,3,4,5].map(n =>
+      `<svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="${n<=o.review_rating?colors[o.review_rating]:'rgba(255,255,255,0.1)}" stroke="${n<=o.review_rating?colors[o.review_rating]:'rgba(255,255,255,0.15)'}" stroke-width="1.5"/></svg>`
+    ).join('');
+    document.getElementById('m-review-label').innerText = `${o.review_rating}/5 — ${labels[o.review_rating]}`;
+    document.getElementById('m-review-label').style.color = colors[o.review_rating];
+    document.getElementById('m-review-text').innerText = o.review_text ? `"${o.review_text}"` : '';
+    document.getElementById('m-review-date').innerText = o.review_at ? fmtDate(o.review_at) : '';
+  } else {
+    reviewWrap.style.display = 'none';
+  }
 
   renderAdminRefs(o);
   document.getElementById('orderOv').classList.add('open');

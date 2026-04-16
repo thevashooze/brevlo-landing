@@ -167,6 +167,36 @@ function OrderCard({ order, onExpand }) {
   )
 }
 
+// ── Star rating component ──
+function StarRating({ rating, onRate }) {
+  const [hover, setHover] = useState(0)
+  const starPath = "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+  return (
+    <div style={{ display: 'flex', gap: '6px' }}>
+      {[1,2,3,4,5].map(n => {
+        const filled = n <= (hover || rating)
+        return (
+          <button
+            key={n}
+            onClick={() => onRate(n)}
+            onMouseEnter={() => setHover(n)}
+            onMouseLeave={() => setHover(0)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', transition: 'transform 0.1s', transform: hover === n ? 'scale(1.2)' : 'scale(1)' }}
+          >
+            <svg width="44" height="44" viewBox="0 0 24 24">
+              <path d={starPath}
+                fill={filled ? '#FFE600' : 'transparent'}
+                stroke={filled ? '#FFE600' : 'rgba(255,255,255,0.25)'}
+                strokeWidth="1.5" strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Step 2: Live tracking panel ──
 function TrackingPanel({ order, onBack, onOrderUpdate }) {
   const [revNote, setRevNote] = useState('')
@@ -175,6 +205,11 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
   const [revError, setRevError] = useState('')
   const [accepting, setAccepting] = useState(false)
   const [accepted, setAccepted] = useState(order.status === 'Completed')
+  const [showReview, setShowReview] = useState(false)
+  const [reviewRating, setReviewRating] = useState(0)
+  const [reviewText, setReviewText] = useState('')
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [reviewDone, setReviewDone] = useState(!!order.review_rating)
 
   const step = getProgressStep(order)
   const isApproved = order.status === 'Approved'
@@ -191,8 +226,29 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
       if (!res.ok) throw new Error('Failed')
       setAccepted(true)
       onOrderUpdate?.()
+      // Show review prompt after short delay
+      setTimeout(() => setShowReview(true), 800)
     } catch (_) {}
     setAccepting(false)
+  }
+
+  async function handleSubmitReview() {
+    if (!reviewRating) return
+    setReviewSubmitting(true)
+    try {
+      await fetch(`${BACKEND}/submit-review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.display_id || order.id,
+          rating: reviewRating,
+          text: reviewText.trim() || null
+        })
+      })
+    } catch (_) {}
+    setReviewDone(true)
+    setShowReview(false)
+    setReviewSubmitting(false)
   }
 
   async function handleRevision(e) {
@@ -451,6 +507,109 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
           <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>Order complete. Thank you for choosing Brevlo.</div>
         </motion.div>
       )}
+
+      {/* Review prompt — shown after acceptance, dismissable */}
+      <AnimatePresence>
+        {showReview && !reviewDone && (
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.97 }}
+            transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+            style={{
+              background: '#0A0A0A',
+              border: '4px solid var(--yellow)',
+              boxShadow: '8px 8px 0 var(--yellow)',
+              padding: '32px 28px',
+              marginBottom: '20px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+              <div style={{ fontSize: 'clamp(1.4rem,4vw,2rem)', fontFamily: 'var(--font-rocket)', color: '#fff', lineHeight: 1.1 }}>
+                HOW'D WE DO?
+              </div>
+              <button
+                onClick={() => setShowReview(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: '18px', padding: '0 0 0 12px', lineHeight: 1 }}
+                title="Skip review"
+              >✕</button>
+            </div>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontWeight: 600, letterSpacing: '0.04em', marginBottom: '24px' }}>
+              Your feedback helps us get better — takes 10 seconds.
+            </div>
+
+            {/* Stars */}
+            <div style={{ marginBottom: '24px' }}>
+              <StarRating rating={reviewRating} onRate={setReviewRating} />
+              {reviewRating > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', marginTop: '10px' }}
+                >
+                  {['','TERRIBLE','POOR','OKAY','GOOD','EXCELLENT!'][reviewRating]}
+                </motion.div>
+              )}
+            </div>
+
+            {/* Optional text */}
+            <textarea
+              value={reviewText}
+              onChange={e => setReviewText(e.target.value)}
+              placeholder="Anything else you'd like to share? (optional)"
+              rows={3}
+              style={{
+                width: '100%', padding: '14px 16px', fontSize: '14px', lineHeight: 1.6,
+                background: 'rgba(255,255,255,0.04)', color: '#fff',
+                border: '3px solid rgba(255,255,255,0.12)', outline: 'none',
+                resize: 'none', fontFamily: 'inherit', marginBottom: '16px',
+                boxSizing: 'border-box'
+              }}
+            />
+
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={handleSubmitReview}
+                disabled={!reviewRating || reviewSubmitting}
+                className="nb-btn-yellow"
+                style={{ fontSize: '13px', padding: '12px 28px', opacity: (!reviewRating || reviewSubmitting) ? 0.45 : 1 }}
+              >
+                {reviewSubmitting ? 'SUBMITTING...' : 'SUBMIT REVIEW →'}
+              </button>
+              <button
+                onClick={() => setShowReview(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '0' }}
+              >
+                No thanks
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Review thank-you */}
+      <AnimatePresence>
+        {reviewDone && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            style={{
+              background: 'rgba(255,230,0,0.04)',
+              border: '3px solid rgba(255,230,0,0.2)',
+              padding: '18px 24px',
+              marginBottom: '20px',
+              display: 'flex', alignItems: 'center', gap: '12px'
+            }}
+          >
+            <div style={{ fontSize: '20px' }}>★</div>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--yellow)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Review Submitted</div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>Thanks for the feedback. See you on the next one.</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
