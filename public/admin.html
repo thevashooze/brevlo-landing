@@ -1227,12 +1227,24 @@ function renderAdminRefs(o){
   sec.style.display='block';
   imgWrap.innerHTML='';urlWrap.innerHTML='';
   if(hasImgs){
-    o.reference_images.forEach(url=>{
+    o.reference_images.forEach((url,idx)=>{
+      const wrap=document.createElement('div');
+      wrap.style.cssText='display:flex;flex-direction:column;gap:3px;align-items:center';
       const img=document.createElement('img');
-      img.src=url; img.className='ref-img-thumb'; img.title='Click to view full size';
+      img.src=url; img.className='ref-img-thumb'; img.title='Click to zoom';
       img.onclick=()=>{document.getElementById('zoomImg').src=url;document.getElementById('zoomOv').classList.add('open');};
-      const dl=document.createElement('a'); dl.href=url; dl.download=''; dl.style.cssText='position:relative;display:inline-block';
-      dl.appendChild(img); imgWrap.appendChild(dl);
+      const dl=document.createElement('a');
+      dl.href=url; dl.target='_blank';
+      dl.style.cssText='font-size:9px;font-weight:700;letter-spacing:0.06em;color:var(--accent);text-decoration:none;text-transform:uppercase';
+      dl.innerHTML='↓ DL';
+      dl.onclick=(e)=>{
+        e.preventDefault();
+        fetch(url).then(r=>r.blob()).then(b=>{
+          const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+          a.download=`ref-${idx+1}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }).catch(()=>window.open(url,'_blank'));
+      };
+      wrap.appendChild(img); wrap.appendChild(dl); imgWrap.appendChild(wrap);
     });
   }
   if(hasUrls){
