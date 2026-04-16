@@ -27,9 +27,9 @@ const STAGES = [
     num: '03',
     tag: 'STAGE THREE',
     title: 'HIGH-FIDELITY\nEXECUTION',
-    body: 'Professional Photoshop. Not Canva. Not AI. Every layer is intentional — precise shadow depths, calibrated font weights, color-graded backgrounds. Built to punch at 1280×720 and at 120×68 mobile.',
+    body: 'We use professional Photoshop software for every project. Not Canva. Not AI. Every layer is completely intentional with precise shadow depths, calibrated font weights, and color-graded backgrounds.',
     accent: '#FF6B35',
-    stat: 'Professional Photoshop, zero AI',
+    stat: 'Professional Photoshop Execution',
     visual: <LayersVisual />
   },
   {
@@ -50,7 +50,7 @@ function AnalysisVisual() {
     { label: 'CURIOSITY GAP', pct: 94, color: '#FFE600' },
     { label: 'FACE + EMOTION', pct: 87, color: '#FFE600' },
     { label: 'TEXT CONTRAST', pct: 82, color: 'rgba(255,230,0,0.5)' },
-    { label: 'COLOR SHOCK',   pct: 76, color: 'rgba(255,230,0,0.5)' },
+    { label: 'COLOR SHOCK', pct: 76, color: 'rgba(255,230,0,0.5)' },
     { label: 'MOBILE LEGIB.', pct: 91, color: '#FFE600' },
   ]
   return (
@@ -60,7 +60,7 @@ function AnalysisVisual() {
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: i * 0.08, duration: 0.5, ease: [0.23,1,0.32,1] }}
+          transition={{ delay: i * 0.08, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
             <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)' }}>{b.label}</span>
@@ -71,7 +71,7 @@ function AnalysisVisual() {
               initial={{ width: 0 }}
               whileInView={{ width: `${b.pct}%` }}
               viewport={{ once: true }}
-              transition={{ delay: 0.3 + i * 0.06, duration: 0.8, ease: [0.23,1,0.32,1] }}
+              transition={{ delay: 0.3 + i * 0.06, duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
               style={{ height: '100%', background: b.color }}
             />
           </div>
@@ -90,10 +90,10 @@ function SketchVisual() {
       {/* Sketch wireframe grid lines */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.15 }}>
         <svg width="100%" height="100%" style={{ position: 'absolute' }}>
-          <line x1="0" y1="33%" x2="100%" y2="33%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4"/>
-          <line x1="0" y1="66%" x2="100%" y2="66%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4"/>
-          <line x1="33%" y1="0" x2="33%" y2="100%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4"/>
-          <line x1="66%" y1="0" x2="66%" y2="100%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4"/>
+          <line x1="0" y1="33%" x2="100%" y2="33%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4" />
+          <line x1="0" y1="66%" x2="100%" y2="66%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4" />
+          <line x1="33%" y1="0" x2="33%" y2="100%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4" />
+          <line x1="66%" y1="0" x2="66%" y2="100%" stroke="#A033FF" strokeWidth="1" strokeDasharray="4 4" />
         </svg>
       </div>
       {/* Face placeholder */}
@@ -108,9 +108,9 @@ function SketchVisual() {
         initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
         style={{ position: 'absolute', left: '44%', top: '18%', width: '48%', display: 'flex', flexDirection: 'column', gap: '8px' }}
       >
-        <div style={{ height: '20px', background: 'rgba(160,51,255,0.3)', width: '100%' }}/>
-        <div style={{ height: '20px', background: 'rgba(160,51,255,0.2)', width: '80%' }}/>
-        <div style={{ height: '12px', background: 'rgba(160,51,255,0.12)', width: '60%', marginTop: '6px' }}/>
+        <div style={{ height: '20px', background: 'rgba(160,51,255,0.3)', width: '100%' }} />
+        <div style={{ height: '20px', background: 'rgba(160,51,255,0.2)', width: '80%' }} />
+        <div style={{ height: '12px', background: 'rgba(160,51,255,0.12)', width: '60%', marginTop: '6px' }} />
       </motion.div>
       {/* Focal point dot */}
       <motion.div
@@ -153,7 +153,7 @@ function LayersVisual() {
               border: i === 2 ? '1px solid rgba(255,107,53,0.3)' : '1px solid rgba(255,255,255,0.04)'
             }}
           >
-            <div style={{ width: '24px', height: '16px', background: `rgba(255,107,53,${l.opacity * 0.7})`, flexShrink: 0 }}/>
+            <div style={{ width: '24px', height: '16px', background: `rgba(255,107,53,${l.opacity * 0.7})`, flexShrink: 0 }} />
             <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', color: i === 2 ? 'rgba(255,107,53,0.9)' : 'rgba(255,255,255,0.35)', flex: 1 }}>{l.name}</span>
             <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>{Math.round(l.opacity * 100)}%</span>
           </motion.div>
@@ -183,7 +183,7 @@ function QCVisual() {
             initial={{ opacity: 0, x: -12 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.45, ease: [0.23,1,0.32,1] }}
+            transition={{ delay: i * 0.1, duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
             style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
           >
             <motion.div
@@ -198,7 +198,7 @@ function QCVisual() {
               }}
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M2 5l2 2.5 4-4.5" stroke="#00CC6A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 5l2 2.5 4-4.5" stroke="#00CC6A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </motion.div>
             <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>{c.label}</span>
@@ -236,7 +236,7 @@ function StageCard({ stage, index }) {
             <div className="label-tag" style={{ marginBottom: '28px' }}>{stage.tag}</div>
             <div style={{
               fontSize: 'clamp(80px, 12vw, 140px)', fontWeight: 900, lineHeight: 1,
-              color: 'rgba(255,255,255,0.04)', fontFamily: 'var(--font-rocket)',
+              color: 'var(--yellow)', textShadow: '6px 6px 0px rgba(0,0,0,0.4)', fontFamily: 'var(--font-rocket)',
               letterSpacing: '-0.04em', marginBottom: '-16px', userSelect: 'none'
             }}>{stage.num}</div>
             <h2 style={{
@@ -266,7 +266,7 @@ function StageCard({ stage, index }) {
             style={{
               direction: 'ltr',
               padding: '36px',
-              border: `4px solid ${stage.accent}`,
+              border: `4px solid #fff`,
               boxShadow: `16px 16px 0 ${stage.accent}`,
               background: '#0A0A0A',
               minHeight: '260px',
@@ -317,15 +317,14 @@ export default function OrderPage() {
         padding: '120px 24px 80px', position: 'relative'
       }}>
         {/* Back button */}
-        <a href="/" className="nb-btn" style={{
+        <a href="/" className="nb-btn-yellow" style={{
           position: 'absolute', top: '28px', left: '28px',
           fontSize: '12px', padding: '10px 18px',
           display: 'flex', alignItems: 'center', gap: '8px',
-          textDecoration: 'none', color: '#fff', background: 'transparent',
-          border: '3px solid rgba(255,255,255,0.25)'
+          textDecoration: 'none'
         }}>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
           BACK
         </a>
@@ -334,6 +333,7 @@ export default function OrderPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
         >
           <div className="label-tag" style={{ marginBottom: '32px' }}>THE BREVLO CRAFT SYSTEM</div>
           <h1 style={{
@@ -341,10 +341,10 @@ export default function OrderPage() {
             lineHeight: 1.0, letterSpacing: '-0.02em', maxWidth: '900px',
             marginBottom: '28px', color: '#fff'
           }}>
-            BEFORE YOU CLICK BUY,<br />
+            BEFORE YOU BUY,<br />
             <span style={{ color: 'var(--yellow)' }}>UNDERSTAND THE CRAFT.</span>
           </h1>
-          <p style={{ fontSize: '20px', lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', maxWidth: '580px', marginBottom: '48px' }}>
+          <p style={{ fontSize: '20px', lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', maxWidth: '580px', marginBottom: '48px', marginLeft: 'auto', marginRight: 'auto' }}>
             Every $20 thumbnail goes through a 4-stage system engineered to win attention in the most competitive feed on the internet.
           </p>
 
@@ -352,11 +352,11 @@ export default function OrderPage() {
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }}
+            style={{ color: 'rgba(255,255,255,0.3)', cursor: 'pointer', margin: '0 auto', display: 'flex', justifyContent: 'center' }}
             onClick={() => document.getElementById('stage-1')?.scrollIntoView({ behavior: 'smooth' })}
           >
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <path d="M7 11l7 7 7-7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="M7 11l7 7 7-7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </motion.div>
         </motion.div>
@@ -374,13 +374,11 @@ export default function OrderPage() {
 
       {/* ── FINAL CTA ── */}
       <section style={{
-        minHeight: '80vh', display: 'flex', flexDirection: 'column',
+        minHeight: '60vh', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
         padding: '80px 24px', position: 'relative',
-        background: 'var(--yellow)', borderTop: '6px solid var(--black)', borderBottom: '6px solid var(--black)'
+        background: 'transparent'
       }}>
-        <div className="grid-live" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.6 }} />
-
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -388,39 +386,24 @@ export default function OrderPage() {
           transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
           style={{ position: 'relative', zIndex: 1 }}
         >
-          <div style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.4)', marginBottom: '20px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
             — 4 STAGES. ONE THUMBNAIL. —
           </div>
           <h2 style={{
-            fontSize: 'clamp(2.6rem, 7vw, 6.5rem)', fontFamily: 'var(--font-rocket)',
-            lineHeight: 1.0, letterSpacing: '-0.02em', color: 'var(--black)',
-            marginBottom: '44px', maxWidth: '900px'
+            fontSize: 'clamp(2rem, 5vw, 4.5rem)', fontFamily: 'var(--font-rocket)',
+            lineHeight: 1.0, letterSpacing: '-0.02em', color: '#fff',
+            marginBottom: '44px', maxWidth: '800px', marginLeft: 'auto', marginRight: 'auto'
           }}>
-            I'M READY. LET'S BUILD MY THUMBNAIL.
+            Ready?<br />To make Your content fly?
           </h2>
 
-          <motion.button
+          <button
             onClick={handleStartOrder}
-            className="nb-btn"
-            style={{ fontSize: '18px', padding: '20px 56px', boxShadow: '8px 8px 0 var(--black)' }}
-            whileHover={{ x: 4, y: 4, boxShadow: '4px 4px 0 var(--black)' }}
-            whileTap={{ x: 8, y: 8, boxShadow: '0px 0px 0 var(--black)' }}
-            transition={{ duration: 0.1 }}
+            className="nb-btn-yellow"
+            style={{ fontSize: '18px', padding: '20px 56px' }}
           >
             START MY ORDER →
-          </motion.button>
-
-          <div style={{ marginTop: '40px', display: 'flex', gap: '28px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {['$20 flat', 'Same-day delivery', 'Human designers', '2 free revisions'].map(item => (
-              <div key={item} style={{
-                fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em',
-                textTransform: 'uppercase', color: 'rgba(0,0,0,0.55)',
-                display: 'flex', alignItems: 'center', gap: '6px'
-              }}>
-                <span style={{ fontSize: '15px' }}>✓</span> {item}
-              </div>
-            ))}
-          </div>
+          </button>
         </motion.div>
       </section>
 
