@@ -163,6 +163,7 @@
     .sp-done     { color: #60a5fa; background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.18); }
     .sp-revision { color: #f87171; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.18); }
     .sp-approved { color: #4ade80; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.18); }
+    .sp-completed { color: #71717a; background: rgba(113,113,122,0.08); border: 1px solid rgba(113,113,122,0.2); }
     .sp-unassigned { color: #a1a1aa; background: rgba(161,161,170,0.08); border: 1px solid rgba(161,161,170,0.2); }
 
     /* ── OVERLAYS ── */
@@ -1702,8 +1703,8 @@ async function grantLeave() {
 }
 
 /* HELPERS */
-function spL(s){if(s==='Assigned')return 'Active';if(s==='Done')return 'In Review';if(s==='Approved')return 'Approved';if(s==='Completed')return 'Done';if(s==='Unassigned')return 'Unassigned';return s;}
-function spC(s){if(s==='Assigned')return 'sp-assigned';if(s==='Done')return 'sp-done';if(s==='Revision')return 'sp-revision';if(s==='Approved')return 'sp-approved';if(s==='Unassigned')return 'sp-unassigned';return '';}
+function spL(s){if(s==='Assigned')return 'Active';if(s==='Done')return 'In Review';if(s==='Approved')return 'Approved';if(s==='Completed')return 'Completed';if(s==='Unassigned')return 'Unassigned';return s;}
+function spC(s){if(s==='Assigned')return 'sp-assigned';if(s==='Done')return 'sp-done';if(s==='Revision')return 'sp-revision';if(s==='Approved')return 'sp-approved';if(s==='Completed')return 'sp-completed';if(s==='Unassigned')return 'sp-unassigned';return '';}
 const fmtDate=d=>d?new Date(d.replace(' ','T')+'Z').toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
 
 /* TOAST */
