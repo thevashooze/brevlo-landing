@@ -170,11 +170,17 @@
     .overlay.open { display: flex; }
 
     /* ── ORDER MODAL ── */
-    .o-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 860px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
-    .o-modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .o-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 1040px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
+    .o-modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 18px 26px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .o-modal-bd { display: flex; flex: 1; overflow: hidden; }
-    .o-modal-l { flex: 1; padding: 22px; overflow-y: auto; border-right: 1px solid var(--border); }
-    .o-modal-r { width: 272px; flex-shrink: 0; padding: 22px; overflow-y: auto; }
+    .o-modal-l { flex: 1; padding: 26px; overflow-y: auto; border-right: 1px solid var(--border); }
+    .o-modal-r { width: 290px; flex-shrink: 0; padding: 24px; overflow-y: auto; }
+    /* Reference images */
+    .ref-imgs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .ref-img-thumb { width: 80px; height: 56px; object-fit: cover; border: 1px solid var(--border); border-radius: 4px; cursor: zoom-in; transition: border-color 0.15s; }
+    .ref-img-thumb:hover { border-color: var(--accent); }
+    .ref-url-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-border); padding: 3px 9px; border-radius: 4px; text-decoration: none; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ref-url-link:hover { background: rgba(168,85,247,0.15); }
 
     .modal-close { width: 28px; height: 28px; border-radius: 7px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--text2); transition: all 0.12s; }
     .modal-close:hover { color: var(--text); }
@@ -643,6 +649,12 @@
           <div class="dl" style="margin:0"><div class="dl-label">Submitted At</div><div class="dl-val sm" id="m-submitted"></div></div>
         </div>
         <div class="dl"><div class="dl-label">Brief</div><div class="dl-val sm" id="m-desc" style="line-height:1.6"></div></div>
+        <!-- CLIENT REFERENCES -->
+        <div class="dl" id="m-refs-section" style="display:none">
+          <div class="dl-label">CLIENT REFERENCES</div>
+          <div id="m-ref-imgs" class="ref-imgs"></div>
+          <div id="m-ref-urls" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+        </div>
         <div id="m-revnote" style="display:none"></div>
         <div id="m-anote-wrap" style="display:none" class="dl">
           <div class="dl-label">Admin Note</div>
@@ -1148,7 +1160,8 @@ function openOrderModal(id) {
   const o=allOrders.find(x=>x.id===id); if(!o) return;
   activeOrderId=id;
   const dName=allDesigners.find(d=>d.id===o.designer_id)?.name||'—';
-  document.getElementById('m-id').innerText       = o.id.slice(-8);
+  // Show full internal ID
+  document.getElementById('m-id').innerText       = o.id;
   const sp=document.getElementById('m-sp'); sp.innerText=spL(o.status); sp.className=`sp ${spC(o.status)}`;
   document.getElementById('m-tat').innerText      = o.assigned_at&&o.submitted_at?`⏱ ${((new Date(o.submitted_at)-new Date(o.assigned_at))/3600000).toFixed(1)}H TAT`:'';
   document.getElementById('m-title').innerText    = o.title;
@@ -1199,9 +1212,42 @@ function openOrderModal(id) {
   document.getElementById('noteArea').value=o.admin_note||'';
   document.getElementById('noteSaveBtn').style.display='none';
 
+  renderAdminRefs(o);
   document.getElementById('orderOv').classList.add('open');
 }
 function closeOrderModal(){document.getElementById('orderOv').classList.remove('open');activeOrderId=null;}
+
+function renderAdminRefs(o){
+  const sec=document.getElementById('m-refs-section');
+  const imgWrap=document.getElementById('m-ref-imgs');
+  const urlWrap=document.getElementById('m-ref-urls');
+  const hasImgs=o.reference_images&&o.reference_images.length>0;
+  const hasUrls=o.reference_urls&&o.reference_urls.length>0;
+  if(!hasImgs&&!hasUrls){sec.style.display='none';return;}
+  sec.style.display='block';
+  imgWrap.innerHTML='';urlWrap.innerHTML='';
+  if(hasImgs){
+    o.reference_images.forEach(url=>{
+      const img=document.createElement('img');
+      img.src=url; img.className='ref-img-thumb'; img.title='Click to view full size';
+      img.onclick=()=>{document.getElementById('zoomImg').src=url;document.getElementById('zoomOv').classList.add('open');};
+      const dl=document.createElement('a'); dl.href=url; dl.download=''; dl.style.cssText='position:relative;display:inline-block';
+      dl.appendChild(img); imgWrap.appendChild(dl);
+    });
+  }
+  if(hasUrls){
+    o.reference_urls.forEach(url=>{
+      try{
+        const a=document.createElement('a');
+        a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+        a.className='ref-url-link';
+        const domain=new URL(url).hostname.replace('www.','');
+        a.innerHTML=`<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H4M9 1v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>${domain}`;
+        urlWrap.appendChild(a);
+      }catch(_){}
+    });
+  }
+}
 function openZoom(){const s=document.getElementById('m-img').src;if(!s||s.endsWith('/'))return;document.getElementById('zoomImg').src=s;document.getElementById('zoomOv').classList.add('open');}
 
 async function doApprove(){

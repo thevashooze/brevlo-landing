@@ -5,14 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 const BACKEND = 'https://brevlo-backend.onrender.com'
-const POLL_INTERVAL = 5000 // 5s polling
+const POLL_INTERVAL = 5000
 
-// ── Map order status + designer_stage to 5-step progress ──
 function getProgressStep(order) {
   if (!order) return 0
   const s = order.status
   const ds = order.designer_stage || 'Strategy'
-
+  if (s === 'Completed') return 6
   if (s === 'Approved') return 5
   if (s === 'Done') return 4
   if (s === 'Assigned' || s === 'Revision') {
@@ -20,86 +19,84 @@ function getProgressStep(order) {
     if (ds === 'Designing') return 2
     return 1
   }
-  if (s === 'Unassigned') return 0
-  return 1
+  return 0
 }
 
 const STEPS = [
-  { label: 'Order Received', sub: 'Your brief is in our system', icon: '📥' },
-  { label: 'Strategy Phase', sub: 'Viral patterns being studied', icon: '🔍' },
-  { label: 'Design Phase', sub: 'Photoshop layers in motion', icon: '🎨' },
-  { label: 'Quality Control', sub: '5-point QC checklist in progress', icon: '✓' },
-  { label: 'Under Review', sub: 'Awaiting final admin approval', icon: '👁' },
-  { label: 'Delivered!', sub: 'Your thumbnail is ready', icon: '🚀' }
+  { label: 'Received',    sub: 'Brief in system' },
+  { label: 'Strategy',    sub: 'Analysing patterns' },
+  { label: 'Designing',   sub: 'In Photoshop' },
+  { label: 'QC',          sub: 'Internal review' },
+  { label: 'Admin Review',sub: 'Final approval' },
+  { label: 'Delivered',   sub: 'Ready to download' },
+  { label: 'Completed',   sub: 'Delivery accepted' }
 ]
 
+const STATUS_MAP = {
+  Assigned:   { label: 'In Studio',          color: '#FFE600', bg: 'rgba(255,230,0,0.08)',  border: 'rgba(255,230,0,0.25)' },
+  Revision:   { label: 'Revision',           color: '#FF6B35', bg: 'rgba(255,107,53,0.08)', border: 'rgba(255,107,53,0.25)' },
+  Done:       { label: 'Under Review',        color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)' },
+  Approved:   { label: 'Delivered ✓',         color: '#00CC6A', bg: 'rgba(0,204,106,0.08)',  border: 'rgba(0,204,106,0.25)' },
+  Completed:  { label: 'Accepted ✓',          color: '#00CC6A', bg: 'rgba(0,204,106,0.08)',  border: 'rgba(0,204,106,0.25)' },
+  Unassigned: { label: 'Queued',              color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.1)' },
+}
+
 function StatusBadge({ status }) {
-  const map = {
-    Assigned: { label: 'In Studio', color: '#FFE600', bg: 'rgba(255,230,0,0.1)', border: 'rgba(255,230,0,0.3)' },
-    Revision: { label: 'Revision Requested', color: '#FF6B35', bg: 'rgba(255,107,53,0.1)', border: 'rgba(255,107,53,0.3)' },
-    Done: { label: 'Under Review', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.3)' },
-    Approved: { label: 'Delivered ✓', color: '#00CC6A', bg: 'rgba(0,204,106,0.1)', border: 'rgba(0,204,106,0.3)' },
-    Unassigned: { label: 'Queued', color: 'rgba(255,255,255,0.5)', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.1)' },
-  }
-  const s = map[status] || map.Unassigned
+  const s = STATUS_MAP[status] || STATUS_MAP.Unassigned
   return (
     <span style={{
-      fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase',
+      fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase',
       color: s.color, background: s.bg, border: `2px solid ${s.border}`,
-      padding: '5px 14px', borderRadius: '4px'
-    }}>
-      {s.label}
-    </span>
+      padding: '4px 12px', borderRadius: '0'
+    }}>{s.label}</span>
   )
 }
 
-function ProgressBar({ step }) {
+function ProgressRail({ step }) {
+  const pct = (step / (STEPS.length - 1)) * 100
+  const isDelivered = step >= 5
   return (
-    <div>
-      {/* Bar */}
-      <div style={{ position: 'relative', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', marginBottom: '32px', overflow: 'hidden' }}>
+    <div style={{ marginBottom: '36px' }}>
+      {/* Rail */}
+      <div style={{ position: 'relative', height: '6px', background: 'rgba(255,255,255,0.07)', marginBottom: '28px' }}>
         <motion.div
           initial={{ width: 0 }}
-          animate={{ width: `${(step / (STEPS.length - 1)) * 100}%` }}
-          transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
           style={{
             height: '100%',
-            background: step === STEPS.length - 1 ? 'var(--green)' : 'var(--yellow)',
-            borderRadius: '4px',
-            boxShadow: step === STEPS.length - 1 ? '0 0 12px rgba(0,204,106,0.5)' : '0 0 12px rgba(255,230,0,0.4)'
+            background: isDelivered ? '#00CC6A' : '#FFE600',
+            boxShadow: isDelivered ? '0 0 10px rgba(0,204,106,0.4)' : '0 0 10px rgba(255,230,0,0.35)'
           }}
         />
-      </div>
-
-      {/* Steps */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-        {STEPS.map((s, i) => {
-          const done = i < step
-          const active = i === step
-          const future = i > step
+        {/* Dots on rail */}
+        {STEPS.map((_, i) => {
+          const done = i < step, active = i === step
           return (
-            <div key={s.label} style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
+            <div key={i} style={{
+              position: 'absolute', top: '50%', transform: 'translate(-50%,-50%)',
+              left: `${(i / (STEPS.length - 1)) * 100}%`,
+              width: active ? '12px' : '8px', height: active ? '12px' : '8px',
+              borderRadius: '50%',
+              background: done ? '#00CC6A' : active ? (isDelivered ? '#00CC6A' : '#FFE600') : 'rgba(255,255,255,0.12)',
+              border: active ? `2px solid ${isDelivered ? '#00CC6A' : '#FFE600'}` : 'none',
+              transition: 'all 0.4s ease', zIndex: 2
+            }} />
+          )
+        })}
+      </div>
+      {/* Step labels */}
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {STEPS.map((s, i) => {
+          const done = i < step, active = i === step
+          return (
+            <div key={i} style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
               <div style={{
-                width: '36px', height: '36px', margin: '0 auto 8px',
-                border: `3px solid ${done ? 'var(--green)' : active ? 'var(--yellow)' : 'rgba(255,255,255,0.12)'}`,
-                background: done ? 'rgba(0,204,106,0.15)' : active ? 'rgba(255,230,0,0.12)' : 'transparent',
-                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '14px',
-                transition: 'all 0.4s ease'
-              }}>
-                {done
-                  ? <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-8" stroke="var(--green)" strokeWidth="2" strokeLinecap="round"/></svg>
-                  : <span style={{ opacity: future ? 0.3 : 1 }}>{s.icon}</span>
-                }
-              </div>
-              <div style={{
-                fontSize: '11px', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
-                color: done ? 'var(--green)' : active ? 'var(--yellow)' : 'rgba(255,255,255,0.25)',
-                lineHeight: 1.3, marginBottom: '2px'
+                fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
+                color: done ? '#00CC6A' : active ? (isDelivered ? '#00CC6A' : '#FFE600') : 'rgba(255,255,255,0.2)',
+                lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 2px'
               }}>{s.label}</div>
-              {active && (
-                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.3 }}>{s.sub}</div>
-              )}
+              {active && <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>{s.sub}</div>}
             </div>
           )
         })}
@@ -108,54 +105,367 @@ function ProgressBar({ step }) {
   )
 }
 
+// ── Step 1: Order summary card (click to expand tracking) ──
+function OrderCard({ order, onExpand }) {
+  const step = getProgressStep(order)
+  const isDelivered = order.status === 'Approved' || order.status === 'Completed'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: [0.23, 1, 0.32, 1] }}
+      onClick={onExpand}
+      style={{
+        background: '#0A0A0A',
+        border: `4px solid ${isDelivered ? 'var(--green)' : 'rgba(255,255,255,0.12)'}`,
+        boxShadow: `8px 8px 0 ${isDelivered ? 'var(--green)' : 'var(--yellow)'}`,
+        padding: '28px 32px',
+        cursor: 'pointer',
+        transition: 'transform 0.12s, box-shadow 0.12s'
+      }}
+      whileHover={{ x: 4, y: 4, boxShadow: `4px 4px 0 ${isDelivered ? 'var(--green)' : 'var(--yellow)'}` }}
+      whileTap={{ x: 8, y: 8, boxShadow: '0px 0px 0 var(--yellow)' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '5px' }}>ORDER ID</div>
+          <div style={{ fontSize: '22px', fontFamily: 'var(--font-rocket)', color: 'var(--yellow)', letterSpacing: '0.04em' }}>
+            {order.display_id || order.id}
+          </div>
+        </div>
+        <StatusBadge status={order.status} />
+      </div>
+
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', marginBottom: '5px' }}>VIDEO TITLE</div>
+        <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>{order.title}</div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+        {order.niche && (
+          <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--purple)', background: 'rgba(160,51,255,0.1)', border: '2px solid rgba(160,51,255,0.2)', padding: '3px 10px' }}>
+            {order.niche}
+          </span>
+        )}
+        {order.assigned_at && (
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+            {new Date(order.assigned_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          </span>
+        )}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', fontWeight: 700, color: isDelivered ? 'var(--green)' : 'var(--yellow)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          VIEW LIVE STATUS
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Step 2: Live tracking panel ──
+function TrackingPanel({ order, onBack, onOrderUpdate }) {
+  const [revNote, setRevNote] = useState('')
+  const [showRevForm, setShowRevForm] = useState(false)
+  const [revSubmitting, setRevSubmitting] = useState(false)
+  const [revError, setRevError] = useState('')
+  const [accepting, setAccepting] = useState(false)
+  const [accepted, setAccepted] = useState(order.status === 'Completed')
+
+  const step = getProgressStep(order)
+  const isApproved = order.status === 'Approved'
+  const isCompleted = order.status === 'Completed'
+
+  async function handleAccept() {
+    setAccepting(true)
+    try {
+      const res = await fetch(`${BACKEND}/accept-delivery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.display_id || order.id })
+      })
+      if (!res.ok) throw new Error('Failed')
+      setAccepted(true)
+      onOrderUpdate?.()
+    } catch (_) {}
+    setAccepting(false)
+  }
+
+  async function handleRevision(e) {
+    e.preventDefault()
+    if (!revNote.trim()) return
+    setRevSubmitting(true)
+    setRevError('')
+    try {
+      const res = await fetch(`${BACKEND}/client-revision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, note: revNote.trim() })
+      })
+      if (!res.ok) {
+        const d = await res.json()
+        throw new Error(d.error || 'Request failed')
+      }
+      setShowRevForm(false)
+      setRevNote('')
+      onOrderUpdate?.()
+    } catch (err) {
+      setRevError(err.message)
+    }
+    setRevSubmitting(false)
+  }
+
+  function handleDownload() {
+    if (!order.thumbnail_url) return
+    const a = document.createElement('a')
+    a.href = order.thumbnail_url
+    a.download = `BREVLO_${order.display_id || order.id}.jpg`
+    a.target = '_blank'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+    >
+      {/* Back + Order ID row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <button
+          onClick={onBack}
+          className="nb-btn"
+          style={{ fontSize: '12px', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '7px' }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          BACK
+        </button>
+        <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
+          {order.display_id || order.id}
+        </div>
+        <StatusBadge status={order.status} />
+      </div>
+
+      {/* Progress */}
+      <div style={{
+        background: '#0A0A0A',
+        border: '4px solid rgba(255,255,255,0.08)',
+        padding: '32px',
+        marginBottom: '20px'
+      }}>
+        <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '24px' }}>
+          STEP {step} OF {STEPS.length - 1} — {STEPS[step]?.label}
+        </div>
+        <ProgressRail step={step} />
+        <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>{order.title}</div>
+        {order.niche && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>{order.niche}</div>}
+      </div>
+
+      {/* Revision in progress notice */}
+      {order.status === 'Revision' && order.revision_note && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          style={{
+            background: 'rgba(255,107,53,0.06)',
+            border: '3px solid rgba(255,107,53,0.25)',
+            padding: '18px 24px',
+            marginBottom: '20px'
+          }}
+        >
+          <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--orange)', marginBottom: '7px' }}>
+            REVISION IN PROGRESS
+          </div>
+          <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+            {order.revision_note.replace('[QUALITY CONTROL]: ', '').replace('[CLIENT REQUEST]: ', '')}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Thumbnail — ONLY shown when Approved or Completed */}
+      {(isApproved || isCompleted) && order.thumbnail_url && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          style={{
+            background: '#0A0A0A',
+            border: '4px solid var(--green)',
+            boxShadow: '8px 8px 0 var(--green)',
+            padding: '24px',
+            marginBottom: '20px'
+          }}
+        >
+          <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: '16px' }}>
+            ✓ YOUR THUMBNAIL IS READY
+          </div>
+          <img
+            src={order.thumbnail_url}
+            alt="Your thumbnail"
+            style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', border: '2px solid rgba(255,255,255,0.08)', display: 'block' }}
+          />
+          <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleDownload}
+              className="nb-btn-yellow"
+              style={{ fontSize: '14px', padding: '12px 28px' }}
+            >
+              DOWNLOAD JPG →
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Action buttons — only when Approved (not yet completed) */}
+      {isApproved && !accepted && !isCompleted && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{
+            background: '#0A0A0A',
+            border: '4px solid rgba(255,255,255,0.08)',
+            padding: '24px',
+            marginBottom: '20px'
+          }}
+        >
+          <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '16px' }}>
+            TAKE ACTION
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: showRevForm ? '20px' : '0' }}>
+            <button
+              onClick={handleAccept}
+              disabled={accepting}
+              className="nb-btn-yellow"
+              style={{ fontSize: '14px', padding: '14px 28px', opacity: accepting ? 0.7 : 1 }}
+            >
+              {accepting ? 'PROCESSING...' : '✓ ACCEPT DELIVERY'}
+            </button>
+            <button
+              onClick={() => { setShowRevForm(v => !v); setRevError('') }}
+              className="nb-btn"
+              style={{ fontSize: '14px', padding: '14px 28px', background: 'transparent', color: 'var(--orange)', borderColor: 'rgba(255,107,53,0.4)' }}
+            >
+              {showRevForm ? 'CANCEL' : '↩ REQUEST REVISION'}
+            </button>
+          </div>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginTop: showRevForm ? '0' : '12px' }}>
+            {order.client_revisions || 0}/2 free revisions used
+          </div>
+
+          <AnimatePresence>
+            {showRevForm && (
+              <motion.form
+                onSubmit={handleRevision}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{ paddingTop: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '10px' }}>
+                    DESCRIBE WHAT NEEDS CHANGING
+                  </label>
+                  <textarea
+                    value={revNote}
+                    onChange={e => setRevNote(e.target.value)}
+                    placeholder="Be specific — e.g. 'Make the text bigger, change background to dark red, remove the logo on top right'"
+                    rows={4}
+                    style={{
+                      width: '100%', padding: '14px 16px', fontSize: '14px', lineHeight: 1.6,
+                      background: 'rgba(255,255,255,0.04)', color: '#fff',
+                      border: '3px solid rgba(255,255,255,0.12)', outline: 'none',
+                      resize: 'vertical', fontFamily: 'inherit', marginBottom: '12px'
+                    }}
+                  />
+                  {revError && (
+                    <div style={{ fontSize: '13px', color: 'var(--red)', fontWeight: 700, marginBottom: '10px' }}>{revError}</div>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={revSubmitting || !revNote.trim()}
+                    className="nb-btn"
+                    style={{ fontSize: '13px', padding: '12px 24px', opacity: (revSubmitting || !revNote.trim()) ? 0.5 : 1, background: 'var(--orange)', color: '#fff', borderColor: 'var(--orange)' }}
+                  >
+                    {revSubmitting ? 'SUBMITTING...' : 'SUBMIT REVISION →'}
+                  </button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+
+      {/* Accepted confirmation */}
+      {(accepted || isCompleted) && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            background: 'rgba(0,204,106,0.06)',
+            border: '3px solid rgba(0,204,106,0.25)',
+            padding: '20px 24px',
+            marginBottom: '20px',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ fontSize: '20px', fontFamily: 'var(--font-rocket)', color: 'var(--green)', marginBottom: '6px' }}>DELIVERY ACCEPTED ✓</div>
+          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>Order complete. Thank you for choosing Brevlo.</div>
+        </motion.div>
+      )}
+    </motion.div>
+  )
+}
+
 function TrackContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const urlId = searchParams.get('id') || ''
 
-  const [lookupId, setLookupId] = useState(urlId)
   const [inputId, setInputId] = useState(urlId)
+  const [lookupId, setLookupId] = useState(urlId)
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(!!urlId)
   const [notFound, setNotFound] = useState(false)
-  const [lastUpdated, setLastUpdated] = useState(null)
-  const [pulse, setPulse] = useState(false)
-  const prevStepRef = useRef(null)
+  const [view, setView] = useState('search') // 'search' | 'card' | 'tracking'
   const intervalRef = useRef(null)
 
-  async function fetchOrder(id) {
+  async function fetchOrder(id, silent = false) {
     if (!id) return
+    if (!silent) setLoading(true)
     try {
       const res = await fetch(`${BACKEND}/get-order/${encodeURIComponent(id)}`)
-      if (!res.ok) { setNotFound(true); setOrder(null); return }
-      const data = await res.json()
-      const newStep = getProgressStep(data)
-
-      // Pulse animation if step changed
-      if (prevStepRef.current !== null && prevStepRef.current !== newStep) {
-        setPulse(true)
-        setTimeout(() => setPulse(false), 1200)
+      if (!res.ok) {
+        if (!silent) { setNotFound(true); setOrder(null); setView('search') }
+        return
       }
-      prevStepRef.current = newStep
-
+      const data = await res.json()
       setOrder(data)
       setNotFound(false)
-      setLastUpdated(new Date())
-    } catch (_) {
-      // silently fail on poll — don't disrupt existing state
-    } finally {
-      setLoading(false)
-    }
+      if (!silent) setView('card')
+    } catch (_) {}
+    if (!silent) setLoading(false)
   }
 
   useEffect(() => {
     if (!lookupId) return
-    setLoading(true)
     fetchOrder(lookupId)
-
-    intervalRef.current = setInterval(() => fetchOrder(lookupId), POLL_INTERVAL)
-    return () => clearInterval(intervalRef.current)
   }, [lookupId])
+
+  // Poll every 5s only when in tracking view
+  useEffect(() => {
+    if (view !== 'tracking' || !lookupId) {
+      clearInterval(intervalRef.current)
+      return
+    }
+    intervalRef.current = setInterval(() => fetchOrder(lookupId, true), POLL_INTERVAL)
+    return () => clearInterval(intervalRef.current)
+  }, [view, lookupId])
 
   function handleLookup(e) {
     e?.preventDefault()
@@ -163,73 +473,68 @@ function TrackContent() {
     if (!id) return
     setLookupId(id)
     router.push('/track?id=' + id, { shallow: true })
-    setLoading(true)
     setNotFound(false)
     setOrder(null)
+    setView('search')
   }
-
-  const step = getProgressStep(order)
 
   return (
     <main style={{ minHeight: '100vh', padding: '80px 24px 120px' }}>
 
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', textDecoration: 'none', marginBottom: '32px' }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', marginBottom: '32px' }}>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
           BREVLO HOME
         </a>
-        <div className="label-tag" style={{ display: 'block', marginBottom: '16px', width: 'fit-content', margin: '0 auto 16px' }}>ORDER TRACKER</div>
-        <h1 style={{
-          fontSize: 'clamp(2rem, 5vw, 4rem)',
-          fontFamily: 'var(--font-rocket)',
-          lineHeight: 1.05,
-          color: '#fff',
-          marginBottom: '12px'
-        }}>
+        <div className="label-tag" style={{ display: 'block', width: 'fit-content', margin: '0 auto 16px' }}>ORDER TRACKER</div>
+        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', fontFamily: 'var(--font-rocket)', lineHeight: 1.05, color: '#fff', marginBottom: '12px' }}>
           REAL-TIME <span style={{ color: 'var(--yellow)' }}>STATUS.</span>
         </h1>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.45)', maxWidth: '400px', margin: '0 auto' }}>
-          Enter your Order ID to see exactly where your thumbnail is right now.
+        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.4)', maxWidth: '380px', margin: '0 auto' }}>
+          Enter your Order ID to see exactly where your thumbnail is.
         </p>
       </div>
 
-      <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '680px', margin: '0 auto' }}>
 
-        {/* Lookup form */}
-        <form onSubmit={handleLookup} style={{ display: 'flex', gap: '12px', marginBottom: '48px' }}>
-          <input
-            type="text"
-            value={inputId}
-            onChange={e => setInputId(e.target.value.toUpperCase())}
-            placeholder="BREVLO-XXXXXX"
-            style={{
-              flex: 1,
-              padding: '16px 20px',
-              fontSize: '18px',
-              fontFamily: 'var(--font-rocket)',
-              letterSpacing: '0.06em',
-              background: 'rgba(255,255,255,0.04)',
-              color: '#fff',
-              border: '4px solid rgba(255,255,255,0.2)',
-              borderRadius: '0',
-              outline: 'none'
-            }}
-          />
-          <button type="submit" className="nb-btn-yellow" style={{ padding: '16px 28px', fontSize: '15px', flexShrink: 0 }}>
-            TRACK →
-          </button>
-        </form>
+        {/* Search form — always visible unless in 'tracking' view */}
+        <AnimatePresence>
+          {view !== 'tracking' && (
+            <motion.form
+              onSubmit={handleLookup}
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{ display: 'flex', gap: '12px', marginBottom: '40px' }}
+            >
+              <input
+                type="text"
+                value={inputId}
+                onChange={e => setInputId(e.target.value.toUpperCase())}
+                placeholder="BREVLO-XXXXXX"
+                style={{
+                  flex: 1, padding: '16px 20px', fontSize: '18px',
+                  fontFamily: 'var(--font-rocket)', letterSpacing: '0.06em',
+                  background: 'rgba(255,255,255,0.04)', color: '#fff',
+                  border: '4px solid rgba(255,255,255,0.18)', outline: 'none'
+                }}
+              />
+              <button type="submit" className="nb-btn-yellow" style={{ padding: '16px 28px', fontSize: '15px', flexShrink: 0 }}>
+                TRACK →
+              </button>
+            </motion.form>
+          )}
+        </AnimatePresence>
 
         {/* Loading */}
         {loading && (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              style={{ width: '40px', height: '40px', border: '4px solid rgba(255,230,0,0.2)', borderTopColor: 'var(--yellow)', borderRadius: '50%', margin: '0 auto 16px' }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+              style={{ width: '36px', height: '36px', border: '4px solid rgba(255,230,0,0.15)', borderTopColor: 'var(--yellow)', borderRadius: '50%', margin: '0 auto 16px' }}
             />
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
               FETCHING ORDER...
             </div>
           </div>
@@ -241,175 +546,43 @@ function TrackContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             style={{
-              textAlign: 'center', padding: '48px 32px',
-              border: '4px solid rgba(239,68,68,0.3)',
-              background: 'rgba(239,68,68,0.06)', borderRadius: '12px'
+              textAlign: 'center', padding: '40px 32px',
+              border: '4px solid rgba(239,68,68,0.25)',
+              background: 'rgba(239,68,68,0.04)'
             }}
           >
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>✕</div>
-            <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-rocket)', color: '#ef4444', marginBottom: '10px' }}>ORDER NOT FOUND</h3>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
-              Check your Order ID — it starts with BREVLO- and has 6 characters after.
+            <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#ef4444', marginBottom: '12px' }}>ORDER NOT FOUND</div>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
+              Check your Order ID — it looks like BREVLO-XXXXXX
             </p>
-            <button onClick={() => router.push('/order')} className="nb-btn-yellow" style={{ fontSize: '14px', padding: '12px 28px' }}>
+            <button onClick={() => router.push('/order')} className="nb-btn-yellow" style={{ fontSize: '13px', padding: '11px 24px' }}>
               PLACE A NEW ORDER →
             </button>
           </motion.div>
         )}
 
-        {/* Order found */}
-        <AnimatePresence>
-          {order && !loading && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-            >
-              {/* Order header card */}
-              <motion.div
-                animate={pulse ? { scale: [1, 1.01, 1] } : {}}
-                transition={{ duration: 0.4 }}
-                style={{
-                  background: '#0A0A0A',
-                  border: '4px solid var(--black)',
-                  borderRadius: '12px',
-                  boxShadow: `8px 8px 0 ${step === STEPS.length - 1 ? 'var(--green)' : 'var(--yellow)'}`,
-                  padding: '28px 32px',
-                  marginBottom: '32px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-                  <div>
-                    <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '6px' }}>
-                      ORDER ID
-                    </div>
-                    <div style={{ fontSize: '24px', fontFamily: 'var(--font-rocket)', color: 'var(--yellow)', letterSpacing: '0.04em' }}>
-                      {order.display_id || order.id}
-                    </div>
-                  </div>
-                  <StatusBadge status={order.status} />
-                </div>
+        {/* Step 1 — Order card */}
+        <AnimatePresence mode="wait">
+          {order && view === 'card' && !loading && (
+            <OrderCard
+              key="card"
+              order={order}
+              onExpand={() => setView('tracking')}
+            />
+          )}
 
-                {/* Title */}
-                <div style={{ marginBottom: '20px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '6px' }}>VIDEO TITLE</div>
-                  <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{order.title}</div>
-                </div>
-
-                {/* Meta row */}
-                <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                  {order.niche && (
-                    <div style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--purple)', background: 'rgba(160,51,255,0.1)', border: '1px solid rgba(160,51,255,0.25)', padding: '4px 12px', borderRadius: '4px' }}>
-                      {order.niche}
-                    </div>
-                  )}
-                  {order.is_dummy && (
-                    <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--orange)', background: 'rgba(255,107,53,0.08)', border: '1px solid rgba(255,107,53,0.25)', padding: '4px 12px', borderRadius: '4px' }}>
-                      TEST ORDER
-                    </div>
-                  )}
-                  {order.assigned_at && (
-                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>
-                      Placed {new Date(order.assigned_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Progress bar */}
-              <div style={{
-                background: '#0A0A0A',
-                border: '4px solid var(--black)',
-                borderRadius: '12px',
-                boxShadow: '8px 8px 0 rgba(0,0,0,0.5)',
-                padding: '32px',
-                marginBottom: '24px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>
-                    PROGRESS — STEP {step} OF {STEPS.length - 1}
-                  </div>
-                  {lastUpdated && (
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)', animation: 'liveGlow 1.5s infinite' }} />
-                      LIVE · Updated {lastUpdated.toLocaleTimeString()}
-                    </div>
-                  )}
-                </div>
-
-                <ProgressBar step={step} />
-              </div>
-
-              {/* Thumbnail preview (if delivered) */}
-              {order.thumbnail_url && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{
-                    background: '#0A0A0A',
-                    border: '4px solid var(--green)',
-                    borderRadius: '12px',
-                    boxShadow: '8px 8px 0 var(--green)',
-                    padding: '24px',
-                    marginBottom: '24px',
-                    textAlign: 'center'
-                  }}
-                >
-                  <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: '16px' }}>
-                    ✓ YOUR THUMBNAIL
-                  </div>
-                  <img
-                    src={order.thumbnail_url}
-                    alt="Your thumbnail"
-                    style={{ maxWidth: '100%', maxHeight: '360px', objectFit: 'contain', border: '2px solid rgba(255,255,255,0.1)', borderRadius: '6px' }}
-                  />
-                  <div style={{ marginTop: '16px' }}>
-                    <a
-                      href={order.thumbnail_url}
-                      download
-                      className="nb-btn-yellow"
-                      style={{ fontSize: '14px', padding: '12px 32px', textDecoration: 'none', display: 'inline-block' }}
-                    >
-                      DOWNLOAD THUMBNAIL →
-                    </a>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Revision note (if applicable) */}
-              {order.status === 'Revision' && order.revision_note && (
-                <div style={{
-                  background: 'rgba(255,107,53,0.06)',
-                  border: '3px solid rgba(255,107,53,0.3)',
-                  borderRadius: '10px',
-                  padding: '20px 24px',
-                  marginBottom: '24px'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--orange)', marginBottom: '8px' }}>
-                    REVISION IN PROGRESS
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-                    {order.revision_note.replace('[QUALITY CONTROL]: ', '').replace('[CLIENT REQUEST]: ', '')}
-                  </div>
-                </div>
-              )}
-
-              {/* Live poll indicator */}
-              <div style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.2)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                Auto-refreshes every 5 seconds · Keep this tab open for live updates
-              </div>
-
-            </motion.div>
+          {/* Step 2 — Live tracking panel */}
+          {order && view === 'tracking' && !loading && (
+            <TrackingPanel
+              key="tracking"
+              order={order}
+              onBack={() => setView('card')}
+              onOrderUpdate={() => fetchOrder(lookupId, true)}
+            />
           )}
         </AnimatePresence>
-      </div>
 
-      <style>{`
-        @keyframes liveGlow {
-          0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--green); }
-          50% { opacity: 0.4; box-shadow: none; }
-        }
-      `}</style>
+      </div>
     </main>
   )
 }
@@ -418,7 +591,7 @@ export default function TrackPage() {
   return (
     <Suspense fallback={
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-rocket)', fontSize: '2rem', color: 'rgba(255,255,255,0.4)' }}>LOADING...</div>
+        <div style={{ fontFamily: 'var(--font-rocket)', fontSize: '2rem', color: 'rgba(255,255,255,0.3)' }}>LOADING...</div>
       </div>
     }>
       <TrackContent />
