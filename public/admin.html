@@ -246,6 +246,7 @@
 
     .onboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
     .form-grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-top: 12px; }
+    .form-grid7 { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-top: 12px; }
     .f-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; font-weight: 500; color: var(--text); outline: none; font-family: 'Geist', sans-serif; transition: all 0.12s; }
     .f-input::placeholder { color: var(--text3); }
     .f-input:focus { border-color: var(--accent); }
@@ -487,18 +488,21 @@
       <div class="panel" id="panel-designers">
         <div class="onboard-card">
           <div class="section-lbl" style="margin-bottom:0">Onboarding Terminal</div>
-          <div class="form-grid4">
+          <div class="form-grid7">
             <input class="f-input" id="nd-name" placeholder="Full Name">
             <input class="f-input" id="nd-email" placeholder="Email" type="email">
             <input class="f-input" id="nd-pass" placeholder="Password">
             <input class="f-input" id="nd-rate" placeholder="Rate (₹)" type="number">
-            <button class="btn-primary" style="grid-column:span 4" onclick="onboardDesigner()">Add Designer to Roster</button>
+            <input class="f-input" id="nd-age" placeholder="Age" type="number" min="16" max="60">
+            <input class="f-input" id="nd-mobile" placeholder="Mobile Number">
+            <input class="f-input" id="nd-capacity" placeholder="Thumbnails/Day (max 20)" type="number" min="1" max="20">
+            <button class="btn-primary" style="grid-column:span 1" onclick="onboardDesigner()">Add to Roster</button>
           </div>
         </div>
         <div class="table-card">
           <table>
             <thead><tr>
-              <th>Name</th><th>Email</th><th>Rate</th><th>Completed</th><th>Avg TAT</th><th>Rev Rate</th><th>Status</th><th style="text-align:right">Access</th><th></th>
+              <th>Name</th><th>Email</th><th>Rate</th><th>Daily Cap</th><th>Completed</th><th>Avg TAT</th><th>Rev Rate</th><th>Status</th><th style="text-align:right">Access</th><th></th>
             </tr></thead>
             <tbody id="designersBody"></tbody>
           </table>
@@ -630,8 +634,9 @@
 <div class="overlay" id="orderOv">
   <div class="o-modal">
     <div class="o-modal-hd">
-      <div style="display:flex;align-items:center;gap:9px">
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
         <span id="m-id" style="font-size:15px;font-weight:700;letter-spacing:-0.02em;color:var(--accent)"></span>
+        <span id="m-display-id" style="font-size:11px;font-weight:600;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:4px"></span>
         <span id="m-sp" class="sp"></span>
         <span id="m-tat" style="font-size:10px;color:var(--text3)"></span>
         <span id="m-sla" class="sla-chip" style="display:none"></span>
@@ -643,7 +648,7 @@
         <div class="dl"><div class="dl-label">Project Title</div><div class="dl-val big" id="m-title"></div></div>
         <div class="dl-grid">
           <div class="dl" style="margin:0"><div class="dl-label">Client Email</div><div class="dl-val sm" id="m-email"></div></div>
-          <div class="dl" style="margin:0"><div class="dl-label">Designer</div><div class="dl-val sm" id="m-designer"></div></div>
+          <div class="dl" style="margin:0"><div class="dl-label">Designer</div><div class="dl-val sm" id="m-designer" style="cursor:pointer;color:var(--accent);text-decoration:underline;text-underline-offset:2px" onclick="openDesignerProfile(activeOrderDesignerId)" title="View designer profile"></div></div>
           <div class="dl" style="margin:0"><div class="dl-label">Amount Paid</div><div class="dl-val" style="color:var(--green)" id="m-amount"></div></div>
           <div class="dl" style="margin:0"><div class="dl-label">Client Revisions</div><div class="dl-val sm" id="m-crev"></div></div>
           <div class="dl" style="margin:0"><div class="dl-label">Assigned At</div><div class="dl-val sm" id="m-assigned"></div></div>
@@ -680,6 +685,69 @@
         <textarea class="sub-input" id="noteArea" placeholder="Internal note (not shown to designer or client)…"></textarea>
         <button class="act-btn btn-solid" id="noteSaveBtn" onclick="saveNote()" style="display:none">Save Note</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGNER PROFILE MODAL -->
+<div class="overlay" id="designerProfileOv" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="o-modal" style="max-width:860px;max-height:88vh;overflow-y:auto">
+    <div class="o-modal-hd">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="dp-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent)"></div>
+        <div>
+          <div id="dp-name" style="font-size:15px;font-weight:700;letter-spacing:-0.02em"></div>
+          <div id="dp-email" style="font-size:11px;color:var(--text3);margin-top:1px"></div>
+        </div>
+      </div>
+      <div class="modal-close" onclick="document.getElementById('designerProfileOv').classList.remove('open')">✕</div>
+    </div>
+    <div style="padding:20px 24px">
+      <!-- Info grid -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Rate</div>
+          <div id="dp-rate" style="font-size:15px;font-weight:700;color:var(--accent)"></div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Daily Cap</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div id="dp-capacity-val" style="font-size:15px;font-weight:700"></div>
+            <button onclick="document.getElementById('dp-capacity-edit').style.display='flex'" style="font-size:9px;font-weight:600;color:var(--text3);background:none;border:none;cursor:pointer;padding:0">✎</button>
+          </div>
+          <div id="dp-capacity-edit" style="display:none;align-items:center;gap:4px;margin-top:4px">
+            <input id="dp-capacity-input" type="number" min="1" max="20" style="width:50px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 6px;font-size:12px;font-family:'Geist',sans-serif">
+            <button onclick="saveDesignerField('daily_capacity',parseInt(document.getElementById('dp-capacity-input').value))" style="font-size:10px;font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Age</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div id="dp-age-val" style="font-size:15px;font-weight:700"></div>
+            <button onclick="document.getElementById('dp-age-edit').style.display='flex'" style="font-size:9px;font-weight:600;color:var(--text3);background:none;border:none;cursor:pointer;padding:0">✎</button>
+          </div>
+          <div id="dp-age-edit" style="display:none;align-items:center;gap:4px;margin-top:4px">
+            <input id="dp-age-input" type="number" min="16" max="60" style="width:50px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 6px;font-size:12px;font-family:'Geist',sans-serif">
+            <button onclick="saveDesignerField('age',parseInt(document.getElementById('dp-age-input').value))" style="font-size:10px;font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Mobile</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div id="dp-mobile-val" style="font-size:12px;font-weight:600"></div>
+            <button onclick="document.getElementById('dp-mobile-edit').style.display='flex'" style="font-size:9px;font-weight:600;color:var(--text3);background:none;border:none;cursor:pointer;padding:0">✎</button>
+          </div>
+          <div id="dp-mobile-edit" style="display:none;align-items:center;gap:4px;margin-top:4px">
+            <input id="dp-mobile-input" type="text" style="width:110px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 6px;font-size:12px;font-family:'Geist',sans-serif">
+            <button onclick="saveDesignerField('mobile_number',document.getElementById('dp-mobile-input').value)" style="font-size:10px;font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer">Save</button>
+          </div>
+        </div>
+      </div>
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" id="dp-stats"></div>
+      <!-- Order history -->
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Order History</div>
+      <div id="dp-orders" style="display:flex;flex-direction:column;gap:6px"></div>
     </div>
   </div>
 </div>
@@ -1157,18 +1225,22 @@ function renderWorkload() {
 }
 
 /* ORDER MODAL */
+let activeOrderDesignerId = null;
 function openOrderModal(id) {
   const o=allOrders.find(x=>x.id===id); if(!o) return;
   activeOrderId=id;
+  activeOrderDesignerId=o.designer_id;
   const dName=allDesigners.find(d=>d.id===o.designer_id)?.name||'—';
-  // Show full internal ID
+  // Show full internal ID + client-facing display_id
   document.getElementById('m-id').innerText       = o.id;
+  const dispEl=document.getElementById('m-display-id');
+  dispEl.innerText = o.display_id||('BREVLO-'+o.id.slice(-5));
   const sp=document.getElementById('m-sp'); sp.innerText=spL(o.status); sp.className=`sp ${spC(o.status)}`;
   document.getElementById('m-tat').innerText      = o.assigned_at&&o.submitted_at?`⏱ ${((new Date(o.submitted_at)-new Date(o.assigned_at))/3600000).toFixed(1)}H TAT`:'';
   document.getElementById('m-title').innerText    = o.title;
   document.getElementById('m-email').innerText    = o.email;
   document.getElementById('m-designer').innerText = dName;
-  document.getElementById('m-amount').innerText   = `₹${o.amount_paid||1500}`;
+  document.getElementById('m-amount').innerText   = `$${o.amount_paid||20}`;
   document.getElementById('m-crev').innerText     = `${o.client_revisions||0} / 2 used`;
   document.getElementById('m-assigned').innerText = fmtDate(o.assigned_at);
   document.getElementById('m-submitted').innerText= fmtDate(o.submitted_at);
@@ -1329,10 +1401,11 @@ function renderDesigners(){
     const leaveStatus = d.on_leave ? `<span style="font-size:10px;color:var(--yellow);font-weight:600">🏖 On Leave until ${d.leave_until||'—'}</span>` : `<span style="font-size:10px;color:var(--text3)">—</span>`;
 
     return `<tr>
-      <td style="font-weight:600;color:var(--text)">${d.name}${d.on_leave?` <span style="font-size:9px;font-weight:700;color:var(--yellow);background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);padding:1px 5px;border-radius:3px">ON LEAVE</span>`:''}
+      <td style="font-weight:600;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px" onclick="openDesignerProfile('${d.id}')">${d.name}${d.on_leave?` <span style="font-size:9px;font-weight:700;color:var(--yellow);background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);padding:1px 5px;border-radius:3px">ON LEAVE</span>`:''}
       </td>
       <td style="font-size:11px">${d.email}</td>
       <td style="color:var(--accent);font-weight:700">₹${d.payout_rate||500}</td>
+      <td style="font-weight:600">${d.daily_capacity||'—'}</td>
       <td style="font-weight:600">${approved}</td>
       <td>${avgTat}</td>
       <td style="color:${parseInt(revRate)>30?'var(--red)':'inherit'}">${revRate}</td>
@@ -1340,14 +1413,76 @@ function renderDesigners(){
       <td style="text-align:right"><label class="switch"><input type="checkbox" ${d.status==='Active'?'checked':''} onchange="toggleDesigner('${d.id}',event)"><span class="slider"></span></label></td>
       <td><button class="btn-delete-designer" onclick="confirmDeleteDesigner('${d.id}','${d.name}')" title="Remove designer">🗑</button></td>
     </tr>`;
-  }).join('')||`<tr><td colspan="8" class="empty-state">No designers</td></tr>`;
+  }).join('')||`<tr><td colspan="9" class="empty-state">No designers</td></tr>`;
 }
 async function onboardDesigner(){
   const name=document.getElementById('nd-name').value,email=document.getElementById('nd-email').value,password=document.getElementById('nd-pass').value,payout_rate=document.getElementById('nd-rate').value;
-  if(!name||!email||!password){showToast('Please fill all required fields','error');return;}
-  await fetch(`${SERVER_URL}/add-designer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password,payout_rate:parseInt(payout_rate)||500})});
-  ['nd-name','nd-email','nd-pass','nd-rate'].forEach(i=>document.getElementById(i).value='');
+  const age=document.getElementById('nd-age').value,mobile=document.getElementById('nd-mobile').value,capacity=document.getElementById('nd-capacity').value;
+  if(!name||!email||!password){showToast('Fill name, email, password','error');return;}
+  const cap=Math.min(parseInt(capacity)||10,20);
+  await fetch(`${SERVER_URL}/add-designer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password,payout_rate:parseInt(payout_rate)||500,age:age?parseInt(age):null,mobile_number:mobile||null,daily_capacity:cap})});
+  ['nd-name','nd-email','nd-pass','nd-rate','nd-age','nd-mobile','nd-capacity'].forEach(i=>document.getElementById(i).value='');
   loadAll(); showToast('Designer added to roster','success');
+}
+let activeDesignerProfileId = null;
+function openDesignerProfile(designerId){
+  const d=allDesigners.find(x=>x.id===designerId); if(!d) return;
+  activeDesignerProfileId=designerId;
+  const initials=d.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('dp-avatar').innerText=initials;
+  document.getElementById('dp-name').innerText=d.name+(d.status==='Active'?' ·':' ·')+' '+d.status;
+  document.getElementById('dp-email').innerText=d.email;
+  document.getElementById('dp-rate').innerText='₹'+(d.payout_rate||500);
+  document.getElementById('dp-capacity-val').innerText=d.daily_capacity?d.daily_capacity+'/day':'—';
+  document.getElementById('dp-capacity-input').value=d.daily_capacity||10;
+  document.getElementById('dp-capacity-edit').style.display='none';
+  document.getElementById('dp-age-val').innerText=d.age||'—';
+  document.getElementById('dp-age-input').value=d.age||'';
+  document.getElementById('dp-age-edit').style.display='none';
+  document.getElementById('dp-mobile-val').innerText=d.mobile_number||'—';
+  document.getElementById('dp-mobile-input').value=d.mobile_number||'';
+  document.getElementById('dp-mobile-edit').style.display='none';
+  // Stats
+  const dOrders=allOrders.filter(o=>o.designer_id===designerId);
+  const completed=dOrders.filter(o=>o.status==='Completed'||o.status==='Approved').length;
+  const revs=dOrders.filter(o=>o.revision_note).length;
+  const tatOrds=dOrders.filter(o=>o.assigned_at&&o.submitted_at);
+  const avgTat=tatOrds.length?(tatOrds.reduce((s,o)=>(s+(new Date(o.submitted_at)-new Date(o.assigned_at))),0)/tatOrds.length/3600000).toFixed(1)+'H':'—';
+  document.getElementById('dp-stats').innerHTML=`
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Total Orders</div>
+      <div style="font-size:20px;font-weight:700">${dOrders.length}</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Completed</div>
+      <div style="font-size:20px;font-weight:700;color:var(--green)">${completed}</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Avg TAT</div>
+      <div style="font-size:20px;font-weight:700">${avgTat}</div>
+    </div>`;
+  // Order history
+  const sorted=[...dOrders].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  document.getElementById('dp-orders').innerHTML=sorted.length?sorted.map(o=>`
+    <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer" onclick="document.getElementById('designerProfileOv').classList.remove('open');openOrderModal('${o.id}')">
+      ${o.thumbnail_url?`<img src="${o.thumbnail_url}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div style="width:36px;height:36px;border-radius:4px;background:var(--surface);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">—</div>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.title}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${o.display_id||('BREVLO-'+o.id.slice(-5))} · ${fmtDate(o.created_at)}</div>
+      </div>
+      <span class="sp ${spC(o.status)}">${spL(o.status)}</span>
+    </div>`).join(''):`<div style="font-size:13px;color:var(--text3);padding:16px 0">No orders yet.</div>`;
+  document.getElementById('designerProfileOv').classList.add('open');
+}
+async function saveDesignerField(field, value){
+  if(!activeDesignerProfileId) return;
+  if(field==='daily_capacity'&&(isNaN(value)||value<1||value>20)){showToast('Capacity must be 1–20','error');return;}
+  try{
+    await fetch(`${SERVER_URL}/update-designer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:activeDesignerProfileId,[field]:value})});
+    await loadAll();
+    openDesignerProfile(activeDesignerProfileId);
+    showToast('Updated','success');
+  }catch{showToast('Update failed','error');}
 }
 async function toggleDesigner(id,e){
   const status=e.target.checked?'Active':'Inactive';
@@ -1705,7 +1840,7 @@ async function grantLeave() {
 /* HELPERS */
 function spL(s){if(s==='Assigned')return 'Active';if(s==='Done')return 'In Review';if(s==='Approved')return 'Approved';if(s==='Completed')return 'Completed';if(s==='Unassigned')return 'Unassigned';return s;}
 function spC(s){if(s==='Assigned')return 'sp-assigned';if(s==='Done')return 'sp-done';if(s==='Revision')return 'sp-revision';if(s==='Approved')return 'sp-approved';if(s==='Completed')return 'sp-completed';if(s==='Unassigned')return 'sp-unassigned';return '';}
-const fmtDate=d=>d?new Date(d.replace(' ','T')+'Z').toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+const fmtDate=d=>{if(!d)return'—';const s=d.includes('T')&&(d.endsWith('Z')||d.includes('+'))?d:d.includes('T')?d+'Z':d.replace(' ','T')+'Z';const dt=new Date(s);return isNaN(dt)?'—':dt.toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});};
 
 /* TOAST */
 function showToast(msg, type='info', duration=3500){
