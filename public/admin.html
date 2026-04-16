@@ -1190,13 +1190,17 @@ function openOrderModal(id) {
   if(diff!==null&&diff<=0){slaEl.style.display='inline-flex';slaEl.className='sla-chip sla-late';slaEl.innerText='SLA BREACHED';}
   else slaEl.style.display='none';
 
-  // Approve only for Done (In Review); Revision available for Done+Approved (client can request revision post-approve)
+  // Lock all action buttons for Completed orders (client accepted delivery — nothing to do)
+  const isCompleted = o.status === 'Completed';
   const canApprove = o.status === 'Done';
   const canRevise  = o.status === 'Done' || o.status === 'Assigned' || o.status === 'Revision';
+  document.getElementById('m-appbtn').style.display = isCompleted ? 'none' : 'block';
+  document.getElementById('m-rejbtn').style.display = isCompleted ? 'none' : 'block';
   document.getElementById('m-appbtn').className = `act-btn btn-approve${canApprove?'':' btn-off'}`;
   document.getElementById('m-rejbtn').className = `act-btn btn-reject${canRevise?'':' btn-off'}`;
-  // Reassign: not available for Approved/Done completed orders
-  const noReassign = o.status === 'Approved';
+  // Reassign: not available for Approved/Completed orders
+  const noReassign = o.status === 'Approved' || o.status === 'Completed';
+  document.getElementById('m-reassignbtn').style.display = isCompleted ? 'none' : 'block';
   document.getElementById('m-reassignbtn').classList.toggle('btn-off', noReassign);
   document.getElementById('m-dlbtn').style.display=o.thumbnail_url?'block':'none';
   const psdBtn=document.getElementById('m-psdbtn');
