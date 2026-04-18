@@ -85,14 +85,14 @@ function ProgressRail({ step, isRevision }) {
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               {i > 0 && (
                 <div style={{
-                  position: 'absolute', top: `${dotSize / 2 - 1.5}px`, right: '50%', left: 0,
+                  position: 'absolute', top: '5px', right: '50%', left: 0,
                   height: '3px', background: done || active ? barColor : 'rgba(255,255,255,0.07)',
                   transition: 'background 0.4s'
                 }} />
               )}
               {i < STEPS.length - 1 && (
                 <div style={{
-                  position: 'absolute', top: `${dotSize / 2 - 1.5}px`, left: '50%', right: 0,
+                  position: 'absolute', top: '5px', left: '50%', right: 0,
                   height: '3px', background: done ? barColor : 'rgba(255,255,255,0.07)',
                   transition: 'background 0.4s'
                 }} />
@@ -145,14 +145,13 @@ function OrderCard({ order, onExpand }) {
       onClick={onExpand}
       style={{
         background: '#0A0A0A',
-        border: '4px solid rgba(255,255,255,0.18)',
+        border: '4px solid rgba(255,255,255,0.6)',
         boxShadow: `8px 8px 0 ${shadowColor}`,
         padding: '28px 32px',
         cursor: 'pointer'
       }}
-      whileHover={{ x: 4, y: 4, boxShadow: `4px 4px 0 ${shadowColor}` }}
-      whileTap={{ x: 8, y: 8, boxShadow: `0px 0px 0 ${shadowColor}` }}
-      transition={{ type: 'tween', duration: 0.08 }}
+      whileHover={{ x: 4, y: 4, boxShadow: `4px 4px 0 ${shadowColor}`, transition: { type: 'tween', duration: 0.08 } }}
+      whileTap={{ x: 8, y: 8, boxShadow: `0px 0px 0 ${shadowColor}`, transition: { type: 'tween', duration: 0.05 } }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -476,9 +475,6 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
                 style={{ overflow: 'visible' }}
               >
                 <div style={{ paddingTop: '16px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--red)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '10px' }}>
-                    {order.client_revisions || 0}/2 free revisions used
-                  </div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '10px' }}>
                     DESCRIBE WHAT NEEDS CHANGING
                   </label>
@@ -495,16 +491,24 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
                     }}
                   />
                   {revError && <div style={{ fontSize: '13px', color: 'var(--red)', fontWeight: 700, marginBottom: '10px' }}>{revError}</div>}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.08, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: '#ff9999', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                      {order.client_revisions || 0}/2 free revisions used
+                    </div>
                     <button
                       type="submit"
                       disabled={revSubmitting || !revNote.trim()}
                       className="nb-btn action-btn"
-                      style={{ fontSize: '13px', padding: '12px 24px', opacity: (revSubmitting || !revNote.trim()) ? 0.5 : 1, background: 'var(--orange)', color: '#fff', borderColor: 'var(--orange)' }}
+                      style={{ fontSize: '13px', padding: '12px 24px', opacity: (revSubmitting || !revNote.trim()) ? 0.5 : 1, background: '#FF6B35', color: '#fff', border: '4px solid #FF6B35' }}
                     >
                       {revSubmitting ? 'SUBMITTING...' : 'SUBMIT REVISION →'}
                     </button>
-                  </div>
+                  </motion.div>
                 </div>
               </motion.form>
             )}
@@ -651,6 +655,7 @@ function TrackContent() {
   const [loading, setLoading] = useState(!!urlId)
   const [notFound, setNotFound] = useState(false)
   const [view, setView] = useState('search')
+  const [fetchTrigger, setFetchTrigger] = useState(0)
   const intervalRef = useRef(null)
 
   async function fetchOrder(id, silent = false) {
@@ -673,7 +678,7 @@ function TrackContent() {
   useEffect(() => {
     if (!lookupId) return
     fetchOrder(lookupId)
-  }, [lookupId])
+  }, [lookupId, fetchTrigger])
 
   useEffect(() => {
     if (view !== 'tracking' || !lookupId) {
@@ -688,11 +693,12 @@ function TrackContent() {
     e?.preventDefault()
     const id = inputId.trim().toUpperCase()
     if (!id) return
-    setLookupId(id)
     router.push('/track?id=' + id, { shallow: true })
     setNotFound(false)
     setOrder(null)
     setView('search')
+    setLookupId(id)
+    setFetchTrigger(t => t + 1)
   }
 
   return (
@@ -739,7 +745,7 @@ function TrackContent() {
                   flex: 1, padding: '16px 20px', fontSize: '18px',
                   fontFamily: 'var(--font-rocket)', letterSpacing: '0.06em',
                   background: 'rgba(255,255,255,0.04)', color: '#fff',
-                  border: '4px solid rgba(255,255,255,0.18)', outline: 'none'
+                  border: '4px solid rgba(255,255,255,0.5)', outline: 'none'
                 }}
               />
               <button type="submit" className="nb-btn-yellow" style={{ padding: '16px 28px', fontSize: '15px', flexShrink: 0 }}>
@@ -805,15 +811,15 @@ function TrackContent() {
 
       <style>{`
         .action-btn {
-          transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+          transition: transform 0.08s ease, box-shadow 0.08s ease !important;
         }
         .action-btn:hover:not(:disabled) {
-          transform: translateY(2px) !important;
-          box-shadow: 4px 4px 0 var(--black) !important;
+          transform: translate(3px, 3px) !important;
+          box-shadow: 3px 3px 0 #000 !important;
         }
         .action-btn:active:not(:disabled) {
-          transform: translateY(4px) !important;
-          box-shadow: 2px 2px 0 var(--black) !important;
+          transform: translate(6px, 6px) !important;
+          box-shadow: 0px 0px 0 #000 !important;
         }
       `}</style>
     </main>
