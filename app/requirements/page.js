@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 
-const NICHES = ['Gaming', 'Finance', 'History', 'Vlogs', 'Tech', 'Fitness', 'Education', 'Other']
+const NICHES = ['Gaming', 'Finance', 'Entertainment', 'Vlogs', 'Tech', 'Fitness', 'Education', 'Other']
 
 export default function RequirementsPage() {
   const router = useRouter()
@@ -128,7 +128,7 @@ export default function RequirementsPage() {
       {/* Top bar — back only, no step indicator */}
       <div style={{ padding: '24px 32px' }}>
         <a href="/order" className="nb-btn-yellow" style={{
-          fontSize: '12px', padding: '10px 18px',
+          fontSize: '12px', padding: '8px 20px',
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           textDecoration: 'none'
         }}>
@@ -150,18 +150,18 @@ export default function RequirementsPage() {
           STEP 01 / 02 — BRIEF
         </div>
         <h1 style={{
-          fontSize: 'clamp(3.4rem, 9vw, 7rem)',
+          fontSize: 'clamp(3.8rem, 10vw, 8rem)',
           fontFamily: 'var(--font-rocket)',
           lineHeight: 1.0, color: '#fff', marginBottom: '14px'
         }}>
-          TELL US ABOUT THE <span style={{ color: 'var(--yellow)' }}>VIDEO.</span>
+          TELL US ABOUT THE<br /><span style={{ color: 'var(--yellow)' }}>VIDEO.</span>
         </h1>
         <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '420px', margin: 0 }}>
           The more we know, the better we design. Takes about 2 minutes.
         </p>
       </motion.div>
 
-      {/* Form — individual boxes */}
+      {/* Form — labels outside, boxes only around input areas */}
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 24px 80px' }}>
         <motion.form
           onSubmit={handleContinue}
@@ -171,115 +171,91 @@ export default function RequirementsPage() {
           transition={{ delay: 0.12, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
         >
 
-          {/* Box 1: Name + Email */}
-          <div className="form-box" data-err={(formErrors.name || formErrors.email) ? 'true' : undefined}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }} className="name-email-grid">
-              <div>
-                <label style={lbl}>YOUR NAME <span style={{ color: 'var(--red)' }}>*</span></label>
-                <input
-                  type="text" value={form.name}
-                  onChange={e => updateForm('name', e.target.value)}
-                  placeholder="John Creator"
-                  style={{ ...inp, borderColor: formErrors.name ? 'var(--red)' : '#0A0A0A' }}
-                />
-                {formErrors.name && <div style={errStyle}>{formErrors.name}</div>}
+          {/* Name + Email — 2 col */}
+          <div className="name-email-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div data-err={formErrors.name ? 'true' : undefined}>
+              <label style={lblOut}>YOUR NAME <span style={{ color: 'var(--red)' }}>*</span></label>
+              <div className={`form-box${formErrors.name ? ' form-box-err' : ''}`} style={{ marginBottom: 0 }}>
+                <input type="text" value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder="John Creator" style={inp} />
               </div>
-              <div>
-                <label style={lbl}>YOUR EMAIL <span style={{ color: 'var(--red)' }}>*</span></label>
-                <input
-                  type="email" value={form.email}
-                  onChange={e => updateForm('email', e.target.value)}
-                  placeholder="you@email.com"
-                  style={{ ...inp, borderColor: formErrors.email ? 'var(--red)' : '#0A0A0A' }}
-                />
-                {formErrors.email && <div style={errStyle}>{formErrors.email}</div>}
+              {formErrors.name && <div style={errStyle}>{formErrors.name}</div>}
+            </div>
+            <div data-err={formErrors.email ? 'true' : undefined}>
+              <label style={lblOut}>YOUR EMAIL <span style={{ color: 'var(--red)' }}>*</span></label>
+              <div className={`form-box${formErrors.email ? ' form-box-err' : ''}`} style={{ marginBottom: 0 }}>
+                <input type="email" value={form.email} onChange={e => updateForm('email', e.target.value)} placeholder="you@email.com" style={inp} />
               </div>
+              {formErrors.email && <div style={errStyle}>{formErrors.email}</div>}
             </div>
           </div>
 
-          {/* Box 2: Video Title */}
-          <div className="form-box" data-err={formErrors.title ? 'true' : undefined}>
-            <label style={lbl}>VIDEO TITLE / CONCEPT <span style={{ color: 'var(--red)' }}>*</span></label>
-            <input
-              type="text" value={form.title}
-              onChange={e => updateForm('title', e.target.value)}
-              placeholder="e.g. I Tried Apple Vision Pro For 30 Days"
-              style={{ ...inp, borderColor: formErrors.title ? 'var(--red)' : '#0A0A0A' }}
-            />
+          {/* Video Title */}
+          <div style={{ marginBottom: '16px' }} data-err={formErrors.title ? 'true' : undefined}>
+            <label style={lblOut}>VIDEO TITLE / CONCEPT <span style={{ color: 'var(--red)' }}>*</span></label>
+            <div className={`form-box${formErrors.title ? ' form-box-err' : ''}`} style={{ marginBottom: 0 }}>
+              <input type="text" value={form.title} onChange={e => updateForm('title', e.target.value)} placeholder="e.g. I Tried Apple Vision Pro For 30 Days" style={inp} />
+            </div>
             {formErrors.title && <div style={errStyle}>{formErrors.title}</div>}
           </div>
 
-          {/* Box 3: Niche */}
-          <div className="form-box" data-err={formErrors.niche ? 'true' : undefined}>
-            <label style={lbl}>NICHE <span style={{ color: 'var(--red)' }}>*</span></label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }} className="niche-grid">
-              {NICHES.map(n => {
-                const active = form.niche === n
-                return (
-                  <button
-                    key={n} type="button"
-                    onClick={() => updateForm('niche', n)}
-                    style={{
-                      padding: '13px 8px',
-                      fontSize: '12px', fontWeight: 900,
+          {/* Niche */}
+          <div style={{ marginBottom: '16px' }} data-err={formErrors.niche ? 'true' : undefined}>
+            <label style={lblOut}>NICHE <span style={{ color: 'var(--red)' }}>*</span></label>
+            <div className={`form-box${formErrors.niche ? ' form-box-err' : ''}`} style={{ marginBottom: 0, padding: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }} className="niche-grid">
+                {NICHES.map(n => {
+                  const active = form.niche === n
+                  return (
+                    <button key={n} type="button" onClick={() => updateForm('niche', n)} style={{
+                      padding: '13px 8px', fontSize: '12px', fontWeight: 900,
                       letterSpacing: '0.05em', textTransform: 'uppercase',
                       border: '3px solid #0A0A0A',
                       background: active ? 'var(--yellow)' : '#fff',
-                      color: '#0A0A0A',
-                      boxShadow: '4px 4px 0 #0A0A0A',
-                      cursor: 'pointer',
-                      transition: 'background 0.1s',
+                      color: '#0A0A0A', boxShadow: '4px 4px 0 #0A0A0A',
+                      cursor: 'pointer', transition: 'background 0.1s',
                       fontFamily: 'var(--font-body)'
-                    }}
-                  >{n}</button>
-                )
-              })}
+                    }}>{n}</button>
+                  )
+                })}
+              </div>
             </div>
-            {formErrors.niche && <div style={{ ...errStyle, marginTop: '10px' }}>{formErrors.niche}</div>}
+            {formErrors.niche && <div style={{ ...errStyle, marginTop: '6px' }}>{formErrors.niche}</div>}
           </div>
 
-          {/* Box 4: Brief */}
-          <div className="form-box" data-err={formErrors.brief ? 'true' : undefined}>
-            <label style={lbl}>THE BRIEF <span style={{ color: 'var(--red)' }}>*</span></label>
-            <textarea
-              value={form.brief}
-              onChange={e => updateForm('brief', e.target.value)}
-              placeholder="What's the hook? Who's the audience? Any must-have text, expressions, colors? (3–4 sentences is plenty)"
-              rows={5}
-              style={{ ...inp, resize: 'vertical', lineHeight: 1.65, borderColor: formErrors.brief ? 'var(--red)' : '#0A0A0A' }}
-            />
+          {/* Brief */}
+          <div style={{ marginBottom: '16px' }} data-err={formErrors.brief ? 'true' : undefined}>
+            <label style={lblOut}>THE BRIEF <span style={{ color: 'var(--red)' }}>*</span></label>
+            <div className={`form-box${formErrors.brief ? ' form-box-err' : ''}`} style={{ marginBottom: 0 }}>
+              <textarea value={form.brief} onChange={e => updateForm('brief', e.target.value)}
+                placeholder="What's the hook? Who's the audience? Any must-have text, expressions, colors? (3–4 sentences is plenty)"
+                rows={5} style={{ ...inp, resize: 'vertical', lineHeight: 1.65 }}
+              />
+            </div>
             {formErrors.brief && <div style={errStyle}>{formErrors.brief}</div>}
           </div>
 
-          {/* Box 5: Images */}
-          <div className="form-box">
-            <label style={lbl}>IMAGES TO USE / REFERENCES <span style={{ color: 'rgba(0,0,0,0.25)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
+          {/* Images — standalone, no form-box wrapper */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={lblOut}>IMAGES TO USE / REFERENCES <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploadedImages.length >= 5}
-              style={{
-                width: '100%', padding: '32px 20px',
-                background: 'rgba(0,0,0,0.02)',
-                border: '3px dashed rgba(0,0,0,0.2)',
-                color: 'rgba(0,0,0,0.4)',
-                cursor: uploadedImages.length >= 5 ? 'not-allowed' : 'pointer',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
-                opacity: uploadedImages.length >= 5 ? 0.5 : 1,
-                transition: 'border-color 0.15s',
-                marginBottom: uploadedImages.length > 0 ? '14px' : 0,
-                boxSizing: 'border-box'
-              }}
-            >
-              <span style={{ fontSize: '28px', lineHeight: 1, color: 'rgba(0,0,0,0.35)' }}>↑</span>
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadedImages.length >= 5} style={{
+              width: '100%', padding: '32px 20px',
+              background: 'rgba(255,255,255,0.04)',
+              border: '3px dashed rgba(255,255,255,0.2)',
+              color: 'rgba(255,255,255,0.4)',
+              cursor: uploadedImages.length >= 5 ? 'not-allowed' : 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+              opacity: uploadedImages.length >= 5 ? 0.5 : 1,
+              transition: 'border-color 0.15s',
+              marginBottom: uploadedImages.length > 0 ? '14px' : 0,
+              boxSizing: 'border-box'
+            }}>
+              <span style={{ fontSize: '28px', lineHeight: 1, color: 'rgba(255,255,255,0.4)' }}>↑</span>
               <span style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                 {uploadedImages.length >= 5 ? 'MAX 5 REACHED' : 'DROP REFERENCE IMAGES · PNG / JPG · UP TO 5'}
               </span>
             </button>
-
             {uploadError && <div style={{ ...errStyle, marginBottom: '10px' }}>{uploadError}</div>}
-
             {uploadedImages.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {uploadedImages.map((img, i) => (
@@ -295,46 +271,33 @@ export default function RequirementsPage() {
                     {img.failed && (
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239,68,68,0.35)', fontSize: '18px', fontWeight: 900, color: '#fff' }}>!</div>
                     )}
-                    <button
-                      type="button" onClick={() => removeImage(i)}
-                      style={{
-                        position: 'absolute', top: '-6px', right: '-6px',
-                        width: '18px', height: '18px', borderRadius: '50%',
-                        background: '#ef4444', border: 'none', color: '#fff',
-                        fontSize: '11px', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700
-                      }}
-                    >×</button>
+                    <button type="button" onClick={() => removeImage(i)} style={{
+                      position: 'absolute', top: '-6px', right: '-6px',
+                      width: '18px', height: '18px', borderRadius: '50%',
+                      background: '#ef4444', border: 'none', color: '#fff',
+                      fontSize: '11px', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700
+                    }}>×</button>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Box 6: Channel */}
-          <div className="form-box">
-            <label style={lbl}>YOUR CHANNEL <span style={{ color: 'rgba(0,0,0,0.25)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
-            <input
-              type="url" value={form.channel}
-              onChange={e => updateForm('channel', e.target.value)}
-              placeholder="youtube.com/@yourhandle"
-              style={inp}
-            />
+          {/* Channel */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={lblOut}>YOUR CHANNEL <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
+            <div className="form-box" style={{ marginBottom: 0 }}>
+              <input type="url" value={form.channel} onChange={e => updateForm('channel', e.target.value)} placeholder="youtube.com/@yourhandle" style={inp} />
+            </div>
           </div>
 
           {/* Bottom action bar */}
-          <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '20px 0', flexWrap: 'wrap', gap: '16px'
-          }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0', flexWrap: 'wrap', gap: '16px' }}>
             <div style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
               STEP 1 OF 2 · NEXT: PAYMENT
             </div>
-            <button
-              type="submit"
-              className="nb-btn-yellow continue-btn"
-              style={{ fontSize: '15px', padding: '18px 36px', fontFamily: 'inherit', cursor: 'pointer' }}
-            >
+            <button type="submit" className="nb-btn-yellow continue-btn" style={{ fontSize: '15px', padding: '18px 36px', fontFamily: 'inherit', cursor: 'pointer' }}>
               CONTINUE TO PAYMENT →
             </button>
           </div>
@@ -347,7 +310,7 @@ export default function RequirementsPage() {
           background: #fff;
           border: 4px solid #0A0A0A;
           box-shadow: 8px 8px 0 #0A0A0A;
-          padding: 16px 20px;
+          padding: 0;
           color: #0A0A0A;
           margin-bottom: 16px;
           transition: box-shadow 0.15s ease;
@@ -355,10 +318,15 @@ export default function RequirementsPage() {
         .form-box:focus-within {
           box-shadow: 8px 8px 0 var(--yellow);
         }
-        input:focus, textarea:focus {
-          outline: none !important;
-          border-color: var(--yellow) !important;
+        .form-box-err {
+          border-color: var(--red) !important;
+          box-shadow: 8px 8px 0 var(--red) !important;
+        }
+        .form-box input, .form-box textarea {
+          border: none !important;
           box-shadow: none !important;
+          outline: none !important;
+          background: #fff;
         }
         .continue-btn {
           transition: transform 0.1s ease, box-shadow 0.1s ease !important;
@@ -384,6 +352,12 @@ const lbl = {
   display: 'block', fontSize: '11px', fontWeight: 800,
   letterSpacing: '0.1em', textTransform: 'uppercase',
   color: 'rgba(0,0,0,0.5)', marginBottom: '10px'
+}
+
+const lblOut = {
+  display: 'block', fontSize: '11px', fontWeight: 800,
+  letterSpacing: '0.1em', textTransform: 'uppercase',
+  color: 'rgba(255,255,255,0.65)', marginBottom: '8px'
 }
 
 const inp = {

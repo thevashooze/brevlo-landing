@@ -130,7 +130,7 @@ export default function PaymentPage() {
         <button
           onClick={() => router.push('/requirements')}
           className="nb-btn-yellow"
-          style={{ fontSize: '12px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ fontSize: '12px', padding: '8px 20px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontFamily: 'inherit' }}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -150,7 +150,7 @@ export default function PaymentPage() {
           STEP 02 / 02 — PAYMENT
         </div>
         <h1 style={{
-          fontSize: 'clamp(3.4rem, 9vw, 7rem)',
+          fontSize: 'clamp(3.8rem, 10vw, 8rem)',
           fontFamily: 'var(--font-rocket)',
           lineHeight: 1.0, color: '#fff', marginBottom: '14px'
         }}>

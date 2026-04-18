@@ -319,7 +319,7 @@ export default function OrderPage() {
         {/* Back button */}
         <a href="/" className="nb-btn-yellow" style={{
           position: 'absolute', top: '28px', left: '28px',
-          fontSize: '12px', padding: '10px 18px',
+          fontSize: '12px', padding: '8px 20px',
           display: 'flex', alignItems: 'center', gap: '8px',
           textDecoration: 'none'
         }}>
@@ -328,6 +328,16 @@ export default function OrderPage() {
           </svg>
           BACK
         </a>
+
+        {/* Skip & Order — top right, same position as ORDER NOW on landing */}
+        <button onClick={handleStartOrder} className="nb-btn-yellow" style={{
+          position: 'absolute', top: '28px', right: '28px',
+          fontSize: '12px', padding: '8px 20px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+          cursor: 'pointer', fontFamily: 'inherit'
+        }}>
+          SKIP & ORDER →
+        </button>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
