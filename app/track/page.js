@@ -135,6 +135,7 @@ function getStatusShadow(status) {
 
 function OrderCard({ order, onExpand }) {
   const shadowColor = getStatusShadow(order.status)
+  const isDelivered = order.status === 'Approved' || order.status === 'Completed'
 
   return (
     <motion.div
