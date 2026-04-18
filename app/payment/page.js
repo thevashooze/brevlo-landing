@@ -126,7 +126,7 @@ export default function PaymentPage() {
       </AnimatePresence>
 
       {/* Top bar */}
-      <div style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '24px 32px' }}>
         <button
           onClick={() => router.push('/requirements')}
           className="nb-btn-yellow"
@@ -137,18 +137,6 @@ export default function PaymentPage() {
           </svg>
           BACK
         </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '22px', height: '22px', background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, color: 'rgba(255,255,255,0.4)' }}>✓</div>
-            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>BRIEF</span>
-          </div>
-          <div style={{ width: '28px', height: '2px', background: 'var(--yellow)' }}/>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '22px', height: '22px', background: 'var(--yellow)', border: '2px solid var(--black)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, color: 'var(--black)' }}>2</div>
-            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: 'var(--yellow)' }}>PAYMENT</span>
-          </div>
-        </div>
       </div>
 
       {/* Heading */}
@@ -156,20 +144,20 @@ export default function PaymentPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-        style={{ textAlign: 'center', padding: '32px 24px 44px' }}
+        style={{ maxWidth: '1060px', margin: '0 auto', padding: '16px 24px 40px' }}
       >
-        <div className="label-tag" style={{ display: 'block', width: 'fit-content', margin: '0 auto 20px' }}>
+        <div className="label-tag" style={{ display: 'inline-block', marginBottom: '20px' }}>
           STEP 02 / 02 — PAYMENT
         </div>
         <h1 style={{
-          fontSize: 'clamp(2.8rem, 7vw, 5.5rem)',
+          fontSize: 'clamp(3.4rem, 9vw, 7rem)',
           fontFamily: 'var(--font-rocket)',
-          lineHeight: 1.05, color: '#fff', marginBottom: '14px'
+          lineHeight: 1.0, color: '#fff', marginBottom: '14px'
         }}>
           ONE LAST STEP.<br/>
           <span style={{ color: 'var(--yellow)' }}>DONE.</span>
         </h1>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: '0 auto' }}>
+        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: 0 }}>
           Review your order. Your designer starts immediately after.
         </p>
       </motion.div>
@@ -221,17 +209,14 @@ export default function PaymentPage() {
                 </div>
               )}
 
-              {/* Brief row — 1 line + READ button */}
+              {/* Brief row — label + READ button only, no preview text */}
               {form.brief?.trim() && (
                 <div style={{ padding: '16px 28px', borderBottom: '2px solid rgba(0,0,0,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                   <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.4)', flexShrink: 0 }}>Brief</span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0A0A0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', flex: 1, textAlign: 'right' }}>
-                    {form.brief}
-                  </span>
                   <button
                     onClick={() => setBriefModalOpen(true)}
                     className="read-btn"
-                    style={{ flexShrink: 0, fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', padding: '6px 12px', border: '2px solid #0A0A0A', background: '#fff', cursor: 'pointer', textTransform: 'uppercase', fontFamily: 'inherit', color: '#0A0A0A', transition: 'background 0.1s, color 0.1s' }}
+                    style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', padding: '6px 14px', border: '2px solid #0A0A0A', background: '#fff', cursor: 'pointer', textTransform: 'uppercase', fontFamily: 'inherit', color: '#0A0A0A', transition: 'background 0.1s, color 0.1s' }}
                   >READ →</button>
                 </div>
               )}
@@ -294,7 +279,9 @@ export default function PaymentPage() {
               {/* Line items */}
               <div style={{ padding: '0 24px' }}>
                 <div style={{ padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>Human-designed thumbnail</span>
+                  <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>
+                    Human-designed thumbnail <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>x1</span>
+                  </span>
                   <span style={{ fontSize: '14px', color: '#fff', fontWeight: 800 }}>$20.00</span>
                 </div>
 

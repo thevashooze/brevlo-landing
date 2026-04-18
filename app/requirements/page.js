@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 
-const NICHES = ['Gaming', 'Finance', 'History', 'Vlogs', 'Tech', 'Fitness', 'Education', 'Entertainment']
+const NICHES = ['Gaming', 'Finance', 'History', 'Vlogs', 'Tech', 'Fitness', 'Education', 'Other']
 
 export default function RequirementsPage() {
   const router = useRouter()
@@ -150,7 +150,7 @@ export default function RequirementsPage() {
           STEP 01 / 02 — BRIEF
         </div>
         <h1 style={{
-          fontSize: 'clamp(2.8rem, 7vw, 5.5rem)',
+          fontSize: 'clamp(3.4rem, 9vw, 7rem)',
           fontFamily: 'var(--font-rocket)',
           lineHeight: 1.0, color: '#fff', marginBottom: '14px'
         }}>
@@ -253,7 +253,7 @@ export default function RequirementsPage() {
 
           {/* Box 5: Images */}
           <div className="form-box">
-            <label style={lbl}>IMAGES TO USE / REFERENCES <span style={{ color: 'rgba(0,0,0,0.3)', fontWeight: 500 }}>(OPTIONAL)</span></label>
+            <label style={lbl}>IMAGES TO USE / REFERENCES <span style={{ color: 'rgba(0,0,0,0.25)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
             <button
               type="button"
@@ -313,7 +313,7 @@ export default function RequirementsPage() {
 
           {/* Box 6: Channel */}
           <div className="form-box">
-            <label style={lbl}>YOUR CHANNEL <span style={{ color: 'rgba(0,0,0,0.3)', fontWeight: 500 }}>(OPTIONAL)</span></label>
+            <label style={lbl}>YOUR CHANNEL <span style={{ color: 'rgba(0,0,0,0.25)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
             <input
               type="url" value={form.channel}
               onChange={e => updateForm('channel', e.target.value)}
@@ -347,9 +347,9 @@ export default function RequirementsPage() {
           background: #fff;
           border: 4px solid #0A0A0A;
           box-shadow: 8px 8px 0 #0A0A0A;
-          padding: 28px 32px;
+          padding: 16px 20px;
           color: #0A0A0A;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
           transition: box-shadow 0.15s ease;
         }
         .form-box:focus-within {
