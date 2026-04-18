@@ -125,8 +125,8 @@ export default function RequirementsPage() {
         )}
       </AnimatePresence>
 
-      {/* Back button — stays at top-left, not inside any centering wrapper */}
-      <div style={{ padding: '24px 24px 0' }}>
+      {/* Top bar: BACK (left) + step label (right) */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <a href="/order" className="nb-btn-yellow" style={{
           fontSize: '12px', padding: '8px 20px',
           display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -137,23 +137,21 @@ export default function RequirementsPage() {
           </svg>
           BACK
         </a>
+        <div className="label-tag">STEP 01 / 02 — BRIEF</div>
       </div>
 
-      {/* Heading — centered, 800px to align with form below */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 24px 0' }}>
+      {/* Heading */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px 24px 0' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
           style={{ marginBottom: '36px' }}
         >
-          <div className="label-tag" style={{ display: 'inline-block', marginBottom: '16px' }}>
-            STEP 01 / 02 — BRIEF
-          </div>
           <h1 style={{
-            fontSize: 'clamp(2.6rem, 5vw, 4rem)',
+            fontSize: 'clamp(3rem, 6vw, 5rem)',
             fontFamily: 'var(--font-rocket)',
-            lineHeight: 1.05, color: '#fff', marginBottom: '12px'
+            lineHeight: 1.0, color: '#fff', marginBottom: '12px'
           }}>
             TELL US ABOUT THE<br /><span style={{ color: 'var(--yellow)' }}>VIDEO.</span>
           </h1>
