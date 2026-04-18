@@ -7,16 +7,24 @@ import { useSearchParams, useRouter } from 'next/navigation'
 const BACKEND = 'https://brevlo-backend.onrender.com'
 const POLL_INTERVAL = 5000
 
-// Diagonal tiled watermark — SVG data URI
 const WATERMARK_BG = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="100"><text x="120" y="50" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-size="13" font-weight="900" letter-spacing="5" fill="rgba(255,255,255,0.13)" transform="rotate(-30,120,50)">BREVLO PREVIEW</text></svg>')}")`
+
+const STEPS = [
+  { label: 'Received',      sub: 'Brief in system' },
+  { label: 'Strategy',      sub: 'Analysing patterns' },
+  { label: 'Designing',     sub: 'In Photoshop' },
+  { label: 'Quality Check', sub: 'Internal review' },
+  { label: 'Delivered',     sub: 'Ready to download' },
+  { label: 'Completed',     sub: 'Delivery accepted' }
+]
 
 function getProgressStep(order) {
   if (!order) return 0
   const s = order.status
   const ds = order.designer_stage || 'Strategy'
-  if (s === 'Completed') return 6
-  if (s === 'Approved') return 5
-  if (s === 'Done') return 4
+  if (s === 'Completed') return 5
+  if (s === 'Approved') return 4
+  if (s === 'Done') return 3
   if (s === 'Assigned' || s === 'Revision') {
     if (ds === 'QC') return 3
     if (ds === 'Designing') return 2
@@ -24,16 +32,6 @@ function getProgressStep(order) {
   }
   return 0
 }
-
-const STEPS = [
-  { label: 'Received',    sub: 'Brief in system' },
-  { label: 'Strategy',    sub: 'Analysing patterns' },
-  { label: 'Designing',   sub: 'In Photoshop' },
-  { label: 'QC',          sub: 'Internal review' },
-  { label: 'Admin Review',sub: 'Final approval' },
-  { label: 'Delivered',   sub: 'Ready to download' },
-  { label: 'Completed',   sub: 'Delivery accepted' }
-]
 
 const STATUS_MAP = {
   Assigned:   { label: 'In Studio',          color: '#FFE600', bg: 'rgba(255,230,0,0.08)',  border: 'rgba(255,230,0,0.25)' },
@@ -55,51 +53,71 @@ function StatusBadge({ status }) {
   )
 }
 
-function ProgressRail({ step }) {
-  const pct = (step / (STEPS.length - 1)) * 100
-  const isDelivered = step >= 5
+function ProgressRail({ step, isRevision }) {
+  const total = STEPS.length - 1
+  const isDelivered = step >= 4
+  const barColor = isRevision ? '#FF6B35' : isDelivered ? '#00CC6A' : '#FFE600'
+
   return (
     <div style={{ marginBottom: '36px' }}>
-      {/* Rail */}
-      <div style={{ position: 'relative', height: '6px', background: 'rgba(255,255,255,0.07)', marginBottom: '28px' }}>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
-          style={{
-            height: '100%',
-            background: isDelivered ? '#00CC6A' : '#FFE600',
-            boxShadow: isDelivered ? '0 0 10px rgba(0,204,106,0.4)' : '0 0 10px rgba(255,230,0,0.35)'
-          }}
-        />
-        {/* Dots on rail */}
-        {STEPS.map((_, i) => {
-          const done = i < step, active = i === step
-          return (
-            <div key={i} style={{
-              position: 'absolute', top: '50%', transform: 'translate(-50%,-50%)',
-              left: `${(i / (STEPS.length - 1)) * 100}%`,
-              width: active ? '12px' : '8px', height: active ? '12px' : '8px',
-              borderRadius: '50%',
-              background: done ? '#00CC6A' : active ? (isDelivered ? '#00CC6A' : '#FFE600') : 'rgba(255,255,255,0.12)',
-              border: active ? `2px solid ${isDelivered ? '#00CC6A' : '#FFE600'}` : 'none',
-              transition: 'all 0.4s ease', zIndex: 2
-            }} />
-          )
-        })}
-      </div>
-      {/* Step labels */}
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
         {STEPS.map((s, i) => {
-          const done = i < step, active = i === step
+          const done = i < step
+          const active = i === step
+          const isRevisionSlot = isRevision && i === 2
+          const dotColor = done ? '#00CC6A' : active ? barColor : 'rgba(255,255,255,0.12)'
+          const dotSize = active ? 12 : 8
+
+          let rectBg, rectBorder, rectText, rectLabel
+          if (isRevisionSlot) {
+            rectBg = 'rgba(255,107,53,0.15)'; rectBorder = 'rgba(255,107,53,0.5)'; rectText = '#FF6B35'; rectLabel = 'REVISION'
+          } else if (done) {
+            rectBg = 'rgba(0,204,106,0.1)'; rectBorder = 'rgba(0,204,106,0.3)'; rectText = '#00CC6A'; rectLabel = s.label
+          } else if (active) {
+            rectBg = `rgba(${isDelivered ? '0,204,106' : isRevision ? '255,107,53' : '255,230,0'},0.12)`
+            rectBorder = `rgba(${isDelivered ? '0,204,106' : isRevision ? '255,107,53' : '255,230,0'},0.4)`
+            rectText = barColor; rectLabel = s.label
+          } else {
+            rectBg = 'rgba(255,255,255,0.03)'; rectBorder = 'rgba(255,255,255,0.08)'; rectText = 'rgba(255,255,255,0.2)'; rectLabel = s.label
+          }
+
           return (
-            <div key={i} style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+              {i > 0 && (
+                <div style={{
+                  position: 'absolute', top: `${dotSize / 2 - 1.5}px`, right: '50%', left: 0,
+                  height: '3px', background: done || active ? barColor : 'rgba(255,255,255,0.07)',
+                  transition: 'background 0.4s'
+                }} />
+              )}
+              {i < STEPS.length - 1 && (
+                <div style={{
+                  position: 'absolute', top: `${dotSize / 2 - 1.5}px`, left: '50%', right: 0,
+                  height: '3px', background: done ? barColor : 'rgba(255,255,255,0.07)',
+                  transition: 'background 0.4s'
+                }} />
+              )}
               <div style={{
-                fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-                color: done ? '#00CC6A' : active ? (isDelivered ? '#00CC6A' : '#FFE600') : 'rgba(255,255,255,0.2)',
-                lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 2px'
-              }}>{s.label}</div>
-              {active && <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>{s.sub}</div>}
+                width: `${dotSize}px`, height: `${dotSize}px`,
+                borderRadius: '50%', background: dotColor,
+                border: active ? `2px solid ${dotColor}` : 'none',
+                zIndex: 2, marginBottom: '10px', flexShrink: 0,
+                transition: 'all 0.4s'
+              }} />
+              <div style={{
+                fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
+                color: rectText, background: rectBg, border: `1px solid ${rectBorder}`,
+                borderRadius: '4px', padding: '4px 3px', lineHeight: 1.3,
+                width: '100%', textAlign: 'center',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+              }}>
+                {rectLabel}
+              </div>
+              {active && (
+                <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', marginTop: '3px', textAlign: 'center' }}>
+                  {s.sub}
+                </div>
+              )}
             </div>
           )
         })}
@@ -108,7 +126,6 @@ function ProgressRail({ step }) {
   )
 }
 
-// ── Step 1: Order summary card (click to expand tracking) ──
 function OrderCard({ order, onExpand }) {
   const step = getProgressStep(order)
   const isDelivered = order.status === 'Approved' || order.status === 'Completed'
@@ -127,8 +144,8 @@ function OrderCard({ order, onExpand }) {
         cursor: 'pointer',
         transition: 'transform 0.12s, box-shadow 0.12s'
       }}
-      whileHover={{ x: 4, y: 4, boxShadow: `4px 4px 0 ${isDelivered ? 'var(--green)' : 'var(--yellow)'}` }}
-      whileTap={{ x: 8, y: 8, boxShadow: '0px 0px 0 var(--yellow)' }}
+      whileHover={{ x: 0, y: 3, boxShadow: `5px 5px 0 ${isDelivered ? 'var(--green)' : 'var(--yellow)'}` }}
+      whileTap={{ x: 0, y: 6, boxShadow: `2px 2px 0 ${isDelivered ? 'var(--green)' : 'var(--yellow)'}` }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -167,7 +184,6 @@ function OrderCard({ order, onExpand }) {
   )
 }
 
-// ── Star rating component ──
 function StarRating({ rating, onRate }) {
   const [hover, setHover] = useState(0)
   const starPath = "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
@@ -197,7 +213,6 @@ function StarRating({ rating, onRate }) {
   )
 }
 
-// ── Step 2: Live tracking panel ──
 function TrackingPanel({ order, onBack, onOrderUpdate }) {
   const [revNote, setRevNote] = useState('')
   const [showRevForm, setShowRevForm] = useState(false)
@@ -210,6 +225,7 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
   const [reviewText, setReviewText] = useState('')
   const [reviewSubmitting, setReviewSubmitting] = useState(false)
   const [reviewDone, setReviewDone] = useState(!!order.review_rating)
+  const [showLightbox, setShowLightbox] = useState(false)
 
   const step = getProgressStep(order)
   const isApproved = order.status === 'Approved'
@@ -226,7 +242,6 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
       if (!res.ok) throw new Error('Failed')
       setAccepted(true)
       onOrderUpdate?.()
-      // Show review prompt after short delay
       setTimeout(() => setShowReview(true), 800)
     } catch (_) {}
     setAccepting(false)
@@ -320,7 +335,7 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
         <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '24px' }}>
           STEP {step} OF {STEPS.length - 1} — {STEPS[step]?.label}
         </div>
-        <ProgressRail step={step} />
+        <ProgressRail step={step} isRevision={order.status === 'Revision'} />
         <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>{order.title}</div>
         {order.niche && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>{order.niche}</div>}
       </div>
@@ -354,8 +369,9 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
           transition={{ delay: 0.15 }}
           style={{
             background: '#0A0A0A',
-            border: '4px solid var(--green)',
-            boxShadow: '8px 8px 0 var(--green)',
+            border: '3px solid #fff',
+            boxShadow: '0 6px 0 var(--green)',
+            borderRadius: '8px',
             padding: '24px',
             marginBottom: '20px'
           }}
@@ -364,16 +380,17 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
             ✓ YOUR THUMBNAIL IS READY
           </div>
 
-          {/* Image wrapper — watermark overlay for pre-accept preview */}
-          <div style={{ position: 'relative', display: 'block', lineHeight: 0 }}>
+          <div
+            style={{ position: 'relative', display: 'block', lineHeight: 0, borderRadius: '8px', overflow: 'hidden', cursor: 'pointer' }}
+            onClick={() => setShowLightbox(true)}
+          >
             <img
               src={order.thumbnail_url}
               alt="Your thumbnail"
-              style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', border: '2px solid rgba(255,255,255,0.08)', display: 'block' }}
+              style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', display: 'block' }}
               onContextMenu={e => e.preventDefault()}
               draggable={false}
             />
-            {/* Watermark — only before acceptance */}
             {isApproved && !accepted && !isCompleted && (
               <div
                 aria-hidden="true"
@@ -390,28 +407,11 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
               />
             )}
           </div>
-
-          <div style={{ marginTop: '16px' }}>
-            {/* Download only unlocked after acceptance */}
-            {(isCompleted || accepted) ? (
-              <button
-                onClick={handleDownload}
-                className="nb-btn-yellow"
-                style={{ fontSize: '14px', padding: '12px 28px' }}
-              >
-                DOWNLOAD JPG →
-              </button>
-            ) : (
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.04em' }}>
-                🔒 Accept delivery below to unlock full download
-              </div>
-            )}
-          </div>
         </motion.div>
       )}
 
-      {/* Action buttons — only when Approved (not yet completed) */}
-      {isApproved && !accepted && !isCompleted && (
+      {/* Action section */}
+      {isApproved && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -423,29 +423,47 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
             marginBottom: '20px'
           }}
         >
-          <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '16px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '16px', textAlign: 'center' }}>
             TAKE ACTION
           </div>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: showRevForm ? '20px' : '0' }}>
-            <button
-              onClick={handleAccept}
-              disabled={accepting}
-              className="nb-btn-yellow"
-              style={{ fontSize: '14px', padding: '14px 28px', opacity: accepting ? 0.7 : 1 }}
-            >
-              {accepting ? 'PROCESSING...' : '✓ ACCEPT DELIVERY'}
-            </button>
-            <button
-              onClick={() => { setShowRevForm(v => !v); setRevError('') }}
-              className="nb-btn"
-              style={{ fontSize: '14px', padding: '14px 28px', background: 'transparent', color: 'var(--orange)', borderColor: 'rgba(255,107,53,0.4)' }}
-            >
-              {showRevForm ? 'CANCEL' : '↩ REQUEST REVISION'}
-            </button>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '12px' }}>
+            {(accepted || isCompleted) ? (
+              <button
+                onClick={handleDownload}
+                className="nb-btn-yellow action-btn"
+                style={{ fontSize: '14px', padding: '14px 28px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 4v12M8 14l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                DOWNLOAD JPG
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleAccept}
+                  disabled={accepting}
+                  className="nb-btn-yellow action-btn"
+                  style={{ fontSize: '14px', padding: '14px 28px', opacity: accepting ? 0.7 : 1 }}
+                >
+                  {accepting ? 'PROCESSING...' : '✓ ACCEPT DELIVERY'}
+                </button>
+                <button
+                  onClick={() => { setShowRevForm(v => !v); setRevError('') }}
+                  className="nb-btn action-btn"
+                  style={{ fontSize: '14px', padding: '14px 28px', background: 'transparent', color: 'var(--orange)', borderColor: 'rgba(255,107,53,0.4)' }}
+                >
+                  {showRevForm ? 'CANCEL' : '↩ REQUEST REVISION'}
+                </button>
+              </>
+            )}
           </div>
-          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginTop: showRevForm ? '0' : '12px' }}>
-            {order.client_revisions || 0}/2 free revisions used
-          </div>
+          {!accepted && !isCompleted && (
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>
+              {order.client_revisions || 0}/2 free revisions used
+            </div>
+          )}
 
           <AnimatePresence>
             {showRevForm && (
@@ -463,18 +481,16 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
                   <textarea
                     value={revNote}
                     onChange={e => setRevNote(e.target.value)}
-                    placeholder="Be specific — e.g. 'Make the text bigger, change background to dark red, remove the logo on top right'"
+                    placeholder="Be specific — e.g. 'Make the text bigger, change background to dark red'"
                     rows={4}
                     style={{
                       width: '100%', padding: '14px 16px', fontSize: '14px', lineHeight: 1.6,
                       background: 'rgba(255,255,255,0.04)', color: '#fff',
                       border: '3px solid rgba(255,255,255,0.12)', outline: 'none',
-                      resize: 'vertical', fontFamily: 'inherit', marginBottom: '12px'
+                      resize: 'vertical', fontFamily: 'inherit', marginBottom: '12px', boxSizing: 'border-box'
                     }}
                   />
-                  {revError && (
-                    <div style={{ fontSize: '13px', color: 'var(--red)', fontWeight: 700, marginBottom: '10px' }}>{revError}</div>
-                  )}
+                  {revError && <div style={{ fontSize: '13px', color: 'var(--red)', fontWeight: 700, marginBottom: '10px' }}>{revError}</div>}
                   <button
                     type="submit"
                     disabled={revSubmitting || !revNote.trim()}
@@ -489,103 +505,6 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
           </AnimatePresence>
         </motion.div>
       )}
-
-      {/* Accepted confirmation */}
-      {(accepted || isCompleted) && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            background: 'rgba(0,204,106,0.06)',
-            border: '3px solid rgba(0,204,106,0.25)',
-            padding: '20px 24px',
-            marginBottom: '20px',
-            textAlign: 'center'
-          }}
-        >
-          <div style={{ fontSize: '20px', fontFamily: 'var(--font-rocket)', color: 'var(--green)', marginBottom: '6px' }}>DELIVERY ACCEPTED ✓</div>
-          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>Order complete. Thank you for choosing Brevlo.</div>
-        </motion.div>
-      )}
-
-      {/* Review prompt — shown after acceptance, dismissable */}
-      <AnimatePresence>
-        {showReview && !reviewDone && (
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.97 }}
-            transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
-            style={{
-              background: '#0A0A0A',
-              border: '4px solid var(--yellow)',
-              boxShadow: '8px 8px 0 var(--yellow)',
-              padding: '32px 28px',
-              marginBottom: '20px'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-              <div style={{ fontSize: 'clamp(1.4rem,4vw,2rem)', fontFamily: 'var(--font-rocket)', color: '#fff', lineHeight: 1.1 }}>
-                HOW'D WE DO?
-              </div>
-              <button
-                onClick={() => setShowReview(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: '18px', padding: '0 0 0 12px', lineHeight: 1 }}
-                title="Skip review"
-              >✕</button>
-            </div>
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontWeight: 600, letterSpacing: '0.04em', marginBottom: '24px' }}>
-              Your feedback helps us get better — takes 10 seconds.
-            </div>
-
-            {/* Stars */}
-            <div style={{ marginBottom: '24px' }}>
-              <StarRating rating={reviewRating} onRate={setReviewRating} />
-              {reviewRating > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', marginTop: '10px' }}
-                >
-                  {['','TERRIBLE','POOR','OKAY','GOOD','EXCELLENT!'][reviewRating]}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Optional text */}
-            <textarea
-              value={reviewText}
-              onChange={e => setReviewText(e.target.value)}
-              placeholder="Anything else you'd like to share? (optional)"
-              rows={3}
-              style={{
-                width: '100%', padding: '14px 16px', fontSize: '14px', lineHeight: 1.6,
-                background: 'rgba(255,255,255,0.04)', color: '#fff',
-                border: '3px solid rgba(255,255,255,0.12)', outline: 'none',
-                resize: 'none', fontFamily: 'inherit', marginBottom: '16px',
-                boxSizing: 'border-box'
-              }}
-            />
-
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button
-                onClick={handleSubmitReview}
-                disabled={!reviewRating || reviewSubmitting}
-                className="nb-btn-yellow"
-                style={{ fontSize: '13px', padding: '12px 28px', opacity: (!reviewRating || reviewSubmitting) ? 0.45 : 1 }}
-              >
-                {reviewSubmitting ? 'SUBMITTING...' : 'SUBMIT REVIEW →'}
-              </button>
-              <button
-                onClick={() => setShowReview(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '0' }}
-              >
-                No thanks
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Review thank-you */}
       <AnimatePresence>
@@ -610,6 +529,105 @@ function TrackingPanel({ order, onBack, onOrderUpdate }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Review overlay */}
+      <AnimatePresence>
+        {showReview && !reviewDone && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', zIndex: 8000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+            onClick={() => setShowReview(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+              style={{
+                background: '#0A0A0A', border: '4px solid var(--yellow)',
+                boxShadow: '8px 8px 0 var(--yellow)',
+                padding: '32px 28px', maxWidth: '480px', width: '100%', borderRadius: '8px'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                <div style={{ fontSize: 'clamp(1.4rem,4vw,2rem)', fontFamily: 'var(--font-rocket)', color: '#fff', lineHeight: 1.1 }}>
+                  HOW'D WE DO?
+                </div>
+                <button onClick={() => setShowReview(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: '18px', padding: '0 0 0 12px', lineHeight: 1 }}>✕</button>
+              </div>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontWeight: 600, letterSpacing: '0.04em', marginBottom: '24px' }}>
+                Your feedback helps us get better. Takes 10 seconds.
+              </div>
+              <div style={{ marginBottom: '24px' }}>
+                <StarRating rating={reviewRating} onRate={setReviewRating} />
+                {reviewRating > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--yellow)', marginTop: '10px' }}
+                  >
+                    {['','TERRIBLE','POOR','OKAY','GOOD','EXCELLENT!'][reviewRating]}
+                  </motion.div>
+                )}
+              </div>
+              <textarea
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+                placeholder="Anything else? (optional)"
+                rows={3}
+                style={{
+                  width: '100%', padding: '14px 16px', fontSize: '14px', lineHeight: 1.6,
+                  background: 'rgba(255,255,255,0.04)', color: '#fff',
+                  border: '3px solid rgba(255,255,255,0.12)', outline: 'none',
+                  resize: 'none', fontFamily: 'inherit', marginBottom: '16px', boxSizing: 'border-box'
+                }}
+              />
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={!reviewRating || reviewSubmitting}
+                  className="nb-btn-yellow"
+                  style={{ fontSize: '13px', padding: '12px 28px', opacity: (!reviewRating || reviewSubmitting) ? 0.45 : 1 }}
+                >
+                  {reviewSubmitting ? 'SUBMITTING...' : 'SUBMIT REVIEW →'}
+                </button>
+                <button onClick={() => setShowReview(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  No thanks
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {showLightbox && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setShowLightbox(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+          >
+            <motion.img
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              src={order.thumbnail_url}
+              alt="Thumbnail preview"
+              onClick={e => e.stopPropagation()}
+              style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain', borderRadius: '8px', border: '3px solid #fff' }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
@@ -624,7 +642,7 @@ function TrackContent() {
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(!!urlId)
   const [notFound, setNotFound] = useState(false)
-  const [view, setView] = useState('search') // 'search' | 'card' | 'tracking'
+  const [view, setView] = useState('search')
   const intervalRef = useRef(null)
 
   async function fetchOrder(id, silent = false) {
@@ -649,7 +667,6 @@ function TrackContent() {
     fetchOrder(lookupId)
   }, [lookupId])
 
-  // Poll every 5s only when in tracking view
   useEffect(() => {
     if (view !== 'tracking' || !lookupId) {
       clearInterval(intervalRef.current)
@@ -672,13 +689,20 @@ function TrackContent() {
 
   return (
     <main style={{ minHeight: '100vh', padding: '80px 24px 120px' }}>
+      <a href="/" className="nb-btn-yellow" style={{
+        position: 'fixed', top: '16px', left: '24px', zIndex: 101,
+        fontSize: '12px', padding: '8px 20px',
+        display: 'inline-flex', alignItems: 'center', gap: '8px',
+        textDecoration: 'none'
+      }}>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        BREVLO HOME
+      </a>
 
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', marginBottom: '32px' }}>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-          BREVLO HOME
-        </a>
         <div className="label-tag" style={{ display: 'block', width: 'fit-content', margin: '0 auto 16px' }}>ORDER TRACKER</div>
         <h1 style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', fontFamily: 'var(--font-rocket)', lineHeight: 1.05, color: '#fff', marginBottom: '12px' }}>
           REAL-TIME <span style={{ color: 'var(--yellow)' }}>STATUS.</span>
@@ -690,7 +714,6 @@ function TrackContent() {
 
       <div style={{ maxWidth: '680px', margin: '0 auto' }}>
 
-        {/* Search form — always visible unless in 'tracking' view */}
         <AnimatePresence>
           {view !== 'tracking' && (
             <motion.form
@@ -718,7 +741,6 @@ function TrackContent() {
           )}
         </AnimatePresence>
 
-        {/* Loading */}
         {loading && (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
             <motion.div
@@ -732,7 +754,6 @@ function TrackContent() {
           </div>
         )}
 
-        {/* Not found */}
         {notFound && !loading && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -753,7 +774,6 @@ function TrackContent() {
           </motion.div>
         )}
 
-        {/* Step 1 — Order card */}
         <AnimatePresence mode="wait">
           {order && view === 'card' && !loading && (
             <OrderCard
@@ -763,7 +783,6 @@ function TrackContent() {
             />
           )}
 
-          {/* Step 2 — Live tracking panel */}
           {order && view === 'tracking' && !loading && (
             <TrackingPanel
               key="tracking"
@@ -775,6 +794,20 @@ function TrackContent() {
         </AnimatePresence>
 
       </div>
+
+      <style>{`
+        .action-btn {
+          transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+        }
+        .action-btn:hover:not(:disabled) {
+          transform: translateY(2px) !important;
+          box-shadow: 4px 4px 0 var(--black) !important;
+        }
+        .action-btn:active:not(:disabled) {
+          transform: translateY(4px) !important;
+          box-shadow: 2px 2px 0 var(--black) !important;
+        }
+      `}</style>
     </main>
   )
 }

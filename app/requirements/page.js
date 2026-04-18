@@ -244,8 +244,7 @@ export default function RequirementsPage() {
             <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadedImages.length >= 10} style={{
               width: '100%', padding: '32px 20px',
               background: '#fff',
-              border: '3px solid #0A0A0A',
-              boxShadow: '5px 5px 0 #0A0A0A',
+              border: '2px dashed rgba(0,0,0,0.3)',
               color: '#0A0A0A',
               cursor: uploadedImages.length >= 10 ? 'not-allowed' : 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',

@@ -125,8 +125,8 @@ export default function PaymentPage() {
         )}
       </AnimatePresence>
 
-      {/* Top bar */}
-      <div style={{ padding: '24px 32px' }}>
+      {/* Top bar: BACK left + STEP label right */}
+      <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '24px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button
           onClick={() => router.push('/requirements')}
           className="nb-btn-yellow"
@@ -137,6 +137,7 @@ export default function PaymentPage() {
           </svg>
           BACK
         </button>
+        <div className="label-tag">STEP 02 / 02 — PAYMENT</div>
       </div>
 
       {/* Heading */}
@@ -146,9 +147,6 @@ export default function PaymentPage() {
         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
         style={{ maxWidth: '1060px', margin: '0 auto', padding: '16px 24px 40px' }}
       >
-        <div className="label-tag" style={{ display: 'inline-block', marginBottom: '20px' }}>
-          STEP 02 / 02 — PAYMENT
-        </div>
         <h1 style={{
           fontSize: 'clamp(3.8rem, 10vw, 8rem)',
           fontFamily: 'var(--font-rocket)',
@@ -221,29 +219,6 @@ export default function PaymentPage() {
                 </div>
               )}
 
-              {/* Dummy mode notice */}
-              <div style={{ padding: '16px 28px', borderBottom: '2px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--orange)', marginTop: '4px', flexShrink: 0, animation: 'pulse 1.5s infinite' }} />
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--orange)', marginBottom: '3px' }}>
-                    TEST MODE — DUMMY PAYMENT
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.5)', lineHeight: 1.5 }}>
-                    No real charge. Order is live — a designer picks it up immediately.
-                  </div>
-                </div>
-              </div>
-
-              {/* Security */}
-              <div style={{ padding: '16px 28px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, opacity: 0.35 }}>
-                  <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11 4.5-.85 8-5.75 8-11V6l-8-4z" stroke="#0A0A0A" strokeWidth="2" strokeLinejoin="round"/>
-                  <path d="M9 12l2 2 4-4" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)' }}>
-                  SECURED · Payment with paypal
-                </div>
-              </div>
             </div>
 
             <AnimatePresence>
@@ -361,8 +336,14 @@ export default function PaymentPage() {
                     </span>
                   ) : 'PAY & ORDER →'}
                 </button>
-                <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '10px', color: 'rgba(255,255,255,0.18)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                  TEST MODE · NO REAL CHARGE
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', marginTop: '14px' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, opacity: 0.28 }}>
+                    <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11 4.5-.85 8-5.75 8-11V6l-8-4z" stroke="#fff" strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M9 12l2 2 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <div style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)' }}>
+                    SECURED · SAFE CHECKOUT
+                  </div>
                 </div>
               </div>
             </div>
