@@ -125,23 +125,28 @@ export default function RequirementsPage() {
         )}
       </AnimatePresence>
 
-      {/* Top bar: BACK (left) + step label (right) */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <a href="/order" className="nb-btn-yellow" style={{
-          fontSize: '12px', padding: '8px 20px',
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          textDecoration: 'none'
-        }}>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          BACK
-        </a>
-        <div className="label-tag">STEP 01 / 02 — BRIEF</div>
+      {/* BACK — fixed top-left, same as order page */}
+      <a href="/order" className="nb-btn-yellow" style={{
+        position: 'fixed', top: '16px', left: '24px', zIndex: 101,
+        fontSize: '12px', padding: '8px 20px',
+        display: 'inline-flex', alignItems: 'center', gap: '8px',
+        textDecoration: 'none'
+      }}>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        BACK
+      </a>
+
+      {/* Step label — top of content, where BACK used to sit */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 24px 0' }}>
+        <div className="label-tag" style={{ display: 'inline-block', marginBottom: '16px' }}>
+          STEP 01 / 02 — BRIEF
+        </div>
       </div>
 
       {/* Heading */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px 24px 0' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 0' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
