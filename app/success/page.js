@@ -117,8 +117,8 @@ function SuccessContent() {
           }}>
             YOUR THUMBNAIL IS<br /><span style={{ color: 'var(--yellow)' }}>IN THE STUDIO.</span>
           </h1>
-          <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.55)', marginBottom: '48px', lineHeight: 1.6 }}>
-            Your order has been assigned. Expect delivery within 24 hours. We'll get to work immediately.
+          <p style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.5)', marginBottom: '48px' }}>
+            You&apos;re in queue.
           </p>
 
           {/* Order ID card */}
@@ -193,79 +193,87 @@ function SuccessContent() {
         </motion.div>
       </section>
 
-      {/* Dashboard upsell popup */}
+      {/* Dashboard upsell — full-width section */}
       <AnimatePresence>
         {showUpsell && (
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 60 }}
-            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
             style={{
-              position: 'fixed',
-              bottom: '24px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 200,
-              width: 'calc(100% - 48px)',
-              maxWidth: '620px',
               background: '#0A0A0A',
-              border: '3px solid rgba(255,255,255,0.1)',
-              borderRadius: '16px',
-              padding: '24px 28px',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.7)'
+              borderTop: '4px solid rgba(255,255,255,0.08)',
+              padding: '64px 24px',
+              position: 'relative'
             }}
           >
             <button
               onClick={() => setShowUpsell(false)}
               style={{
-                position: 'absolute', top: '14px', right: '16px',
+                position: 'absolute', top: '20px', right: '24px',
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: 'rgba(255,255,255,0.3)', fontSize: '16px', lineHeight: 1,
+                color: 'rgba(255,255,255,0.3)', fontSize: '18px', lineHeight: 1,
                 padding: '4px', fontWeight: 700
               }}
             >✕</button>
 
-            <div style={{ marginBottom: '12px' }}>
-              <div className="label-tag" style={{ display: 'inline-block', marginBottom: '10px' }}>BREVLO DASHBOARD</div>
-              <h3 style={{
-                fontSize: 'clamp(1.2rem, 3vw, 1.7rem)',
-                fontFamily: 'var(--font-rocket)',
-                color: '#fff', lineHeight: 1.1, marginBottom: '8px'
-              }}>
-                TRACK YOUR ORDER IN REAL-TIME.
-              </h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.5 }}>
-                1-click revision requests. Full order history. Free, takes 10 seconds.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '18px' }}>
-              {[
-                ['⚡', 'Live order tracking'],
-                ['↩', '1-click revisions'],
-                ['📦', 'Full order history']
-              ].map(([icon, text]) => (
-                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>
-                  <span>{icon}</span> {text}
+            <div style={{ maxWidth: '1060px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr auto', gap: '48px', alignItems: 'center' }}>
+              <div>
+                <div className="label-tag" style={{ display: 'inline-block', marginBottom: '20px' }}>BREVLO DASHBOARD</div>
+                <h2 style={{
+                  fontSize: 'clamp(1.8rem, 4vw, 3.5rem)',
+                  fontFamily: 'var(--font-rocket)',
+                  lineHeight: 1.05, color: '#fff', marginBottom: '16px'
+                }}>
+                  GET YOUR BREVLO DASHBOARD.
+                </h2>
+                <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.55)', marginBottom: '28px', maxWidth: '480px', lineHeight: 1.65 }}>
+                  Live order tracking. 1-click revision requests. Order history in one place. Free, takes 10 seconds.
+                </p>
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '32px' }}>
+                  {[['⚡', 'Live order tracking'], ['↩', '1-click revisions'], ['📦', 'Full order history']].map(([icon, text]) => (
+                    <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
+                      <span>{icon}</span> {text}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button onClick={() => router.push('/track?id=' + orderId)} className="nb-btn-yellow" style={{ fontSize: '15px', padding: '16px 36px' }}>
+                    TRACK MY ORDER →
+                  </button>
+                  <button onClick={() => setShowUpsell(false)} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                    No thanks
+                  </button>
+                </div>
+              </div>
 
-            <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => router.push('/track?id=' + orderId + '&dashboard=1')}
-                className="nb-btn-yellow"
-                style={{ fontSize: '13px', padding: '12px 28px' }}
-              >
-                CREATE MY DASHBOARD →
-              </button>
-              <button
-                onClick={() => setShowUpsell(false)}
-                style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-              >
-                No thanks
-              </button>
+              {/* Dashboard mockup */}
+              <div style={{ flexShrink: 0 }}>
+                <div style={{ width: '240px', background: '#111', border: '3px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '18px', boxShadow: '8px 8px 0 var(--yellow)', transform: 'rotate(2deg)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                    <div style={{ width: '24px', height: '24px', background: 'var(--yellow)', borderRadius: '6px' }} />
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#fff' }}>BREVLO DASHBOARD</div>
+                      <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)' }}>Order tracker</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: '7px' }}>ACTIVE ORDER</div>
+                  <div style={{ background: 'rgba(255,230,0,0.08)', border: '1px solid rgba(255,230,0,0.2)', borderRadius: '5px', padding: '8px 10px', marginBottom: '10px' }}>
+                    <div style={{ fontSize: '10px', color: 'var(--yellow)', fontWeight: 700 }}>{orderId}</div>
+                    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>In Studio</div>
+                  </div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginBottom: '10px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: '40%', background: 'var(--yellow)', borderRadius: '2px' }} />
+                  </div>
+                  {['Strategy ✓', 'Designing...', 'Quality Check', 'Delivered'].map((s, i) => (
+                    <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '3px 0', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                      <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: i === 0 ? 'var(--green)' : i === 1 ? 'var(--yellow)' : 'rgba(255,255,255,0.1)', flexShrink: 0 }} />
+                      <div style={{ fontSize: '9px', color: i <= 1 ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.2)', fontWeight: 600 }}>{s}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
