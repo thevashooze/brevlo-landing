@@ -125,46 +125,47 @@ export default function RequirementsPage() {
         )}
       </AnimatePresence>
 
-      {/* Back button */}
-      <div style={{ padding: '24px 24px 0' }}>
-        <a href="/order" className="nb-btn-yellow" style={{
-          fontSize: '12px', padding: '8px 20px',
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          textDecoration: 'none'
-        }}>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          BACK
-        </a>
-      </div>
+      {/* Centered wrapper — back btn + heading + form all share same column */}
+      <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '24px 32px 80px' }}>
 
-      {/* Heading */}
-      <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '24px 24px 0' }}>
+        {/* Back button */}
+        <div style={{ marginBottom: '24px' }}>
+          <a href="/order" className="nb-btn-yellow" style={{
+            fontSize: '12px', padding: '8px 20px',
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            textDecoration: 'none'
+          }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            BACK
+          </a>
+        </div>
+
+        {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-          style={{ paddingBottom: '36px' }}
+          style={{ marginBottom: '48px' }}
         >
-          <div className="label-tag" style={{ display: 'inline-block', marginBottom: '16px' }}>
+          <div className="label-tag" style={{ display: 'inline-block', marginBottom: '20px' }}>
             STEP 01 / 02 — BRIEF
           </div>
           <h1 style={{
-            fontSize: 'clamp(3.2rem, 6vw, 5rem)',
+            fontSize: 'clamp(3.8rem, 10vw, 8rem)',
             fontFamily: 'var(--font-rocket)',
-            lineHeight: 1.0, color: '#fff', marginBottom: '12px'
+            lineHeight: 1.0, color: '#fff', marginBottom: '14px'
           }}>
             TELL US ABOUT THE<br /><span style={{ color: 'var(--yellow)' }}>VIDEO.</span>
           </h1>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: 0 }}>
+          <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: 0 }}>
             The more we know, the better we design. Takes about 2 minutes.
           </p>
         </motion.div>
-      </div>
 
-      {/* Form */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
+      {/* Form (no extra wrapper — shares parent 1060px container) */}
+      <div>
         <motion.form
           onSubmit={handleContinue}
           noValidate
@@ -304,6 +305,7 @@ export default function RequirementsPage() {
           </div>
 
         </motion.form>
+      </div>
       </div>
 
       <style>{`
