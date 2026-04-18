@@ -7,9 +7,10 @@ import { usePathname } from 'next/navigation'
 const ORDER_FLOW = ['/order', '/requirements', '/payment']
 
 const NAV_LINKS = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Pricing',   href: '#pricing'   },
-  { label: 'Portfolio', href: '#portfolio'  },
+  { label: 'Dashboard',   href: '/dashboard' },
+  { label: 'Track Order', href: '/track'     },
+  { label: 'Pricing',     href: '#pricing'   },
+  { label: 'Portfolio',   href: '#portfolio' },
 ]
 
 export default function Navbar() {
