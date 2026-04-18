@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { usePathname } from 'next/navigation'
+
+const ORDER_FLOW = ['/order', '/requirements', '/payment']
 
 const NAV_LINKS = [
   { label: 'Dashboard', href: '/dashboard' },
@@ -12,6 +15,8 @@ const NAV_LINKS = [
 export default function Navbar() {
   const { scrollY } = useScroll()
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const isOrderFlow = ORDER_FLOW.includes(pathname)
 
   // BREVLO logo fades in as big splash BREVLO scrolls out
   const logoOpacity = useTransform(scrollY, [250, 500], [0, 1])
@@ -42,12 +47,14 @@ export default function Navbar() {
           </motion.span>
         </div>
 
-        {/* Right: ORDER NOW — always visible */}
-        <a href="/order">
-          <button className="nb-btn-yellow px-5 py-2 text-xs tracking-widest">
-            ORDER NOW →
-          </button>
-        </a>
+        {/* Right: ORDER NOW — hidden on order flow pages */}
+        {!isOrderFlow && (
+          <a href="/order">
+            <button className="nb-btn-yellow px-5 py-2 text-xs tracking-widest">
+              ORDER NOW →
+            </button>
+          </a>
+        )}
       </nav>
 
       {/* Drawer */}

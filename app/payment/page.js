@@ -125,42 +125,46 @@ export default function PaymentPage() {
         )}
       </AnimatePresence>
 
-      {/* Top bar */}
-      <div style={{ padding: '24px 32px' }}>
-        <button
-          onClick={() => router.push('/requirements')}
-          className="nb-btn-yellow"
-          style={{ fontSize: '12px', padding: '8px 20px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          BACK
-        </button>
-      </div>
+      {/* Top area — BACK btn adjacent to step label + heading (flex row) */}
+      <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '24px 24px 0', display: 'flex', gap: '36px', alignItems: 'flex-start' }}>
 
-      {/* Heading */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-        style={{ maxWidth: '1060px', margin: '0 auto', padding: '16px 24px 40px' }}
-      >
-        <div className="label-tag" style={{ display: 'inline-block', marginBottom: '20px' }}>
-          STEP 02 / 02 — PAYMENT
+        {/* Left: back button */}
+        <div style={{ flexShrink: 0, paddingTop: '3px' }}>
+          <button
+            onClick={() => router.push('/requirements')}
+            className="nb-btn-yellow"
+            style={{ fontSize: '12px', padding: '8px 20px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            BACK
+          </button>
         </div>
-        <h1 style={{
-          fontSize: 'clamp(3.8rem, 10vw, 8rem)',
-          fontFamily: 'var(--font-rocket)',
-          lineHeight: 1.0, color: '#fff', marginBottom: '14px'
-        }}>
-          ONE LAST STEP.<br/>
-          <span style={{ color: 'var(--yellow)' }}>DONE.</span>
-        </h1>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: 0 }}>
-          Review your order. Your designer starts immediately after.
-        </p>
-      </motion.div>
+
+        {/* Right: step label + heading + subtitle */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+          style={{ paddingBottom: '40px' }}
+        >
+          <div className="label-tag" style={{ display: 'inline-block', marginBottom: '16px' }}>
+            STEP 02 / 02 — PAYMENT
+          </div>
+          <h1 style={{
+            fontSize: 'clamp(2.8rem, 5vw, 3.8rem)',
+            fontFamily: 'var(--font-rocket)',
+            lineHeight: 1.0, color: '#fff', marginBottom: '12px'
+          }}>
+            ONE LAST STEP.<br/>
+            <span style={{ color: 'var(--yellow)' }}>DONE.</span>
+          </h1>
+          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: 0 }}>
+            Review your order. Your designer starts immediately after.
+          </p>
+        </motion.div>
+      </div>
 
       {/* 2-col layout */}
       <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '0 24px 100px' }}>

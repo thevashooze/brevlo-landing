@@ -316,9 +316,9 @@ export default function OrderPage() {
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
         padding: '120px 24px 80px', position: 'relative'
       }}>
-        {/* Back button */}
+        {/* Back button — fixed, matches navbar position */}
         <a href="/" className="nb-btn-yellow" style={{
-          position: 'absolute', top: '28px', left: '28px',
+          position: 'fixed', top: '16px', left: '24px', zIndex: 101,
           fontSize: '12px', padding: '8px 20px',
           display: 'flex', alignItems: 'center', gap: '8px',
           textDecoration: 'none'
@@ -329,9 +329,9 @@ export default function OrderPage() {
           BACK
         </a>
 
-        {/* Skip & Order — top right, same position as ORDER NOW on landing */}
+        {/* Skip & Order — fixed top-right, exactly where ORDER NOW was */}
         <button onClick={handleStartOrder} className="nb-btn-yellow" style={{
-          position: 'absolute', top: '28px', right: '28px',
+          position: 'fixed', top: '16px', right: '24px', zIndex: 101,
           fontSize: '12px', padding: '8px 20px',
           display: 'flex', alignItems: 'center', gap: '8px',
           cursor: 'pointer', fontFamily: 'inherit'

@@ -21,7 +21,7 @@ export default function RequirementsPage() {
     if (saved) {
       try {
         const { form: f } = JSON.parse(saved)
-        if (f) setForm(prev => ({ ...prev, ...f }))
+        if (f) setForm(prev => ({ ...prev, ...f, niche: '' })) // niche never auto-restored
       } catch (_) {}
     }
   }, [])
@@ -38,8 +38,8 @@ export default function RequirementsPage() {
   async function handleImageUpload(e) {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
-    if (uploadedImages.length + files.length > 5) {
-      setUploadError('Max 5 images allowed')
+    if (uploadedImages.length + files.length > 10) {
+      setUploadError('Max 10 images allowed')
       return
     }
     setUploadError('')
@@ -125,44 +125,48 @@ export default function RequirementsPage() {
         )}
       </AnimatePresence>
 
-      {/* Top bar — back only, no step indicator */}
-      <div style={{ padding: '24px 32px' }}>
-        <a href="/order" className="nb-btn-yellow" style={{
-          fontSize: '12px', padding: '8px 20px',
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          textDecoration: 'none'
-        }}>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          BACK
-        </a>
+      {/* Top area — BACK btn adjacent to step label + heading (flex row) */}
+      <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '24px 24px 0', display: 'flex', gap: '36px', alignItems: 'flex-start' }}>
+
+        {/* Left: back button */}
+        <div style={{ flexShrink: 0, paddingTop: '3px' }}>
+          <a href="/order" className="nb-btn-yellow" style={{
+            fontSize: '12px', padding: '8px 20px',
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            textDecoration: 'none'
+          }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M8 10L4 6l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            BACK
+          </a>
+        </div>
+
+        {/* Right: step label + heading + subtitle */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+          style={{ paddingBottom: '36px' }}
+        >
+          <div className="label-tag" style={{ display: 'inline-block', marginBottom: '16px' }}>
+            STEP 01 / 02 — BRIEF
+          </div>
+          <h1 style={{
+            fontSize: 'clamp(2.8rem, 5vw, 3.8rem)',
+            fontFamily: 'var(--font-rocket)',
+            lineHeight: 1.0, color: '#fff', marginBottom: '12px'
+          }}>
+            TELL US ABOUT THE<br /><span style={{ color: 'var(--yellow)' }}>VIDEO.</span>
+          </h1>
+          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', margin: 0 }}>
+            The more we know, the better we design. Takes about 2 minutes.
+          </p>
+        </motion.div>
       </div>
 
-      {/* Heading — left-aligned within form width */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-        style={{ maxWidth: '760px', margin: '0 auto', padding: '16px 24px 40px' }}
-      >
-        <div className="label-tag" style={{ display: 'inline-block', marginBottom: '20px' }}>
-          STEP 01 / 02 — BRIEF
-        </div>
-        <h1 style={{
-          fontSize: 'clamp(3.8rem, 10vw, 8rem)',
-          fontFamily: 'var(--font-rocket)',
-          lineHeight: 1.0, color: '#fff', marginBottom: '14px'
-        }}>
-          TELL US ABOUT THE<br /><span style={{ color: 'var(--yellow)' }}>VIDEO.</span>
-        </h1>
-        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '420px', margin: 0 }}>
-          The more we know, the better we design. Takes about 2 minutes.
-        </p>
-      </motion.div>
-
-      {/* Form — labels outside, boxes only around input areas */}
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 24px 80px' }}>
+      {/* Form */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px 80px' }}>
         <motion.form
           onSubmit={handleContinue}
           noValidate
@@ -198,28 +202,26 @@ export default function RequirementsPage() {
             {formErrors.title && <div style={errStyle}>{formErrors.title}</div>}
           </div>
 
-          {/* Niche */}
+          {/* Niche — no wrapper box, buttons sit directly on bg */}
           <div style={{ marginBottom: '16px' }} data-err={formErrors.niche ? 'true' : undefined}>
             <label style={lblOut}>NICHE <span style={{ color: 'var(--red)' }}>*</span></label>
-            <div className={`form-box${formErrors.niche ? ' form-box-err' : ''}`} style={{ marginBottom: 0, padding: '10px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }} className="niche-grid">
-                {NICHES.map(n => {
-                  const active = form.niche === n
-                  return (
-                    <button key={n} type="button" onClick={() => updateForm('niche', n)} style={{
-                      padding: '13px 8px', fontSize: '12px', fontWeight: 900,
-                      letterSpacing: '0.05em', textTransform: 'uppercase',
-                      border: '3px solid #0A0A0A',
-                      background: active ? 'var(--yellow)' : '#fff',
-                      color: '#0A0A0A', boxShadow: '4px 4px 0 #0A0A0A',
-                      cursor: 'pointer', transition: 'background 0.1s',
-                      fontFamily: 'var(--font-body)'
-                    }}>{n}</button>
-                  )
-                })}
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }} className="niche-grid">
+              {NICHES.map(n => {
+                const active = form.niche === n
+                return (
+                  <button key={n} type="button" onClick={() => updateForm('niche', n)} style={{
+                    padding: '11px 8px', fontSize: '11px', fontWeight: 900,
+                    letterSpacing: '0.05em', textTransform: 'uppercase',
+                    border: '2px solid #0A0A0A',
+                    background: active ? 'var(--yellow)' : '#fff',
+                    color: '#0A0A0A', boxShadow: '3px 3px 0 #0A0A0A',
+                    cursor: 'pointer', transition: 'background 0.1s',
+                    fontFamily: 'var(--font-body)'
+                  }}>{n}</button>
+                )
+              })}
             </div>
-            {formErrors.niche && <div style={{ ...errStyle, marginTop: '6px' }}>{formErrors.niche}</div>}
+            {formErrors.niche && <div style={{ ...errStyle, marginTop: '8px' }}>{formErrors.niche}</div>}
           </div>
 
           {/* Brief */}
@@ -238,21 +240,22 @@ export default function RequirementsPage() {
           <div style={{ marginBottom: '16px' }}>
             <label style={lblOut}>IMAGES TO USE / REFERENCES <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>* (OPTIONAL)</span></label>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
-            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadedImages.length >= 5} style={{
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadedImages.length >= 10} style={{
               width: '100%', padding: '32px 20px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '3px dashed rgba(255,255,255,0.2)',
-              color: 'rgba(255,255,255,0.4)',
-              cursor: uploadedImages.length >= 5 ? 'not-allowed' : 'pointer',
+              background: '#fff',
+              border: '3px solid #0A0A0A',
+              boxShadow: '5px 5px 0 #0A0A0A',
+              color: '#0A0A0A',
+              cursor: uploadedImages.length >= 10 ? 'not-allowed' : 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
-              opacity: uploadedImages.length >= 5 ? 0.5 : 1,
+              opacity: uploadedImages.length >= 10 ? 0.5 : 1,
               transition: 'border-color 0.15s',
               marginBottom: uploadedImages.length > 0 ? '14px' : 0,
               boxSizing: 'border-box'
             }}>
-              <span style={{ fontSize: '28px', lineHeight: 1, color: 'rgba(255,255,255,0.4)' }}>↑</span>
-              <span style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                {uploadedImages.length >= 5 ? 'MAX 5 REACHED' : 'DROP REFERENCE IMAGES · PNG / JPG · UP TO 5'}
+              <span style={{ fontSize: '28px', lineHeight: 1, color: 'rgba(0,0,0,0.4)' }}>↑</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.5)' }}>
+                {uploadedImages.length >= 10 ? 'MAX 10 REACHED' : 'DROP REFERENCE IMAGES · PNG / JPG · UP TO 10'}
               </span>
             </button>
             {uploadError && <div style={{ ...errStyle, marginBottom: '10px' }}>{uploadError}</div>}
@@ -308,19 +311,19 @@ export default function RequirementsPage() {
       <style>{`
         .form-box {
           background: #fff;
-          border: 4px solid #0A0A0A;
-          box-shadow: 8px 8px 0 #0A0A0A;
+          border: 3px solid #0A0A0A;
+          box-shadow: 5px 5px 0 #0A0A0A;
           padding: 0;
           color: #0A0A0A;
           margin-bottom: 16px;
           transition: box-shadow 0.15s ease;
         }
         .form-box:focus-within {
-          box-shadow: 8px 8px 0 var(--yellow);
+          box-shadow: 5px 5px 0 var(--yellow);
         }
         .form-box-err {
           border-color: var(--red) !important;
-          box-shadow: 8px 8px 0 var(--red) !important;
+          box-shadow: 5px 5px 0 var(--red) !important;
         }
         .form-box input, .form-box textarea {
           border: none !important;
